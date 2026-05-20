@@ -1,0 +1,193 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Mail, Lock, Building2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/toast";
+
+export function LoginForm() {
+  const router = useRouter();
+  const { addToast } = useToast();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [showSenha, setShowSenha] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        addToast({ title: data.error || "Credenciais inválidas", variant: "error" });
+        return;
+      }
+
+      addToast({ title: `Bem-vindo, ${data.data.nome}!`, variant: "success" });
+
+      if (data.data.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
+      router.refresh();
+    } catch {
+      addToast({ title: "Erro de conexão", description: "Verifique sua internet", variant: "error" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left panel */}
+      <motion.div
+        initial={{ opacity: 0, x: -40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="hidden lg:flex lg:w-1/2 bg-zinc-950 text-white flex-col justify-between p-12"
+      >
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-zinc-800 flex items-center justify-center">
+            <Building2 className="h-5 w-5 text-green-400" />
+          </div>
+          <span className="font-bold text-xl">Portal do Financiamento</span>
+        </div>
+
+        <div className="space-y-6">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="text-4xl font-bold leading-tight"
+          >
+            Acompanhe seu{" "}
+            <span className="text-green-400">financiamento</span>{" "}
+            em tempo real
+          </motion.h1>
+          <p className="text-zinc-400 text-lg leading-relaxed">
+            Transparência total em cada etapa do seu processo imobiliário.
+            Do contrato à entrega das chaves.
+          </p>
+
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            {[
+              { label: "Etapas monitoradas", value: "6" },
+              { label: "Atualização", value: "Real-time" },
+              { label: "Notificações", value: "Automáticas" },
+              { label: "Suporte", value: "24/7" },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl bg-zinc-900 p-4 border border-zinc-800">
+                <div className="text-2xl font-bold text-green-400">{item.value}</div>
+                <div className="text-sm text-zinc-400 mt-1">{item.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-zinc-600 text-sm">
+          © {new Date().getFullYear()} Portal do Financiamento. Todos os direitos reservados.
+        </p>
+      </motion.div>
+
+      {/* Right panel - Login form */}
+      <motion.div
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="flex-1 flex flex-col justify-center items-center px-6 py-12 bg-white dark:bg-zinc-950"
+      >
+        <div className="w-full max-w-sm space-y-8">
+          {/* Mobile logo */}
+          <div className="flex lg:hidden items-center gap-2 mb-2">
+            <div className="h-9 w-9 rounded-xl bg-zinc-900 dark:bg-zinc-800 flex items-center justify-center">
+              <Building2 className="h-4 w-4 text-green-400" />
+            </div>
+            <span className="font-bold text-zinc-900 dark:text-white">Portal do Financiamento</span>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Entrar na sua conta</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+              Use seu email e senha para acessar
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="senha">Senha</Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                <Input
+                  id="senha"
+                  type={showSenha ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  className="pl-10 pr-10"
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSenha(!showSenha)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+                >
+                  {showSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              variant="neon"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Entrando...</>
+              ) : (
+                "Entrar"
+              )}
+            </Button>
+          </form>
+
+          <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 p-4 text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="font-medium text-zinc-700 dark:text-zinc-300 mb-2">Credenciais de teste:</p>
+            <p>Admin: <span className="font-mono">admin@portalfinancimento.com</span> / <span className="font-mono">admin123</span></p>
+            <p>Cliente: <span className="font-mono">joao.silva@email.com</span> / <span className="font-mono">cliente123</span></p>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}

@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  nome         String
+  email        String         @unique
+  senha        String
+  telefone     String?
+  cpf          String?        @unique
+  conjuge      String?
+  banco        String?
+  role         String         @default("cliente")
+  avatar       String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  financiamento Financiamento?
+}
+
+model Financiamento {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  statusGeral  String    @default("em_andamento")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  etapas       Etapa[]
+  historico    Historico[]
+}
+
+model Etapa {
+  id               String        @id @default(cuid())
+  financiamentoId  String
+  nome             String
+  ordem            Int
+  status           String        @default("aguardando")
+  observacoes      String?
+  observacoesInternas String?
+  dataInicio       DateTime?
+  dataConclusao    DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  financiamento    Financiamento @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
+}
+
+model Historico {
+  id               String        @id @default(cuid())
+  financiamentoId  String
+  campo            String
+  valorAnterior    String?
+  valorNovo        String?
+  descricao        String
+  criadoPor        String
+  createdAt        DateTime      @default(now())
+  financiamento    Financiamento @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
+}

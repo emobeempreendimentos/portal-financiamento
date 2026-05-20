@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview — Portal do Financiamento</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        neon: { DEFAULT: '#4ade80', dark: '#166534', light: '#86efac' }
+      },
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+    }
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .transition-all { transition: all 0.2s ease; }
+  @keyframes shimmer { 100% { transform: translateX(100%); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes progress { from{width:0} to{width:var(--target-w)} }
+  .animate-fade { animation: fadeIn 0.5s ease forwards; }
+  .animate-slide { animation: slideIn 0.4s ease forwards; }
+  .animate-spin-slow { animation: spin 1.5s linear infinite; }
+  .animate-pulse-dot { animation: pulse 1.4s ease-in-out infinite; }
+  .progress-bar { animation: progress 1.2s ease-out forwards; }
+  .neon-glow { box-shadow: 0 0 16px #4ade8040, 0 4px 24px #4ade8020; }
+  .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+  .dark .card-hover:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+  .step-hover:hover { transform: translateX(2px); }
+  html { scroll-behavior: smooth; }
+
+  /* Nav tabs */
+  .tab { cursor: pointer; padding: 8px 20px; border-radius: 10px; font-weight: 600; font-size: 13px; transition: all .2s; }
+  .tab.active { background: #111827; color: white; }
+  .tab:not(.active) { color: #6b7280; }
+  .tab:not(.active):hover { background: #f3f4f6; color: #111827; }
+  .dark .tab.active { background: white; color: #111827; }
+  .dark .tab:not(.active) { color: #9ca3af; }
+  .dark .tab:not(.active):hover { background: #1f2937; color: white; }
+
+  /* Screens */
+  .screen { display: none; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+
+  /* Dark mode */
+  body.dark-mode { background: #030712; }
+  .dark body { background: #030712; }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen" id="body">
+
+<!-- ===== NAV BAR ===== -->
+<div class="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm" id="navBar">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+    <div class="flex items-center gap-2">
+      <div class="h-7 w-7 rounded-lg bg-gray-900 flex items-center justify-center">
+        <svg class="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      </div>
+      <span class="font-bold text-gray-900 text-sm">Portal do <span class="text-green-500">Financiamento</span></span>
+      <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Preview</span>
+    </div>
+    <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-xl flex-wrap">
+      <div class="tab active" onclick="showScreen('login')">Login</div>
+      <div class="tab" onclick="showScreen('dashboard')">Dashboard Cliente</div>
+      <div class="tab" onclick="showScreen('admin')">Admin Panel</div>
+      <div class="tab" onclick="showScreen('admin-client')">Editar Cliente</div>
+    </div>
+    <button onclick="toggleDark()" class="p-2 rounded-xl text-gray-500 hover:bg-gray-100 transition-colors" title="Toggle dark mode">
+      <svg id="moonIcon" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      <svg id="sunIcon" class="h-4 w-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SCREEN 1: LOGIN -->
+<!-- ====================================================== -->
+<div id="screen-login" class="screen active">
+  <div class="min-h-screen flex" style="min-height: calc(100vh - 57px);">
+    <!-- Left dark panel -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gray-950 text-white flex-col justify-between p-12">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-2xl bg-gray-800 flex items-center justify-center">
+          <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        </div>
+        <span class="font-bold text-xl">Portal do Financiamento</span>
+      </div>
+      <div class="space-y-6">
+        <h1 class="text-4xl font-bold leading-tight">
+          Acompanhe seu <span class="text-green-400">financiamento</span> em tempo real
+        </h1>
+        <p class="text-gray-400 text-lg leading-relaxed">
+          Transparência total em cada etapa do seu processo imobiliário. Do contrato à entrega das chaves.
+        </p>
+        <div class="grid grid-cols-2 gap-4 pt-4">
+          <div class="rounded-2xl bg-gray-900 p-4 border border-gray-800">
+            <div class="text-2xl font-bold text-green-400">6</div>
+            <div class="text-sm text-gray-400 mt-1">Etapas monitoradas</div>
+          </div>
+          <div class="rounded-2xl bg-gray-900 p-4 border border-gray-800">
+            <div class="text-2xl font-bold text-green-400">Real-time</div>
+            <div class="text-sm text-gray-400 mt-1">Atualização</div>
+          </div>
+          <div class="rounded-2xl bg-gray-900 p-4 border border-gray-800">
+            <div class="text-2xl font-bold text-green-400">Auto</div>
+            <div class="text-sm text-gray-400 mt-1">Notificações</div>
+          </div>
+          <div class="rounded-2xl bg-gray-900 p-4 border border-gray-800">
+            <div class="text-2xl font-bold text-green-400">24/7</div>
+            <div class="text-sm text-gray-400 mt-1">Suporte</div>
+          </div>
+        </div>
+      </div>
+      <p class="text-gray-600 text-sm">© 2024 Portal do Financiamento. Todos os direitos reservados.</p>
+    </div>
+
+    <!-- Right login form -->
+    <div class="flex-1 flex flex-col justify-center items-center px-6 py-12 bg-white dark:bg-gray-950">
+      <div class="w-full max-w-sm space-y-8 animate-fade">
+        <!-- Mobile logo -->
+        <div class="flex lg:hidden items-center gap-2">
+          <div class="h-9 w-9 rounded-xl bg-gray-900 flex items-center justify-center">
+            <svg class="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16"/></svg>
+          </div>
+          <span class="font-bold text-gray-900">Portal do Financiamento</span>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Entrar na sua conta</h2>
+          <p class="text-gray-500 mt-1 text-sm">Use seu email e senha para acessar</p>
+        </div>
+        <div class="space-y-4">
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium text-gray-700">Email</label>
+            <div class="relative">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <input type="email" value="joao.silva@email.com" class="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium text-gray-700">Senha</label>
+            <div class="relative">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <input type="password" value="••••••••" class="w-full h-11 pl-10 pr-4 rounded-xl border border-gray-200 text-sm focus:outline-none" />
+              <button class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+          <button onclick="showScreen('dashboard')" class="w-full h-11 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-400 transition-colors neon-glow">
+            Entrar
+          </button>
+        </div>
+        <div class="rounded-2xl border border-gray-100 p-4 text-xs text-gray-500">
+          <p class="font-medium text-gray-700 mb-2">Credenciais de teste:</p>
+          <p>Admin: <span class="font-mono bg-gray-50 px-1 rounded">admin@portalfinancimento.com</span> / <span class="font-mono bg-gray-50 px-1 rounded">admin123</span></p>
+          <p class="mt-1">Cliente: <span class="font-mono bg-gray-50 px-1 rounded">joao.silva@email.com</span> / <span class="font-mono bg-gray-50 px-1 rounded">cliente123</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SCREEN 2: DASHBOARD CLIENTE -->
+<!-- ====================================================== -->
+<div id="screen-dashboard" class="screen">
+  <!-- Header -->
+  <header class="sticky top-[57px] z-30 border-b border-gray-100 bg-white/90 backdrop-blur-xl" id="dashHeader">
+    <div class="flex h-16 items-center justify-between px-6">
+      <div class="flex items-center gap-2.5">
+        <div class="h-8 w-8 rounded-xl bg-gray-900 flex items-center justify-center">
+          <svg class="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16"/></svg>
+        </div>
+        <span class="font-bold text-gray-900">Portal do <span class="text-green-500">Financiamento</span></span>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button class="p-2 rounded-xl text-gray-400 hover:bg-gray-100">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646"/></svg>
+        </button>
+        <div class="flex items-center gap-2.5">
+          <div class="h-9 w-9 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">JS</div>
+          <div>
+            <p class="text-sm font-semibold text-gray-900 leading-tight">João Silva</p>
+            <p class="text-xs text-gray-500 leading-tight">cliente</p>
+          </div>
+        </div>
+        <button class="p-2 rounded-xl text-gray-400 hover:bg-gray-100">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-8 space-y-5 animate-fade">
+
+    <!-- CLIENT INFO CARD -->
+    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm card-hover transition-all">
+      <div class="flex items-start justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xl font-bold shadow-lg" style="box-shadow: 0 8px 24px rgba(74,222,128,0.25)">JS</div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">João Silva</h2>
+            <p class="text-sm text-gray-500">cliente</p>
+          </div>
+        </div>
+        <button class="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+          Editar
+        </button>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs text-gray-400 uppercase tracking-wide font-medium">Email</label>
+          <p class="text-sm font-medium text-gray-900 mt-1">joao.silva@email.com</p>
+        </div>
+        <div>
+          <label class="text-xs text-gray-400 uppercase tracking-wide font-medium">Telefone</label>
+          <p class="text-sm font-medium text-gray-900 mt-1">(11) 98765-4321</p>
+        </div>
+        <div>
+          <label class="text-xs text-gray-400 uppercase tracking-wide font-medium">CPF</label>
+          <p class="text-sm font-medium text-gray-900 mt-1">123.456.789-00</p>
+        </div>
+        <div>
+          <label class="text-xs text-gray-400 uppercase tracking-wide font-medium">Cônjuge</label>
+          <p class="text-sm font-medium text-gray-900 mt-1">Maria Silva</p>
+        </div>
+        <div class="col-span-2">
+          <label class="text-xs text-gray-400 uppercase tracking-wide font-medium">Banco Financiador</label>
+          <p class="text-sm font-medium text-gray-900 mt-1">Caixa Econômica Federal</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm card-hover transition-all">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="h-8 w-8 rounded-xl bg-green-50 flex items-center justify-center">
+            <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-900">Progresso do Financiamento</p>
+            <p class="text-xs text-gray-500">Acompanhe o andamento das etapas</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-3xl font-bold text-gray-900">33</span><span class="text-lg font-semibold text-gray-400">%</span>
+        </div>
+      </div>
+      <div class="relative h-3 w-full overflow-hidden rounded-full bg-gray-100">
+        <div class="h-full rounded-full bg-gradient-to-r from-green-500 to-green-400" style="width: 33%; transition: width 1.2s ease-out;"></div>
+      </div>
+      <div class="mt-3 flex justify-between text-xs text-gray-400">
+        <span>Início</span>
+        <span class="font-medium text-green-600">33% concluído</span>
+        <span>Entrega das Chaves</span>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-gray-900 mb-6">Timeline do Financiamento</h2>
+      <div class="relative space-y-0">
+
+        <!-- Step 1: CONCLUÍDO -->
+        <div class="relative flex gap-4 pb-8 animate-slide" style="animation-delay: 0s">
+          <div class="absolute left-[19px] top-10 w-0.5 h-full bg-green-500" style="height: calc(100% - 8px);"></div>
+          <div class="relative z-10 h-10 w-10 rounded-full bg-green-500 flex items-center justify-center shrink-0" style="box-shadow: 0 0 12px rgba(74,222,128,0.4)">
+            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="rounded-2xl border border-green-100 bg-green-50/50 p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-sm text-green-800">Aprovação</h3>
+                  <span class="text-xs text-gray-400">#1</span>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                  <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  Concluído
+                </span>
+              </div>
+              <div class="flex gap-4 text-xs text-gray-500">
+                <span>🕐 Início: 01/11/2024</span>
+                <span class="text-green-600">✓ Concluído: 08/11/2024</span>
+                <span class="font-medium">7 dia(s) nesta etapa</span>
+              </div>
+              <p class="mt-2 text-xs text-gray-500 italic">Aprovação realizada com sucesso pelo banco.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: EM ANDAMENTO -->
+        <div class="relative flex gap-4 pb-8 animate-slide" style="animation-delay: 0.1s">
+          <div class="absolute left-[19px] top-10 w-0.5 h-full bg-gradient-to-b from-blue-500 to-gray-200" style="height: calc(100% - 8px);"></div>
+          <div class="relative z-10 h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0 animate-pulse-dot">
+            <svg class="h-4 w-4 text-white animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="rounded-2xl border border-blue-100 bg-blue-50/50 p-4 shadow-sm">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-sm text-blue-800">Aprovação Engenharia</h3>
+                  <span class="text-xs text-gray-400">#2</span>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                  <svg class="h-3 w-3 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581"/></svg>
+                  Em Andamento
+                </span>
+              </div>
+              <div class="flex gap-4 text-xs text-gray-500">
+                <span>🕐 Início: 08/11/2024</span>
+                <span class="font-medium">5 dia(s) em andamento</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steps 3-6: AGUARDANDO -->
+        <div id="waitingSteps">
+          <!-- Step 3 -->
+          <div class="relative flex gap-4 pb-8 animate-slide" style="animation-delay: 0.2s">
+            <div class="absolute left-[19px] top-10 w-0.5 bg-gray-200" style="height: calc(100% - 8px);"></div>
+            <div class="relative z-10 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-semibold text-sm text-gray-400">Assinatura de Contrato</h3>
+                    <span class="text-xs text-gray-300">#3</span>
+                  </div>
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">
+                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Aguardando
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Step 4 -->
+          <div class="relative flex gap-4 pb-8 animate-slide" style="animation-delay: 0.3s">
+            <div class="absolute left-[19px] top-10 w-0.5 bg-gray-200" style="height: calc(100% - 8px);"></div>
+            <div class="relative z-10 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2"><h3 class="font-semibold text-sm text-gray-400">ITBI</h3><span class="text-xs text-gray-300">#4</span></div>
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Aguardando</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Step 5 -->
+          <div class="relative flex gap-4 pb-8 animate-slide" style="animation-delay: 0.4s">
+            <div class="absolute left-[19px] top-10 w-0.5 bg-gray-200" style="height: calc(100% - 8px);"></div>
+            <div class="relative z-10 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2"><h3 class="font-semibold text-sm text-gray-400">Registro</h3><span class="text-xs text-gray-300">#5</span></div>
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Aguardando</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Step 6 -->
+          <div class="relative flex gap-4 animate-slide" style="animation-delay: 0.5s">
+            <div class="relative z-10 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2"><h3 class="font-semibold text-sm text-gray-400">Entrega das Chaves</h3><span class="text-xs text-gray-300">#6</span></div>
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Aguardando</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ====================================================== -->
+<!-- SCREEN 3: ADMIN DASHBOARD -->
+<!-- ====================================================== -->
+<div id="screen-admin" class="screen">
+  <div class="flex" style="min-height: calc(100vh - 57px)">
+
+    <!-- Sidebar -->
+    <aside class="hidden md:flex w-64 border-r border-gray-100 bg-white flex-col p-4 gap-1 sticky top-[57px] h-[calc(100vh-57px)]" id="adminSidebar">
+      <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Navegação</p>
+      <a class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium bg-gray-900 text-white">
+        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Dashboard
+        <svg class="ml-auto h-3.5 w-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+      <a onclick="showScreen('admin')" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 cursor-pointer transition-colors">
+        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Clientes
+      </a>
+      <a onclick="showScreen('admin-client')" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 cursor-pointer transition-colors">
+        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        Novo Cliente
+      </a>
+      <div class="mt-auto p-3 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100">
+        <div class="flex items-center gap-2 mb-1">
+          <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16"/></svg>
+          <span class="text-xs font-semibold text-green-700">Portal Admin</span>
+        </div>
+        <p class="text-xs text-gray-500">Gerencie todos os processos de financiamento</p>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-6 md:p-8 space-y-6 animate-fade">
+      <!-- Header admin top bar -->
+      <div class="flex items-center justify-between border-b border-gray-100 pb-4 -mt-2 -mx-8 px-8 mb-2">
+        <div class="flex items-center gap-3">
+          <div class="h-8 w-8 rounded-xl bg-gray-900 flex items-center justify-center">
+            <svg class="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16"/></svg>
+          </div>
+          <span class="font-bold text-gray-900">Portal do <span class="text-green-500">Financiamento</span></span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <div class="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xs font-bold">AD</div>
+          <div class="hidden md:block">
+            <p class="text-sm font-semibold text-gray-900 leading-tight">Administrador</p>
+            <p class="text-xs text-gray-500 leading-tight">admin</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p class="text-gray-500 text-sm mt-1">Visão geral de todos os financiamentos</p>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm card-hover transition-all">
+          <div class="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
+            <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <div class="text-2xl font-bold text-gray-900">24</div>
+          <div class="text-sm text-gray-500 mt-0.5">Total de Clientes</div>
+        </div>
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm card-hover transition-all">
+          <div class="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center mb-3">
+            <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="text-2xl font-bold text-gray-900">8</div>
+          <div class="text-sm text-gray-500 mt-0.5">Em Aprovação</div>
+        </div>
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm card-hover transition-all">
+          <div class="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center mb-3">
+            <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="text-2xl font-bold text-gray-900">11</div>
+          <div class="text-sm text-gray-500 mt-0.5">Concluídos</div>
+        </div>
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm card-hover transition-all">
+          <div class="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
+            <svg class="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="text-2xl font-bold text-gray-900">47 <span class="text-base font-medium text-gray-400">dias</span></div>
+          <div class="text-sm text-gray-500 mt-0.5">Tempo Médio</div>
+        </div>
+      </div>
+
+      <!-- Client table -->
+      <div class="rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-5 border-b border-gray-100">
+          <h2 class="font-semibold text-gray-900">Todos os Clientes <span class="text-gray-400 font-normal text-sm">(5)</span></h2>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="relative flex-1 sm:w-64">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="Buscar cliente..." class="w-full h-9 pl-9 pr-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+            <button onclick="showScreen('admin-client')" class="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-green-500 text-white text-sm font-semibold hover:bg-green-400 transition-colors neon-glow">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+              Novo
+            </button>
+          </div>
+        </div>
+
+        <!-- Rows -->
+        <div class="divide-y divide-gray-50">
+          <!-- Row 1 -->
+          <div class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group cursor-pointer" onclick="showScreen('admin-client')">
+            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-sm font-bold shrink-0">JS</div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-sm text-gray-900">João Silva</p>
+              <p class="text-xs text-gray-500">joao.silva@email.com</p>
+            </div>
+            <div class="hidden sm:flex flex-col items-center gap-1 w-24">
+              <div class="w-full h-1.5 rounded-full bg-gray-100"><div class="h-1.5 rounded-full bg-green-500" style="width: 33%"></div></div>
+              <span class="text-xs text-gray-500">33%</span>
+            </div>
+            <div class="hidden md:block w-36"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Eng. Aprovação</span></div>
+            <div class="hidden lg:block text-xs text-gray-400 w-24 text-right">15/11/2024</div>
+            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button class="p-1.5 rounded-lg hover:bg-gray-100"><svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+              <button class="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500"><svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+            </div>
+            <svg class="h-4 w-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
+          <!-- Row 2 -->
+          <div class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group cursor-pointer">
+            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold shrink-0">MC</div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-sm text-gray-900">Maria Carvalho</p>
+              <p class="text-xs text-gray-500">maria.c@email.com</p>
+            </div>
+            <div class="hidden sm:flex flex-col items-center gap-1 w-24">
+              <div class="w-full h-1.5 rounded-full bg-gray-100"><div class="h-1.5 rounded-full bg-green-500" style="width: 67%"></div></div>
+              <span class="text-xs text-gray-500">67%</span>
+            </div>
+            <div class="hidden md:block w-36"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">ITBI</span></div>
+            <div class="hidden lg:block text-xs text-gray-400 w-24 text-right">02/10/2024</div>
+            <svg class="h-4 w-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
+          <!-- Row 3 -->
+          <div class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group cursor-pointer">
+            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-sm font-bold shrink-0">PR</div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-sm text-gray-900">Pedro Rocha</p>
+              <p class="text-xs text-gray-500">pedro.rocha@email.com</p>
+            </div>
+            <div class="hidden sm:flex flex-col items-center gap-1 w-24">
+              <div class="w-full h-1.5 rounded-full bg-gray-100"><div class="h-1.5 rounded-full bg-green-500" style="width: 100%"></div></div>
+              <span class="text-xs text-gray-500">100%</span>
+            </div>
+            <div class="hidden md:block w-36"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Concluído</span></div>
+            <div class="hidden lg:block text-xs text-gray-400 w-24 text-right">18/08/2024</div>
+            <svg class="h-4 w-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
+          <!-- Row 4 -->
+          <div class="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group cursor-pointer">
+            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-sm font-bold shrink-0">AL</div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-sm text-gray-900">Ana Lima</p>
+              <p class="text-xs text-gray-500">ana.lima@email.com</p>
+            </div>
+            <div class="hidden sm:flex flex-col items-center gap-1 w-24">
+              <div class="w-full h-1.5 rounded-full bg-gray-100"><div class="h-1.5 rounded-full bg-green-500" style="width: 17%"></div></div>
+              <span class="text-xs text-gray-500">17%</span>
+            </div>
+            <div class="hidden md:block w-36"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Aprovação</span></div>
+            <div class="hidden lg:block text-xs text-gray-400 w-24 text-right">10/11/2024</div>
+            <svg class="h-4 w-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SCREEN 4: ADMIN — EDITAR CLIENTE -->
+<!-- ====================================================== -->
+<div id="screen-admin-client" class="screen">
+  <div class="flex" style="min-height: calc(100vh - 57px)">
+    <!-- Sidebar (same) -->
+    <aside class="hidden md:flex w-64 border-r border-gray-100 bg-white flex-col p-4 gap-1 sticky top-[57px] h-[calc(100vh-57px)]">
+      <p class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Navegação</p>
+      <a onclick="showScreen('admin')" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 cursor-pointer transition-colors">
+        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/></svg>
+        Dashboard
+      </a>
+      <a onclick="showScreen('admin')" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 cursor-pointer transition-colors">
+        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z"/></svg>
+        Clientes
+      </a>
+      <a class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium bg-gray-900 text-white">
+        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        Editar Cliente
+        <svg class="ml-auto h-3.5 w-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </aside>
+
+    <main class="flex-1 p-6 md:p-8 animate-fade">
+      <div class="max-w-3xl space-y-6">
+        <!-- Back + title -->
+        <div class="flex items-start gap-3">
+          <button onclick="showScreen('admin')" class="h-10 w-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors shrink-0">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          </button>
+          <div class="flex-1 flex items-center gap-3">
+            <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-lg">JS</div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">João Silva</h1>
+              <p class="text-gray-500 text-sm">joao.silva@email.com</p>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">33% concluído</span>
+        </div>
+
+        <!-- Progress -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-xl bg-green-50 flex items-center justify-center">
+                <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+              </div>
+              <p class="text-sm font-semibold text-gray-900">Progresso do Financiamento</p>
+            </div>
+            <span class="text-3xl font-bold text-gray-900">33<span class="text-lg text-gray-400">%</span></span>
+          </div>
+          <div class="relative h-3 w-full overflow-hidden rounded-full bg-gray-100">
+            <div class="h-full rounded-full bg-gradient-to-r from-green-500 to-green-400" style="width: 33%;"></div>
+          </div>
+        </div>
+
+        <!-- Edit form -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="flex items-center gap-2 mb-5">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <h2 class="font-semibold text-gray-900">Dados do Cliente</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5 sm:col-span-2">
+              <label class="text-sm font-medium text-gray-700">Nome Completo</label>
+              <input type="text" value="João Silva" class="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-gray-700">Email</label>
+              <input type="email" value="joao.silva@email.com" class="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-gray-700">Telefone</label>
+              <input type="tel" value="(11) 98765-4321" class="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-gray-700">CPF</label>
+              <input type="text" value="123.456.789-00" class="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium text-gray-700">Cônjuge</label>
+              <input type="text" value="Maria Silva" class="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div class="space-y-1.5 sm:col-span-2">
+              <label class="text-sm font-medium text-gray-700">Banco Financiador</label>
+              <input type="text" value="Caixa Econômica Federal" class="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+          </div>
+          <button class="w-full mt-5 h-11 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-400 transition-colors flex items-center justify-center gap-2 neon-glow">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            Salvar Alterações
+          </button>
+        </div>
+
+        <!-- Etapas accordion -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <h2 class="font-semibold text-gray-900 mb-4">Etapas do Financiamento</h2>
+          <div class="space-y-3">
+            <!-- Etapa 1: Concluído — collapsed -->
+            <div class="rounded-2xl border border-green-100 overflow-hidden">
+              <div class="flex items-center justify-between p-4 hover:bg-gray-50/50 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="h-7 w-7 rounded-full bg-green-500 flex items-center justify-center text-xs font-bold text-white">1</div>
+                  <div>
+                    <p class="font-medium text-sm text-gray-900">Aprovação</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Concluído</span>
+                      <span class="text-xs text-gray-400">7 dia(s)</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-gray-400">01/11/2024</span>
+                  <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+              </div>
+            </div>
+            <!-- Etapa 2: Em andamento — expanded -->
+            <div class="rounded-2xl border border-blue-100 overflow-hidden">
+              <div class="flex items-center justify-between p-4 bg-blue-50/30">
+                <div class="flex items-center gap-3">
+                  <div class="h-7 w-7 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white">2</div>
+                  <div>
+                    <p class="font-medium text-sm text-gray-900">Aprovação Engenharia</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Em Andamento</span>
+                      <span class="text-xs text-gray-400">5 dia(s)</span>
+                    </div>
+                  </div>
+                </div>
+                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+              </div>
+              <!-- Expanded content -->
+              <div class="border-t border-blue-100 p-4 space-y-4 bg-white">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-1.5">
+                    <label class="text-sm font-medium text-gray-700">Status</label>
+                    <select class="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                      <option>Aguardando</option>
+                      <option selected>Em Andamento</option>
+                      <option>Concluído</option>
+                    </select>
+                  </div>
+                  <div class="space-y-1 text-xs text-gray-500 pt-1">
+                    <p>Início: 08/11/2024</p>
+                    <p>Conclusão: —</p>
+                  </div>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                    <svg class="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                    Observações (visíveis ao cliente)
+                  </label>
+                  <textarea rows="2" placeholder="Informação visível ao cliente..." class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                    <svg class="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    Observações Internas (somente admin)
+                  </label>
+                  <textarea rows="2" placeholder="Nota interna..." class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+                <button class="w-full h-11 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-400 transition-colors flex items-center justify-center gap-2 neon-glow">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                  Salvar Etapa
+                </button>
+              </div>
+            </div>
+            <!-- Etapas 3-6 collapsed -->
+            <div class="rounded-2xl border border-gray-100 p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <div class="flex items-center gap-3"><div class="h-7 w-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">3</div><div><p class="font-medium text-sm text-gray-500">Assinatura de Contrato</p><span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Aguardando</span></div></div>
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="rounded-2xl border border-gray-100 p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <div class="flex items-center gap-3"><div class="h-7 w-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">4</div><div><p class="font-medium text-sm text-gray-500">ITBI</p><span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Aguardando</span></div></div>
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="rounded-2xl border border-gray-100 p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <div class="flex items-center gap-3"><div class="h-7 w-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">5</div><div><p class="font-medium text-sm text-gray-500">Registro</p><span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Aguardando</span></div></div>
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="rounded-2xl border border-gray-100 p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <div class="flex items-center gap-3"><div class="h-7 w-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">6</div><div><p class="font-medium text-sm text-gray-500">Entrega das Chaves</p><span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Aguardando</span></div></div>
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Histórico -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <h2 class="font-semibold text-gray-900">Histórico de Alterações</h2>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-start gap-3 py-2 border-b border-gray-50">
+              <div class="h-1.5 w-1.5 rounded-full bg-green-500 mt-2 shrink-0"></div>
+              <div>
+                <p class="text-sm text-gray-700">Status da etapa "Aprovação" alterado de "aguardando" para "concluido"</p>
+                <p class="text-xs text-gray-400 mt-0.5">08/11/2024 às 14:32 · por Administrador</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 py-2 border-b border-gray-50">
+              <div class="h-1.5 w-1.5 rounded-full bg-green-500 mt-2 shrink-0"></div>
+              <div>
+                <p class="text-sm text-gray-700">Status da etapa "Aprovação Engenharia" alterado de "aguardando" para "em_andamento"</p>
+                <p class="text-xs text-gray-400 mt-0.5">08/11/2024 às 14:33 · por Administrador</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 py-2">
+              <div class="h-1.5 w-1.5 rounded-full bg-green-500 mt-2 shrink-0"></div>
+              <div>
+                <p class="text-sm text-gray-700">Status da etapa "Aprovação" alterado de "aguardando" para "em_andamento"</p>
+                <p class="text-xs text-gray-400 mt-0.5">01/11/2024 às 09:15 · por Administrador</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Toast demo -->
+<div id="toast" class="fixed bottom-4 right-4 z-[100] hidden">
+  <div class="flex items-center gap-3 rounded-2xl bg-green-500 text-white p-4 shadow-lg min-w-64">
+    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    <div>
+      <p class="font-semibold text-sm">Dados atualizados!</p>
+      <p class="text-xs opacity-80">Alterações salvas com sucesso</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let darkEnabled = false;
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const tabMap = { login: 0, dashboard: 1, admin: 2, 'admin-client': 3 };
+  const tabs = document.querySelectorAll('.tab');
+  if (tabs[tabMap[name]]) tabs[tabMap[name]].classList.add('active');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (name !== 'login') {
+    setTimeout(() => {
+      const toast = document.getElementById('toast');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }, 800);
+  }
+}
+
+function toggleDark() {
+  darkEnabled = !darkEnabled;
+  document.documentElement.classList.toggle('dark', darkEnabled);
+  document.body.style.backgroundColor = darkEnabled ? '#030712' : '';
+
+  // Toggle all white/gray backgrounds
+  document.querySelectorAll('.bg-white').forEach(el => {
+    el.style.backgroundColor = darkEnabled ? '#111827' : '';
+    el.style.borderColor = darkEnabled ? '#1f2937' : '';
+    el.style.color = darkEnabled ? '#f9fafb' : '';
+  });
+  document.querySelectorAll('.bg-gray-50').forEach(el => {
+    el.style.backgroundColor = darkEnabled ? '#030712' : '';
+  });
+  document.querySelectorAll('.text-gray-900').forEach(el => {
+    if (!el.classList.contains('tab')) el.style.color = darkEnabled ? '#f9fafb' : '';
+  });
+  document.querySelectorAll('.text-gray-500, .text-gray-400, .text-gray-600').forEach(el => {
+    el.style.color = darkEnabled ? '#6b7280' : '';
+  });
+  document.querySelectorAll('.border-gray-100').forEach(el => {
+    el.style.borderColor = darkEnabled ? '#1f2937' : '';
+  });
+  document.querySelectorAll('#navBar, #dashHeader, #adminSidebar').forEach(el => {
+    if (el) el.style.backgroundColor = darkEnabled ? 'rgba(3,7,18,0.9)' : '';
+  });
+  document.getElementById('moonIcon').classList.toggle('hidden', darkEnabled);
+  document.getElementById('sunIcon').classList.toggle('hidden', !darkEnabled);
+}
+
+// Animate progress bar on load
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.querySelectorAll('.progress-bar').forEach(b => b.style.width = b.dataset.w);
+  }, 500);
+});
+</script>
+</body>
+</html>
