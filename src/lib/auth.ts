@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import { JWTPayload, UserRole } from "@/types";
 
 const SECRET = new TextEncoder().encode(
@@ -33,9 +34,8 @@ export async function getSession(): Promise<JWTPayload | null> {
   return verifyToken(token);
 }
 
-export async function setAuthCookie(token: string): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
+export function setAuthCookie(response: NextResponse, token: string): void {
+  response.cookies.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -44,9 +44,14 @@ export async function setAuthCookie(token: string): Promise<void> {
   });
 }
 
-export async function clearAuthCookie(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+export function clearAuthCookie(response: NextResponse): void {
+  response.cookies.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
+  });
 }
 
 export async function requireAuth(): Promise<JWTPayload> {

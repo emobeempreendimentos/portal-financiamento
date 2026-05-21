@@ -39,9 +39,7 @@ export async function POST(request: NextRequest) {
       nome: user.nome,
     });
 
-    await setAuthCookie(token);
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         id: user.id,
@@ -50,6 +48,9 @@ export async function POST(request: NextRequest) {
         role: user.role,
       },
     });
+
+    setAuthCookie(response, token);
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
