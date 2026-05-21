@@ -35,10 +35,7 @@ export function LoginForm() {
 
       addToast({ title: `Bem-vindo, ${data.data.nome}!`, variant: "success" });
 
-      const destino = data.data.role === "admin" ? "/admin" : "/dashboard";
-      setTimeout(() => {
-        window.location.href = destino;
-      }, 500);
+      window.location.href = data.data.role === "admin" ? "/admin" : "/dashboard";
     } catch {
       addToast({ title: "Erro de conexão", description: "Verifique sua internet", variant: "error" });
     } finally {

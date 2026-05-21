@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { JWTPayload, UserRole } from "@/types";
 
 const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "portal-financiamento-secret-key-2024"
+  process.env.JWT_SECRET || "portal-financiamento-secret-key-emobe-2024"
 );
 
 const COOKIE_NAME = "portal_token";
