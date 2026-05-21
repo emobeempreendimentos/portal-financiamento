@@ -113,7 +113,7 @@ export function LoginForm() {
 
           <div className="flex flex-col items-center text-center">
             <img
-              src="/logo.jpeg"
+              src="/logo.png"
               alt="Emobe Empreendimentos Imobiliários"
               className="h-20 w-auto object-contain mb-4"
             />

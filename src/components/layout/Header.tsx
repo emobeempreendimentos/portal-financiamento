@@ -48,7 +48,7 @@ export function Header({ user, darkMode, onToggleDarkMode, onToggleMobileMenu, m
           )}
           <div className="flex items-center">
             <img
-              src="/logo.jpeg"
+              src="/logo.png"
               alt="Emobe"
               className="h-9 w-auto object-contain"
             />
