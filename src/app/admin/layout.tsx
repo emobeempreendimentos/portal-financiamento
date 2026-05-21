@@ -1,9 +1,10 @@
+import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyToken } from "@/lib/auth";
 import AdminLayoutClient from "./AdminLayoutClient";
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("portal_token")?.value;
 
