@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, Building2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
 
 export function LoginForm() {
-  const router = useRouter();
   const { addToast } = useToast();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -37,12 +35,10 @@ export function LoginForm() {
 
       addToast({ title: `Bem-vindo, ${data.data.nome}!`, variant: "success" });
 
-      if (data.data.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
-      router.refresh();
+      const destino = data.data.role === "admin" ? "/admin" : "/dashboard";
+      setTimeout(() => {
+        window.location.href = destino;
+      }, 500);
     } catch {
       addToast({ title: "Erro de conexão", description: "Verifique sua internet", variant: "error" });
     } finally {
