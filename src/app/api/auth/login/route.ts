@@ -52,9 +52,10 @@ export async function POST(request: NextRequest) {
     setAuthCookie(response, token);
     return response;
   } catch (error) {
-    console.error("Login error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Login error:", msg);
     return NextResponse.json(
-      { success: false, error: "Erro interno do servidor" },
+      { success: false, error: msg },
       { status: 500 }
     );
   }
