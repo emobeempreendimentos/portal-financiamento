@@ -6,7 +6,7 @@ const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "portal-financiamento-secret-key-2024"
 );
 
-const PUBLIC_ROUTES = ["/login", "/api/auth/login"];
+const PUBLIC_ROUTES = ["/login", "/api/auth/login", "/api/setup"];
 const ADMIN_ROUTES = ["/admin"];
 
 export async function middleware(request: NextRequest) {
