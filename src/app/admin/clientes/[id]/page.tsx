@@ -3,16 +3,17 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon, History } from "lucide-react";
+import { ArrowLeft, Save, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { EditStepForm } from "@/components/admin/EditStepForm";
 import { ProgressBar } from "@/components/dashboard/ProgressBar";
+import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
-import { calcularProgresso, formatDateTime, getInitials } from "@/lib/utils";
+import { calcularProgresso, getInitials } from "@/lib/utils";
 import { User, Financiamento, Etapa, Historico } from "@/types";
 
 interface ClienteDetalhado extends User {
@@ -174,33 +175,18 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
         </motion.div>
       )}
 
-      {/* Histórico */}
-      {historico.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <History className="h-4 w-4 text-zinc-400" />
-            <h2 className="font-semibold text-zinc-900 dark:text-white">Histórico de Alterações</h2>
-          </div>
-          <div className="space-y-2">
-            {historico.map((h) => (
-              <div key={h.id} className="flex items-start gap-3 py-2 border-b border-zinc-50 dark:border-zinc-800 last:border-0">
-                <div className="h-1.5 w-1.5 rounded-full bg-green-500 mt-2 shrink-0" />
-                <div>
-                  <p className="text-sm text-zinc-700 dark:text-zinc-300">{h.descricao}</p>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    {formatDateTime(h.createdAt)} · por {h.criadoPor}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
+      {/* Interações */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <InteracoesPanel
+          historico={historico}
+          clienteId={id}
+          isAdmin
+        />
+      </motion.div>
     </div>
   );
 }
