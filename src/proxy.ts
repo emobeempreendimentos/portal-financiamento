@@ -9,7 +9,7 @@ const SECRET = new TextEncoder().encode(
 const PUBLIC_ROUTES = ["/login", "/api/auth/login", "/api/setup"];
 const ADMIN_ROUTES = ["/admin"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes
