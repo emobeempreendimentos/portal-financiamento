@@ -111,7 +111,12 @@ export function LoginForm() {
             <span className="font-bold text-zinc-900 dark:text-white">Portal do Financiamento</span>
           </div>
 
-          <div>
+          <div className="flex flex-col items-center text-center">
+            <img
+              src="/logo.jpeg"
+              alt="Emobe Empreendimentos Imobiliários"
+              className="h-20 w-auto object-contain mb-4"
+            />
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Entrar na sua conta</h2>
             <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
               Use seu email e senha para acessar

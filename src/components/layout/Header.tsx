@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { LogOut, Moon, Sun, Menu, X, Building2 } from "lucide-react";
+import { LogOut, Moon, Sun, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { getInitials } from "@/lib/utils";
@@ -46,13 +46,12 @@ export function Header({ user, darkMode, onToggleDarkMode, onToggleMobileMenu, m
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           )}
-          <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-xl bg-zinc-900 dark:bg-white flex items-center justify-center">
-              <Building2 className="h-4 w-4 text-green-400 dark:text-green-500" />
-            </div>
-            <span className="font-bold text-zinc-900 dark:text-white hidden sm:block">
-              Portal do <span className="text-green-500">Financiamento</span>
-            </span>
+          <div className="flex items-center">
+            <img
+              src="/logo.jpeg"
+              alt="Emobe"
+              className="h-9 w-auto object-contain"
+            />
           </div>
         </div>
 
