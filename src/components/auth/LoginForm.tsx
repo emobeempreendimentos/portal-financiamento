@@ -179,11 +179,6 @@ export function LoginForm() {
             </Button>
           </form>
 
-          <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 p-4 text-xs text-zinc-500 dark:text-zinc-400">
-            <p className="font-medium text-zinc-700 dark:text-zinc-300 mb-2">Credenciais de teste:</p>
-            <p>Admin: <span className="font-mono">admin@emobe.com.br</span> / <span className="font-mono">admin123</span></p>
-            <p>Cliente: <span className="font-mono">joao.silva@email.com</span> / <span className="font-mono">cliente123</span></p>
-          </div>
         </div>
       </motion.div>
     </div>

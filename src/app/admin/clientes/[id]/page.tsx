@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon } from "lucide-react";
+import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,9 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", banco: "" });
+  const [novaSenha, setNovaSenha] = useState("");
+  const [showSenha, setShowSenha] = useState(false);
+  const [savingSenha, setSavingSenha] = useState(false);
 
   useEffect(() => {
     fetch(`/api/clientes/${id}`)
@@ -64,6 +67,28 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
       addToast({ title: "Erro ao salvar", variant: "error" });
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleAlterarSenha() {
+    if (!novaSenha.trim() || novaSenha.length < 6) {
+      addToast({ title: "A senha deve ter ao menos 6 caracteres", variant: "error" });
+      return;
+    }
+    setSavingSenha(true);
+    try {
+      const res = await fetch(`/api/clientes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, senha: novaSenha }),
+      });
+      if (!res.ok) throw new Error();
+      setNovaSenha("");
+      addToast({ title: "Senha alterada com sucesso!", variant: "success" });
+    } catch {
+      addToast({ title: "Erro ao alterar senha", variant: "error" });
+    } finally {
+      setSavingSenha(false);
     }
   }
 
@@ -156,6 +181,52 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           <Save className="h-4 w-4 mr-2" />
           {saving ? "Salvando..." : "Salvar Alterações"}
         </Button>
+      </motion.div>
+
+      {/* Alterar Senha */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6"
+      >
+        <div className="flex items-center gap-2 mb-5">
+          <KeyRound className="h-4 w-4 text-zinc-400" />
+          <h2 className="font-semibold text-zinc-900 dark:text-white">Alterar Senha do Cliente</h2>
+        </div>
+        <div className="flex gap-3 items-end">
+          <div className="flex-1 space-y-1.5">
+            <Label htmlFor="nova-senha">Nova Senha</Label>
+            <div className="relative">
+              <Input
+                id="nova-senha"
+                type={showSenha ? "text" : "password"}
+                placeholder="Mínimo 6 caracteres"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSenha(!showSenha)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+              >
+                {showSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+          <Button
+            variant="neon"
+            onClick={handleAlterarSenha}
+            disabled={savingSenha || !novaSenha.trim()}
+          >
+            <KeyRound className="h-4 w-4 mr-2" />
+            {savingSenha ? "Alterando..." : "Alterar Senha"}
+          </Button>
+        </div>
+        <p className="text-xs text-zinc-400 mt-3">
+          Somente o administrador pode alterar senhas. O cliente não tem acesso a esta função.
+        </p>
       </motion.div>
 
       {/* Etapas */}
