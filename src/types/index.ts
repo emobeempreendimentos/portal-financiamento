@@ -65,6 +65,16 @@ export interface AdminStats {
   emAprovacao: number;
   concluidos: number;
   tempoMedioDias: number;
+  pendenciasAbertas: number;
+}
+
+export interface Pendencia {
+  id: string;
+  financiamentoId: string;
+  descricao: string;
+  status: "aberta" | "concluida";
+  criadoEm: string;
+  concluidoEm?: string | null;
 }
 
 export interface JWTPayload {

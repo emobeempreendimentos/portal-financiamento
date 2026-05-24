@@ -6,11 +6,12 @@ export async function GET() {
   try {
     await requireAdmin();
 
-    const [totalClientes, financiamentos] = await Promise.all([
+    const [totalClientes, financiamentos, pendenciasAbertas] = await Promise.all([
       prisma.user.count({ where: { role: "cliente" } }),
       prisma.financiamento.findMany({
         include: { etapas: true },
       }),
+      prisma.pendencia.count({ where: { status: "aberta" } }),
     ]);
 
     const emAprovacao = financiamentos.filter((f) =>
@@ -43,7 +44,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      data: { totalClientes, emAprovacao, concluidos, tempoMedioDias },
+      data: { totalClientes, emAprovacao, concluidos, tempoMedioDias, pendenciasAbertas },
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Erro interno";

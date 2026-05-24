@@ -9,12 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { EditStepForm } from "@/components/admin/EditStepForm";
+import { PendenciasPanel } from "@/components/admin/PendenciasPanel";
 import { ProgressBar } from "@/components/dashboard/ProgressBar";
 import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { calcularProgresso, getInitials } from "@/lib/utils";
-import { User, Financiamento, Etapa, Historico } from "@/types";
+import { User, Financiamento, Etapa, Historico, Pendencia } from "@/types";
 
 interface ClienteDetalhado extends User {
   financiamento: (Financiamento & {
@@ -34,11 +35,12 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [novaSenha, setNovaSenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
   const [savingSenha, setSavingSenha] = useState(false);
+  const [pendencias, setPendencias] = useState<Pendencia[]>([]);
 
   useEffect(() => {
     fetch(`/api/clientes/${id}`)
       .then((r) => r.json())
-      .then((d) => {
+      .then(async (d) => {
         setCliente(d.data);
         const u = d.data;
         setForm({
@@ -46,6 +48,14 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           telefone: u.telefone || "", cpf: u.cpf || "",
           conjuge: u.conjuge || "", banco: u.banco || "",
         });
+        // Fetch pendências for this financiamento
+        if (u.financiamento?.id) {
+          const pRes = await fetch(`/api/admin/pendencias?financiamentoId=${u.financiamento.id}`);
+          if (pRes.ok) {
+            const pJson = await pRes.json();
+            setPendencias(pJson.data || []);
+          }
+        }
       })
       .catch(() => addToast({ title: "Erro ao carregar cliente", variant: "error" }))
       .finally(() => setLoading(false));
@@ -243,6 +253,20 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
               <EditStepForm key={etapa.id} etapa={etapa} onUpdate={handleUpdateEtapa} />
             ))}
           </div>
+        </motion.div>
+      )}
+
+      {/* Pendências */}
+      {cliente.financiamento && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <PendenciasPanel
+            financiamentoId={cliente.financiamento.id}
+            initialPendencias={pendencias}
+          />
         </motion.div>
       )}
 
