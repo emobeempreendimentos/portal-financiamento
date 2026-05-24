@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { StatsCards } from "@/components/admin/StatsCards";
+import { PendenciasModal } from "@/components/admin/PendenciasModal";
 import { ClientTable } from "@/components/admin/ClientTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
@@ -12,10 +13,23 @@ interface ClienteComFinanciamento extends User {
   financiamento?: (Financiamento & { etapas: Etapa[] }) | null;
 }
 
+interface PendenciaAberta {
+  id: string;
+  descricao: string;
+  criadoEm: string;
+  financiamento: {
+    id: string;
+    user: { id: string; nome: string };
+  };
+}
+
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [clientes, setClientes] = useState<ClienteComFinanciamento[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pendenciasAbertas, setPendenciasAbertas] = useState<PendenciaAberta[]>([]);
+  const [loadingPendencias, setLoadingPendencias] = useState(false);
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -36,6 +50,20 @@ export default function AdminPage() {
       }
     }
     load();
+  }, []);
+
+  const handlePendenciasClick = useCallback(async () => {
+    setModalOpen(true);
+    setLoadingPendencias(true);
+    try {
+      const res = await fetch("/api/admin/pendencias/abertas");
+      const json = await res.json();
+      setPendenciasAbertas(json.data || []);
+    } catch {
+      addToast({ title: "Erro ao carregar pendências", variant: "error" });
+    } finally {
+      setLoadingPendencias(false);
+    }
   }, []);
 
   function handleDelete(id: string) {
@@ -67,9 +95,16 @@ export default function AdminPage() {
 
       {stats && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <StatsCards stats={stats} />
+          <StatsCards stats={stats} onPendenciasClick={handlePendenciasClick} />
         </motion.div>
       )}
+
+      <PendenciasModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        pendencias={pendenciasAbertas}
+        loading={loadingPendencias}
+      />
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <ClientTable clientes={clientes} onDelete={handleDelete} />

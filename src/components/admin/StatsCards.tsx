@@ -6,9 +6,10 @@ import { AdminStats } from "@/types";
 
 interface StatsCardsProps {
   stats: AdminStats;
+  onPendenciasClick?: () => void;
 }
 
-export function StatsCards({ stats }: StatsCardsProps) {
+export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
   const cards = [
     {
       label: "Total de Clientes",
@@ -17,6 +18,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
       color: "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
       suffix: "",
       alert: false,
+      clickable: false,
     },
     {
       label: "Em Aprovação",
@@ -25,6 +27,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
       color: "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
       suffix: "",
       alert: false,
+      clickable: false,
     },
     {
       label: "Concluídos",
@@ -33,6 +36,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
       color: "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400",
       suffix: "",
       alert: false,
+      clickable: false,
     },
     {
       label: "Tempo Médio",
@@ -41,6 +45,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
       color: "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
       suffix: " dias",
       alert: false,
+      clickable: false,
     },
     {
       label: "Pendências Abertas",
@@ -51,6 +56,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
         : "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400",
       suffix: "",
       alert: stats.pendenciasAbertas > 0,
+      clickable: true,
     },
   ];
 
@@ -62,8 +68,9 @@ export function StatsCards({ stats }: StatsCardsProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.1 }}
-          whileHover={{ y: -2, shadow: "lg" }}
-          className={`rounded-2xl border p-5 shadow-sm dark:bg-zinc-900 cursor-default ${card.alert ? "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-900/10" : "border-zinc-100 bg-white dark:border-zinc-800"}`}
+          whileHover={{ y: -2 }}
+          onClick={card.clickable ? onPendenciasClick : undefined}
+          className={`rounded-2xl border p-5 shadow-sm dark:bg-zinc-900 ${card.alert ? "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-900/10" : "border-zinc-100 bg-white dark:border-zinc-800"} ${card.clickable ? "cursor-pointer hover:shadow-md transition-shadow" : "cursor-default"}`}
         >
           <div className={`h-10 w-10 rounded-xl ${card.color} flex items-center justify-center mb-3`}>
             <card.icon className="h-5 w-5" />
@@ -72,6 +79,9 @@ export function StatsCards({ stats }: StatsCardsProps) {
             {card.value}{card.suffix}
           </div>
           <div className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{card.label}</div>
+          {card.clickable && (
+            <p className="text-xs text-zinc-400 mt-1.5">Clique para ver detalhes</p>
+          )}
         </motion.div>
       ))}
     </div>
