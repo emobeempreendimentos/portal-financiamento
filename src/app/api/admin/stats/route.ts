@@ -6,13 +6,20 @@ export async function GET() {
   try {
     await requireAdmin();
 
-    const [totalClientes, financiamentos, pendenciasAbertas] = await Promise.all([
+    const [totalClientes, financiamentos] = await Promise.all([
       prisma.user.count({ where: { role: "cliente" } }),
       prisma.financiamento.findMany({
         include: { etapas: true },
       }),
-      prisma.pendencia.count({ where: { status: "aberta" } }),
     ]);
+
+    // Pendencia table may not exist yet in DB — handle gracefully
+    let pendenciasAbertas = 0;
+    try {
+      pendenciasAbertas = await prisma.pendencia.count({ where: { status: "aberta" } });
+    } catch {
+      pendenciasAbertas = 0;
+    }
 
     const emAprovacao = financiamentos.filter((f) =>
       f.etapas.some((e) => e.nome === "Aprovação" && e.status === "em_andamento")
