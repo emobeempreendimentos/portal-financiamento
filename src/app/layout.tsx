@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Portal do Financiamento",
+  title: "Portal de financiamento - Emobe Empreendimentos",
   description: "Acompanhe o andamento do seu financiamento imobiliário em tempo real",
   icons: {
     icon: "/favicon.ico",
