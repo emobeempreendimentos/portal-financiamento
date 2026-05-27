@@ -2,8 +2,8 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +31,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [cliente, setCliente] = useState<ClienteDetalhado | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", banco: "" });
+  const [form, setForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", conjugeCpf: "", conjugeEmail: "", conjugeTelefone: "", banco: "" });
   const [novaSenha, setNovaSenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
   const [savingSenha, setSavingSenha] = useState(false);
@@ -46,7 +46,11 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
         setForm({
           nome: u.nome || "", email: u.email || "",
           telefone: u.telefone || "", cpf: u.cpf || "",
-          conjuge: u.conjuge || "", banco: u.banco || "",
+          conjuge: u.conjuge || "",
+          conjugeCpf: u.conjugeCpf || "",
+          conjugeEmail: u.conjugeEmail || "",
+          conjugeTelefone: u.conjugeTelefone || "",
+          banco: u.banco || "",
         });
         // Fetch pendências for this financiamento
         if (u.financiamento?.id) {
@@ -173,7 +177,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             { name: "email", label: "Email", type: "email" },
             { name: "telefone", label: "Telefone", type: "tel" },
             { name: "cpf", label: "CPF", type: "text" },
-            { name: "conjuge", label: "Cônjuge", type: "text" },
+            { name: "conjuge", label: "Cônjuge (nome)", type: "text" },
             { name: "banco", label: "Banco Financiador", type: "text" },
           ].map((field) => (
             <div key={field.name} className="space-y-1.5">
@@ -187,6 +191,49 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             </div>
           ))}
         </div>
+
+        {/* Campos adicionais do cônjuge — aparecem quando o nome é preenchido */}
+        <AnimatePresence>
+          {form.conjuge.trim() && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4 mt-1 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Users className="h-3.5 w-3.5 text-zinc-400" />
+                  <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
+                    Dados do Cônjuge
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { name: "conjugeCpf", label: "CPF do Cônjuge", type: "text" },
+                    { name: "conjugeEmail", label: "Email do Cônjuge", type: "email" },
+                    { name: "conjugeTelefone", label: "Telefone do Cônjuge", type: "tel" },
+                  ].map((field) => (
+                    <div key={field.name} className="space-y-1.5">
+                      <Label htmlFor={field.name}>{field.label}</Label>
+                      <Input
+                        id={field.name}
+                        type={field.type}
+                        value={form[field.name as keyof typeof form]}
+                        onChange={(e) => setForm((p) => ({ ...p, [field.name]: e.target.value }))}
+                        placeholder={
+                          field.name === "conjugeCpf" ? "000.000.000-00" :
+                          field.name === "conjugeEmail" ? "email@exemplo.com" : "(00) 00000-0000"
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Button variant="neon" className="w-full mt-5" onClick={handleSave} disabled={saving}>
           <Save className="h-4 w-4 mr-2" />
           {saving ? "Salvando..." : "Salvar Alterações"}

@@ -15,8 +15,11 @@ model User {
   senha         String
   telefone      String?
   cpf           String?        @unique
-  conjuge       String?
-  banco         String?
+  conjuge         String?
+  conjugeCpf      String?
+  conjugeEmail    String?
+  conjugeTelefone String?
+  banco           String?
   role          String         @default("cliente")
   avatar        String?
   createdAt     DateTime       @default(now())

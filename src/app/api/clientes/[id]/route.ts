@@ -54,8 +54,8 @@ export async function PUT(
 
     // Admin can edit all fields; client can only edit email and telefone
     if (session.role === "admin") {
-      const { nome, email, telefone, cpf, conjuge, banco, senha } = body;
-      const data: Record<string, unknown> = { nome, email, telefone, cpf, conjuge, banco };
+      const { nome, email, telefone, cpf, conjuge, conjugeCpf, conjugeEmail, conjugeTelefone, banco, senha } = body;
+      const data: Record<string, unknown> = { nome, email, telefone, cpf, conjuge, conjugeCpf, conjugeEmail, conjugeTelefone, banco };
       if (senha) {
         data.senha = await bcrypt.hash(senha, 12);
       }
@@ -65,7 +65,8 @@ export async function PUT(
         data,
         select: {
           id: true, nome: true, email: true, telefone: true,
-          cpf: true, conjuge: true, banco: true, role: true, avatar: true,
+          cpf: true, conjuge: true, conjugeCpf: true, conjugeEmail: true, conjugeTelefone: true,
+          banco: true, role: true, avatar: true,
           createdAt: true, updatedAt: true,
         },
       });

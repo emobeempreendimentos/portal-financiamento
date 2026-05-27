@@ -11,6 +11,9 @@ export interface User {
   telefone?: string | null;
   cpf?: string | null;
   conjuge?: string | null;
+  conjugeCpf?: string | null;
+  conjugeEmail?: string | null;
+  conjugeTelefone?: string | null;
   banco?: string | null;
   role: UserRole;
   avatar?: string | null;
