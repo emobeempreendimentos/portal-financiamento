@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/admin/migrate — adiciona coluna motivoCancelamento (uso único)
+// GET /api/setup-migrate — adiciona coluna motivoCancelamento (uso único)
 export async function GET() {
   try {
     await prisma.$executeRaw`ALTER TABLE "Financiamento" ADD COLUMN IF NOT EXISTS "motivoCancelamento" TEXT`;
