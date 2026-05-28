@@ -17,7 +17,13 @@ export async function GET() {
     await requireAdmin();
 
     const clientes = await prisma.user.findMany({
-      where: { role: "cliente" },
+      where: {
+        role: "cliente",
+        OR: [
+          { financiamento: null },
+          { financiamento: { statusGeral: { not: "cancelado" } } },
+        ],
+      },
       include: {
         financiamento: {
           include: { etapas: { orderBy: { ordem: "asc" } } },
