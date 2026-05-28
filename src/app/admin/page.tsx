@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { StatsCards } from "@/components/admin/StatsCards";
 import { PendenciasModal } from "@/components/admin/PendenciasModal";
+import { CanceladosPanel } from "@/components/admin/CanceladosPanel";
 import { ClientTable } from "@/components/admin/ClientTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
@@ -108,6 +109,10 @@ export default function AdminPage() {
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <ClientTable clientes={clientes} onDelete={handleDelete} />
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+        <CanceladosPanel />
       </motion.div>
     </div>
   );

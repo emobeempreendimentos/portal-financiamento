@@ -99,6 +99,35 @@ export default function DashboardPage() {
           <ClientInfo user={data} onUpdate={handleUpdateUser} />
         </motion.div>
 
+        {/* Banner de cancelamento */}
+        {data.financiamento?.statusGeral === "cancelado" && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+            <div className="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10 p-6">
+              <div className="flex gap-3">
+                <div className="h-10 w-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+                  <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <circle cx="12" cy="12" r="10" /><path strokeLinecap="round" d="M15 9l-6 6M9 9l6 6" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-red-700 dark:text-red-400 text-base">
+                    Processo Cancelado
+                  </h3>
+                  <p className="text-sm text-red-600 dark:text-red-300 mt-1">
+                    Infelizmente seu processo de financiamento foi cancelado. Entre em contato conosco para mais informações.
+                  </p>
+                  {data.financiamento.motivoCancelamento && (
+                    <div className="mt-3 p-3 rounded-xl bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                      <p className="text-xs font-semibold text-red-500 uppercase tracking-wide mb-1">Justificativa</p>
+                      <p className="text-sm text-red-800 dark:text-red-300">{data.financiamento.motivoCancelamento}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <ProgressBar progresso={progresso} />
         </motion.div>

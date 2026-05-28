@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users } from "lucide-react";
+import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +36,8 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [showSenha, setShowSenha] = useState(false);
   const [savingSenha, setSavingSenha] = useState(false);
   const [pendencias, setPendencias] = useState<Pendencia[]>([]);
+  const [motivoCancelamento, setMotivoCancelamento] = useState("");
+  const [salvandoCancelamento, setSalvandoCancelamento] = useState(false);
 
   useEffect(() => {
     fetch(`/api/clientes/${id}`)
@@ -126,6 +128,47 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
         },
       };
     });
+  }
+
+  async function handleCancelar() {
+    if (!cliente?.financiamento?.id) return;
+    setSalvandoCancelamento(true);
+    try {
+      const res = await fetch(`/api/admin/financiamentos/${cliente.financiamento.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "cancelar", motivo: motivoCancelamento.trim() }),
+      });
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      setCliente((prev) => prev ? { ...prev, financiamento: prev.financiamento ? { ...prev.financiamento, ...json.data } : null } : prev);
+      addToast({ title: "Processo cancelado", variant: "success" });
+    } catch {
+      addToast({ title: "Erro ao cancelar processo", variant: "error" });
+    } finally {
+      setSalvandoCancelamento(false);
+    }
+  }
+
+  async function handleReativar() {
+    if (!cliente?.financiamento?.id) return;
+    setSalvandoCancelamento(true);
+    try {
+      const res = await fetch(`/api/admin/financiamentos/${cliente.financiamento.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reativar" }),
+      });
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      setCliente((prev) => prev ? { ...prev, financiamento: prev.financiamento ? { ...prev.financiamento, ...json.data } : null } : prev);
+      setMotivoCancelamento("");
+      addToast({ title: "Processo reativado!", variant: "success" });
+    } catch {
+      addToast({ title: "Erro ao reativar processo", variant: "error" });
+    } finally {
+      setSalvandoCancelamento(false);
+    }
   }
 
   if (loading) return <Skeleton className="h-96 w-full" />;
@@ -300,6 +343,76 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
               <EditStepForm key={etapa.id} etapa={etapa} onUpdate={handleUpdateEtapa} />
             ))}
           </div>
+        </motion.div>
+      )}
+
+      {/* Cancelamento */}
+      {cliente.financiamento && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+        >
+          {cliente.financiamento.statusGeral === "cancelado" ? (
+            /* Processo já cancelado — banner + botão reativar */
+            <div className="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10 p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <XCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h2 className="font-semibold text-red-700 dark:text-red-400">Processo Cancelado</h2>
+                  <p className="text-xs text-red-500 mt-0.5">
+                    Cancelado em {new Date(cliente.financiamento.updatedAt).toLocaleDateString("pt-BR")}
+                  </p>
+                  {cliente.financiamento.motivoCancelamento && (
+                    <div className="mt-3 p-3 rounded-xl bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                      <p className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide mb-1">Justificativa</p>
+                      <p className="text-sm text-red-800 dark:text-red-300">{cliente.financiamento.motivoCancelamento}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full border-red-200 text-red-600 hover:bg-red-100 dark:border-red-800 dark:text-red-400"
+                onClick={handleReativar}
+                disabled={salvandoCancelamento}
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                {salvandoCancelamento ? "Reativando..." : "Reativar Processo"}
+              </Button>
+            </div>
+          ) : (
+            /* Processo ativo — card para cancelar */
+            <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <XCircle className="h-4 w-4 text-red-400" />
+                <h2 className="font-semibold text-zinc-900 dark:text-white">Cancelar Processo</h2>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Justificativa do cancelamento
+                </label>
+                <textarea
+                  value={motivoCancelamento}
+                  onChange={(e) => setMotivoCancelamento(e.target.value)}
+                  placeholder="Descreva o motivo do cancelamento..."
+                  rows={3}
+                  className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 resize-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                />
+                <p className="text-xs text-zinc-400">
+                  A justificativa será exibida para o cliente no acesso dele.
+                </p>
+              </div>
+              <Button
+                className="w-full bg-red-500 hover:bg-red-600 text-white"
+                onClick={handleCancelar}
+                disabled={salvandoCancelamento || !motivoCancelamento.trim()}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                {salvandoCancelamento ? "Cancelando..." : "Cancelar Processo"}
+              </Button>
+            </div>
+          )}
         </motion.div>
       )}
 

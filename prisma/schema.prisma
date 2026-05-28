@@ -30,9 +30,10 @@ model User {
 model Financiamento {
   id          String      @id @default(cuid())
   userId      String      @unique
-  statusGeral String      @default("em_andamento")
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  statusGeral        String      @default("em_andamento")
+  motivoCancelamento String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   etapas      Etapa[]
   historico   Historico[]

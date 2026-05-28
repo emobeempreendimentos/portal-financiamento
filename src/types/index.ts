@@ -2,7 +2,7 @@ export type UserRole = "admin" | "cliente";
 
 export type EtapaStatus = "aguardando" | "em_andamento" | "concluido";
 
-export type StatusGeral = "em_andamento" | "concluido" | "pausado";
+export type StatusGeral = "em_andamento" | "concluido" | "pausado" | "cancelado";
 
 export interface User {
   id: string;
@@ -50,6 +50,7 @@ export interface Financiamento {
   id: string;
   userId: string;
   statusGeral: StatusGeral;
+  motivoCancelamento?: string | null;
   createdAt: string;
   updatedAt: string;
   user?: User;
