@@ -16,7 +16,6 @@ import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { calcularProgresso, getInitials } from "@/lib/utils";
-import { LOGO_BASE64 } from "@/lib/logoBase64";
 import { User, Financiamento, Etapa, Historico, Pendencia } from "@/types";
 
 interface ClienteDetalhado extends User {
@@ -154,99 +153,8 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  async function handleExportarPDF() {
-    if (!cliente) return;
-    const { jsPDF } = await import("jspdf");
-    const autoTable = (await import("jspdf-autotable")).default;
-
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-
-    // ── Cabeçalho branco com logo ─────────────────────────────
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, pageWidth, 30, "F");
-
-    try {
-      doc.addImage(LOGO_BASE64, "PNG", 10, 5, 48, 20);
-    } catch {
-      doc.setFontSize(13);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(24, 24, 27);
-      doc.text("Emobe Empreendimentos", 14, 15);
-    }
-
-    // Empresa + contato no lado direito
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(24, 24, 27);
-    doc.text("Emobe Empreendimentos", pageWidth - 14, 12, { align: "right" });
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 100, 100);
-    doc.text("contato@emobe.com.br", pageWidth - 14, 18, { align: "right" });
-    doc.text("financiamento.emobe.com.br", pageWidth - 14, 24, { align: "right" });
-
-    // ── Faixa escura com título do relatório ──────────────────
-    doc.setFillColor(24, 24, 27);
-    doc.rect(0, 30, pageWidth, 14, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Relatório de Financiamento", 14, 39);
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "normal");
-    const agora = `Gerado em: ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
-    doc.text(agora, pageWidth - 14, 39, { align: "right" });
-
-    // Client info
-    doc.setTextColor(24, 24, 27);
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Dados do Cliente", 14, 56);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const info = [
-      ["Nome", cliente.nome],
-      ["Email", cliente.email],
-      ["Telefone", cliente.telefone || "—"],
-      ["CPF", cliente.cpf || "—"],
-      ["Cônjuge", cliente.conjuge || "—"],
-      ["Banco", cliente.banco || "—"],
-    ];
-    let y = 62;
-    info.forEach(([label, value]) => {
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(100, 100, 100);
-      doc.text(label + ":", 14, y);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(24, 24, 27);
-      doc.text(value, 55, y);
-      y += 7;
-    });
-
-    // Progress
-    y += 4;
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Progresso: ${progresso}%`, 14, y);
-
-    // Etapas table
-    y += 6;
-    const statusLabel: Record<string, string> = { aguardando: "Aguardando", em_andamento: "Em Andamento", concluido: "Concluído" };
-    autoTable(doc, {
-      startY: y,
-      head: [["Etapa", "Status", "Início", "Conclusão"]],
-      body: etapas.map((e) => [
-        e.nome,
-        statusLabel[e.status] || e.status,
-        e.dataInicio ? new Date(e.dataInicio).toLocaleDateString("pt-BR") : "—",
-        e.dataConclusao ? new Date(e.dataConclusao).toLocaleDateString("pt-BR") : "—",
-      ]),
-      headStyles: { fillColor: [24, 24, 27], textColor: 255, fontStyle: "bold" },
-      alternateRowStyles: { fillColor: [249, 250, 251] },
-      styles: { fontSize: 9, cellPadding: 4 },
-    });
-
-    doc.save(`relatorio-${cliente.nome.toLowerCase().replace(/\s+/g, "-")}.pdf`);
+  function handleExportarPDF() {
+    window.open(`/admin/clientes/${id}/relatorio`, "_blank");
   }
 
   async function handleCancelar() {
