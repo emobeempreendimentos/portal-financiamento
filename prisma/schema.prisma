@@ -70,9 +70,10 @@ model Documento {
   id              String        @id @default(cuid())
   financiamentoId String
   nome            String
-  url             String
   tipo            String
   tamanho         Int
+  mimeType        String
+  conteudo        Bytes
   uploadedBy      String
   createdAt       DateTime      @default(now())
   financiamento   Financiamento @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)

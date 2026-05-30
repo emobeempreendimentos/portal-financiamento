@@ -190,9 +190,8 @@ export function DocumentosPanel({ financiamentoId, isAdmin = false }: Documentos
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <a
-                    href={doc.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={`/api/documentos/${doc.id}/download`}
+                    download={doc.nome}
                     className="p-1.5 text-zinc-400 hover:text-blue-500 transition-colors"
                     title="Baixar"
                   >

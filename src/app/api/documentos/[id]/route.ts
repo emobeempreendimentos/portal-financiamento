@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { del } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
@@ -11,13 +10,6 @@ export async function DELETE(
   try {
     await requireAdmin();
     const { id } = await params;
-
-    const doc = await prisma.documento.findUnique({ where: { id } });
-    if (!doc) return NextResponse.json({ success: false, error: "Documento não encontrado" }, { status: 404 });
-
-    // Delete from Vercel Blob
-    try { await del(doc.url); } catch { /* blob may already be gone */ }
-
     await prisma.documento.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {

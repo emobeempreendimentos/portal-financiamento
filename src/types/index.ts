@@ -76,9 +76,9 @@ export interface Documento {
   id: string;
   financiamentoId: string;
   nome: string;
-  url: string;
   tipo: string;
   tamanho: number;
+  mimeType: string;
   uploadedBy: string;
   createdAt: string;
 }

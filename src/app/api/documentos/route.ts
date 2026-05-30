@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, getSession } from "@/lib/auth";
 
-// GET /api/documentos?financiamentoId=...
+// GET /api/documentos?financiamentoId=... (sem conteudo binário)
 export async function GET(request: NextRequest) {
   try {
     await requireAuth();
@@ -13,6 +12,11 @@ export async function GET(request: NextRequest) {
     }
     const documentos = await prisma.documento.findMany({
       where: { financiamentoId },
+      select: {
+        id: true, financiamentoId: true, nome: true,
+        tipo: true, tamanho: true, mimeType: true,
+        uploadedBy: true, createdAt: true,
+      },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({ success: true, data: documentos });
@@ -22,7 +26,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/documentos — upload de arquivo
+// POST /api/documentos — salva arquivo no banco (bytea)
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
@@ -37,19 +41,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Arquivo e financiamentoId obrigatórios" }, { status: 400 });
     }
 
-    // Upload to Vercel Blob
-    const blob = await put(`documentos/${financiamentoId}/${Date.now()}-${file.name}`, file, {
-      access: "public",
-    });
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ success: false, error: "Arquivo muito grande. Máximo: 10MB" }, { status: 413 });
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     const documento = await prisma.documento.create({
       data: {
         financiamentoId,
         nome: file.name,
-        url: blob.url,
         tipo: tipo || "outro",
         tamanho: file.size,
+        mimeType: file.type || "application/octet-stream",
+        conteudo: buffer,
         uploadedBy: session.role,
+      },
+      select: {
+        id: true, financiamentoId: true, nome: true,
+        tipo: true, tamanho: true, mimeType: true,
+        uploadedBy: true, createdAt: true,
       },
     });
 
