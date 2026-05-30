@@ -161,23 +161,59 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Header
-    doc.setFillColor(24, 24, 27);
-    doc.rect(0, 0, pageWidth, 32, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.text("Relatório de Financiamento", 14, 14);
+    // Carregar logotipo
+    let logoBase64: string | null = null;
+    try {
+      const logoRes = await fetch("/logo.png");
+      const logoBlob = await logoRes.blob();
+      logoBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(logoBlob);
+      });
+    } catch { /* logo opcional */ }
+
+    // ── Cabeçalho branco com logo ─────────────────────────────
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, pageWidth, 30, "F");
+
+    if (logoBase64) {
+      doc.addImage(logoBase64, "PNG", 10, 5, 48, 20);
+    } else {
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(24, 24, 27);
+      doc.text("Emobe Empreendimentos", 14, 15);
+    }
+
+    // Empresa + contato no lado direito
     doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(24, 24, 27);
+    doc.text("Emobe Empreendimentos", pageWidth - 14, 12, { align: "right" });
     doc.setFont("helvetica", "normal");
-    doc.text("Emobe Empreendimentos", 14, 22);
-    doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")} ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, pageWidth - 14, 22, { align: "right" });
+    doc.setTextColor(100, 100, 100);
+    doc.text("contato@emobe.com.br", pageWidth - 14, 18, { align: "right" });
+    doc.text("financiamento.emobe.com.br", pageWidth - 14, 24, { align: "right" });
+
+    // ── Faixa escura com título do relatório ──────────────────
+    doc.setFillColor(24, 24, 27);
+    doc.rect(0, 30, pageWidth, 14, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Relatório de Financiamento", 14, 39);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    const agora = `Gerado em: ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+    doc.text(agora, pageWidth - 14, 39, { align: "right" });
 
     // Client info
     doc.setTextColor(24, 24, 27);
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("Dados do Cliente", 14, 44);
+    doc.text("Dados do Cliente", 14, 56);
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     const info = [
@@ -188,7 +224,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
       ["Cônjuge", cliente.conjuge || "—"],
       ["Banco", cliente.banco || "—"],
     ];
-    let y = 50;
+    let y = 62;
     info.forEach(([label, value]) => {
       doc.setFont("helvetica", "bold");
       doc.setTextColor(100, 100, 100);
