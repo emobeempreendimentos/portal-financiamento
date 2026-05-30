@@ -16,6 +16,7 @@ import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { calcularProgresso, getInitials } from "@/lib/utils";
+import { LOGO_BASE64 } from "@/lib/logoBase64";
 import { User, Financiamento, Etapa, Historico, Pendencia } from "@/types";
 
 interface ClienteDetalhado extends User {
@@ -161,42 +162,13 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Carregar logotipo via canvas (compatível com qualquer formato)
-    let logoDataUrl: string | null = null;
-    try {
-      await new Promise<void>((resolve) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-            ctx.drawImage(img, 0, 0);
-            logoDataUrl = canvas.toDataURL("image/png");
-          }
-          resolve();
-        };
-        img.onerror = () => resolve();
-        img.src = `/logo.png?v=${Date.now()}`;
-      });
-    } catch { /* logo opcional */ }
-
     // ── Cabeçalho branco com logo ─────────────────────────────
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, 30, "F");
 
-    if (logoDataUrl) {
-      try {
-        doc.addImage(logoDataUrl, "PNG", 10, 5, 48, 20);
-      } catch {
-        doc.setFontSize(13);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(24, 24, 27);
-        doc.text("Emobe Empreendimentos", 14, 15);
-      }
-    } else {
+    try {
+      doc.addImage(LOGO_BASE64, "PNG", 10, 5, 48, 20);
+    } catch {
       doc.setFontSize(13);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(24, 24, 27);
