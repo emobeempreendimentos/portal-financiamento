@@ -28,14 +28,21 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
   const router = useRouter();
   const { addToast } = useToast();
   const [search, setSearch] = useState("");
+  const [statusFiltro, setStatusFiltro] = useState<string>("todos");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const filtered = clientes.filter((c) =>
-    c.nome.toLowerCase().includes(search.toLowerCase()) ||
-    c.email.toLowerCase().includes(search.toLowerCase()) ||
-    (c.cpf || "").includes(search)
-  );
+  const filtered = clientes.filter((c) => {
+    const matchSearch =
+      c.nome.toLowerCase().includes(search.toLowerCase()) ||
+      c.email.toLowerCase().includes(search.toLowerCase()) ||
+      (c.cpf || "").includes(search);
+    const matchStatus =
+      statusFiltro === "todos" ||
+      c.financiamento?.statusGeral === statusFiltro ||
+      (statusFiltro === "sem_processo" && !c.financiamento);
+    return matchSearch && matchStatus;
+  });
 
   async function confirmDelete() {
     if (!deleteId) return;
@@ -61,21 +68,36 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
           <h2 className="font-semibold text-zinc-900 dark:text-white">
             Todos os Clientes <span className="text-zinc-400 font-normal text-sm">({filtered.length})</span>
           </h2>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-64">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-52">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
               <Input
-                placeholder="Buscar cliente..."
+                placeholder="Buscar por nome, email, CPF..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 h-9"
               />
             </div>
-            <Button
-              variant="neon"
-              size="sm"
-              onClick={() => router.push("/admin/clientes/novo")}
-            >
+            {/* Filtros de status */}
+            {[
+              { value: "todos",        label: "Todos" },
+              { value: "em_andamento", label: "Em Andamento" },
+              { value: "concluido",    label: "Concluído" },
+              { value: "pausado",      label: "Pausado" },
+            ].map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setStatusFiltro(f.value)}
+                className={`h-9 px-3 rounded-lg text-xs font-medium border transition-colors ${
+                  statusFiltro === f.value
+                    ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-transparent"
+                    : "bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+            <Button variant="neon" size="sm" onClick={() => router.push("/admin/clientes/novo")}>
               <UserPlus className="h-4 w-4 mr-1.5" />
               Novo
             </Button>

@@ -72,6 +72,17 @@ export interface AdminStats {
   pendenciasAbertas: number;
 }
 
+export interface Documento {
+  id: string;
+  financiamentoId: string;
+  nome: string;
+  url: string;
+  tipo: string;
+  tamanho: number;
+  uploadedBy: string;
+  createdAt: string;
+}
+
 export interface Pendencia {
   id: string;
   financiamentoId: string;

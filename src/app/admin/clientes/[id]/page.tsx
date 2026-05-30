@@ -3,13 +3,14 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw } from "lucide-react";
+import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { EditStepForm } from "@/components/admin/EditStepForm";
 import { PendenciasPanel } from "@/components/admin/PendenciasPanel";
+import { DocumentosPanel } from "@/components/admin/DocumentosPanel";
 import { ProgressBar } from "@/components/dashboard/ProgressBar";
 import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,6 +39,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [pendencias, setPendencias] = useState<Pendencia[]>([]);
   const [motivoCancelamento, setMotivoCancelamento] = useState("");
   const [salvandoCancelamento, setSalvandoCancelamento] = useState(false);
+  const [salvandoStatus, setSalvandoStatus] = useState(false);
 
   useEffect(() => {
     fetch(`/api/clientes/${id}`)
@@ -130,6 +132,99 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
     });
   }
 
+  async function handleMudarStatus(action: string) {
+    if (!cliente?.financiamento?.id) return;
+    setSalvandoStatus(true);
+    try {
+      const res = await fetch(`/api/admin/financiamentos/${cliente.financiamento.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      setCliente((prev) => prev ? { ...prev, financiamento: prev.financiamento ? { ...prev.financiamento, ...json.data } : null } : prev);
+      const labels: Record<string, string> = { pausar: "Processo pausado", concluir: "Processo concluído!", em_andamento: "Processo reativado!" };
+      addToast({ title: labels[action] || "Status atualizado", variant: "success" });
+    } catch {
+      addToast({ title: "Erro ao atualizar status", variant: "error" });
+    } finally {
+      setSalvandoStatus(false);
+    }
+  }
+
+  async function handleExportarPDF() {
+    if (!cliente) return;
+    const { jsPDF } = await import("jspdf");
+    const autoTable = (await import("jspdf-autotable")).default;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(24, 24, 27);
+    doc.rect(0, 0, pageWidth, 32, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Relatório de Financiamento", 14, 14);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Emobe Empreendimentos", 14, 22);
+    doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")} ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, pageWidth - 14, 22, { align: "right" });
+
+    // Client info
+    doc.setTextColor(24, 24, 27);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Dados do Cliente", 14, 44);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    const info = [
+      ["Nome", cliente.nome],
+      ["Email", cliente.email],
+      ["Telefone", cliente.telefone || "—"],
+      ["CPF", cliente.cpf || "—"],
+      ["Cônjuge", cliente.conjuge || "—"],
+      ["Banco", cliente.banco || "—"],
+    ];
+    let y = 50;
+    info.forEach(([label, value]) => {
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(100, 100, 100);
+      doc.text(label + ":", 14, y);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(24, 24, 27);
+      doc.text(value, 55, y);
+      y += 7;
+    });
+
+    // Progress
+    y += 4;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Progresso: ${progresso}%`, 14, y);
+
+    // Etapas table
+    y += 6;
+    const statusLabel: Record<string, string> = { aguardando: "Aguardando", em_andamento: "Em Andamento", concluido: "Concluído" };
+    autoTable(doc, {
+      startY: y,
+      head: [["Etapa", "Status", "Início", "Conclusão"]],
+      body: etapas.map((e) => [
+        e.nome,
+        statusLabel[e.status] || e.status,
+        e.dataInicio ? new Date(e.dataInicio).toLocaleDateString("pt-BR") : "—",
+        e.dataConclusao ? new Date(e.dataConclusao).toLocaleDateString("pt-BR") : "—",
+      ]),
+      headStyles: { fillColor: [24, 24, 27], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [249, 250, 251] },
+      styles: { fontSize: 9, cellPadding: 4 },
+    });
+
+    doc.save(`relatorio-${cliente.nome.toLowerCase().replace(/\s+/g, "-")}.pdf`);
+  }
+
   async function handleCancelar() {
     if (!cliente?.financiamento?.id) return;
     setSalvandoCancelamento(true);
@@ -196,13 +291,53 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
         </div>
-        <Badge variant={progresso === 100 ? "success" : "info"}>
-          {progresso}% concluído
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={progresso === 100 ? "success" : "info"}>
+            {progresso}% concluído
+          </Badge>
+          <Button variant="outline" size="sm" onClick={handleExportarPDF}>
+            <FileDown className="h-3.5 w-3.5 mr-1.5" />
+            PDF
+          </Button>
+        </div>
       </div>
 
       {/* Progress */}
       <ProgressBar progresso={progresso} />
+
+      {/* Status do Processo */}
+      {cliente.financiamento && cliente.financiamento.statusGeral !== "cancelado" && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.03 }}
+          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5"
+        >
+          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Status do Processo</p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { action: "em_andamento", label: "Em Andamento", icon: Play,         active: cliente.financiamento.statusGeral === "em_andamento", color: "bg-green-500 hover:bg-green-600 text-white" },
+              { action: "pausar",       label: "Pausar",        icon: PauseCircle,  active: cliente.financiamento.statusGeral === "pausado",      color: "bg-amber-500 hover:bg-amber-600 text-white" },
+              { action: "concluir",     label: "Concluído",     icon: CheckCircle2, active: cliente.financiamento.statusGeral === "concluido",    color: "bg-blue-500 hover:bg-blue-600 text-white" },
+            ].map((btn) => (
+              <button
+                key={btn.action}
+                onClick={() => !btn.active && handleMudarStatus(btn.action)}
+                disabled={salvandoStatus || btn.active}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  btn.active
+                    ? btn.color + " opacity-100 ring-2 ring-offset-2 ring-current cursor-default"
+                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                } disabled:opacity-60`}
+              >
+                <btn.icon className="h-3.5 w-3.5" />
+                {btn.label}
+                {btn.active && <span className="text-xs opacity-75 ml-1">(atual)</span>}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Edit client data */}
       <motion.div
@@ -343,6 +478,17 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
               <EditStepForm key={etapa.id} etapa={etapa} onUpdate={handleUpdateEtapa} />
             ))}
           </div>
+        </motion.div>
+      )}
+
+      {/* Documentos */}
+      {cliente.financiamento && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.13 }}
+        >
+          <DocumentosPanel financiamentoId={cliente.financiamento.id} isAdmin />
         </motion.div>
       )}
 

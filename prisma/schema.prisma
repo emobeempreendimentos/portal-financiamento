@@ -38,6 +38,7 @@ model Financiamento {
   etapas      Etapa[]
   historico   Historico[]
   pendencias  Pendencia[]
+  documentos  Documento[]
 }
 
 model Etapa {
@@ -62,6 +63,18 @@ model Pendencia {
   status          String        @default("aberta")
   criadoEm       DateTime      @default(now())
   concluidoEm     DateTime?
+  financiamento   Financiamento @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
+}
+
+model Documento {
+  id              String        @id @default(cuid())
+  financiamentoId String
+  nome            String
+  url             String
+  tipo            String
+  tamanho         Int
+  uploadedBy      String
+  createdAt       DateTime      @default(now())
   financiamento   Financiamento @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
 }
 

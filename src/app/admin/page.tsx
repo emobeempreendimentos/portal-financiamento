@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { StatsCards } from "@/components/admin/StatsCards";
 import { PendenciasModal } from "@/components/admin/PendenciasModal";
 import { CanceladosPanel } from "@/components/admin/CanceladosPanel";
+import { DashboardCharts } from "@/components/admin/DashboardCharts";
 import { ClientTable } from "@/components/admin/ClientTable";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
@@ -108,6 +109,10 @@ export default function AdminPage() {
       />
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <DashboardCharts clientes={clientes} />
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
         <ClientTable clientes={clientes} onDelete={handleDelete} />
       </motion.div>
 

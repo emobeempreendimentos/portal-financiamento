@@ -12,10 +12,14 @@ export async function PATCH(
     const { id } = await params;
     const { action, motivo } = await request.json();
 
-    const data =
-      action === "cancelar"
-        ? { statusGeral: "cancelado", motivoCancelamento: motivo || null }
-        : { statusGeral: "em_andamento", motivoCancelamento: null };
+    const statusMap: Record<string, Record<string, unknown>> = {
+      cancelar:    { statusGeral: "cancelado",   motivoCancelamento: motivo || null },
+      reativar:    { statusGeral: "em_andamento", motivoCancelamento: null },
+      pausar:      { statusGeral: "pausado" },
+      concluir:    { statusGeral: "concluido" },
+      em_andamento:{ statusGeral: "em_andamento" },
+    };
+    const data = statusMap[action] ?? {};
 
     const updated = await prisma.financiamento.update({
       where: { id },

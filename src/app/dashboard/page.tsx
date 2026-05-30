@@ -7,6 +7,7 @@ import { Timeline } from "@/components/dashboard/Timeline";
 import { ProgressBar } from "@/components/dashboard/ProgressBar";
 import { ClientInfo } from "@/components/dashboard/ClientInfo";
 import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
+import { DocumentosPanel } from "@/components/admin/DocumentosPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { calcularProgresso } from "@/lib/utils";
@@ -135,6 +136,12 @@ export default function DashboardPage() {
         {etapas.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Timeline etapas={etapas} />
+          </motion.div>
+        )}
+
+        {data.financiamento && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+            <DocumentosPanel financiamentoId={data.financiamento.id} isAdmin={false} />
           </motion.div>
         )}
 
