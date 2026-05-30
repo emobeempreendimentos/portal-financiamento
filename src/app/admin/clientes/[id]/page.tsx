@@ -161,16 +161,25 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Carregar logotipo
-    let logoBase64: string | null = null;
+    // Carregar logotipo via canvas (compatível com qualquer formato)
+    let logoDataUrl: string | null = null;
     try {
-      const logoRes = await fetch("/logo.png");
-      const logoBlob = await logoRes.blob();
-      logoBase64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(logoBlob);
+      await new Promise<void>((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            logoDataUrl = canvas.toDataURL("image/png");
+          }
+          resolve();
+        };
+        img.onerror = () => resolve();
+        img.src = `/logo.png?v=${Date.now()}`;
       });
     } catch { /* logo opcional */ }
 
@@ -178,8 +187,15 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, 30, "F");
 
-    if (logoBase64) {
-      doc.addImage(logoBase64, "PNG", 10, 5, 48, 20);
+    if (logoDataUrl) {
+      try {
+        doc.addImage(logoDataUrl, "PNG", 10, 5, 48, 20);
+      } catch {
+        doc.setFontSize(13);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(24, 24, 27);
+        doc.text("Emobe Empreendimentos", 14, 15);
+      }
     } else {
       doc.setFontSize(13);
       doc.setFont("helvetica", "bold");
