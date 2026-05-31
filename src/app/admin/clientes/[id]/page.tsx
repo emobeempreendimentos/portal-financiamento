@@ -227,10 +227,15 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           <Badge variant={progresso === 100 ? "success" : "info"}>
             {progresso}% concluído
           </Badge>
-          <Button variant="outline" size="sm" onClick={handleExportarPDF}>
-            <FileDown className="h-3.5 w-3.5 mr-1.5" />
+          <a
+            href={`/admin/clientes/${id}/relatorio`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+          >
+            <FileDown className="h-3.5 w-3.5" />
             PDF
-          </Button>
+          </a>
         </div>
       </div>
 
