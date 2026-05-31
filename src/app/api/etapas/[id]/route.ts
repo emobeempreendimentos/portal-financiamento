@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { sendEtapaNotification } from "@/lib/email";
 
 export async function PATCH(
   request: NextRequest,
@@ -14,7 +15,11 @@ export async function PATCH(
 
     const etapaAtual = await prisma.etapa.findUnique({
       where: { id },
-      include: { financiamento: true },
+      include: {
+        financiamento: {
+          include: { user: { select: { nome: true, email: true } } },
+        },
+      },
     });
 
     if (!etapaAtual) {
@@ -50,6 +55,17 @@ export async function PATCH(
           criadoPor: session.nome,
         },
       });
+
+      // Enviar email de notificação ao cliente quando etapa avança
+      if (status === "em_andamento" || status === "concluido") {
+        const { nome: clienteNome, email: clienteEmail } = etapaAtual.financiamento.user;
+        sendEtapaNotification({
+          clienteEmail,
+          clienteNome,
+          etapaNome: etapaAtual.nome,
+          status,
+        }); // fire-and-forget — não bloqueia a resposta
+      }
 
       // Check if all etapas concluded → update financiamento
       const etapas = await prisma.etapa.findMany({
