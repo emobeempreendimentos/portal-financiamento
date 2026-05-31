@@ -61,7 +61,7 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
     }
   });
   const barData = ETAPAS_ORDEM
-    .map((nome) => ({ nome: nome.length > 14 ? nome.slice(0, 13) + "…" : nome, nomeCompleto: nome, clientes: etapaCount[nome] ?? 0 }))
+    .map((nome) => ({ nome: nome.length > 14 ? nome.slice(0, 13) + "…" : nome, clientes: etapaCount[nome] ?? 0 }))
     .filter((d) => d.clientes > 0);
 
   return (
@@ -110,7 +110,6 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
               <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
               <Tooltip
                 formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, "Clientes"]}
-                labelFormatter={(label, payload) => (payload as {payload?: {nomeCompleto?: string}}[])?.[0]?.payload?.nomeCompleto ?? label}
                 contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
               />
               <Bar dataKey="clientes" fill={ETAPA_COLOR} radius={[6, 6, 0, 0]} />
