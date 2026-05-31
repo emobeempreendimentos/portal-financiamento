@@ -88,7 +88,7 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number, name: string) => [`${value} cliente${value > 1 ? "s" : ""}`, name]}
+                formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, ""]}
                 contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
               />
               <Legend iconType="circle" iconSize={8} />
@@ -109,8 +109,8 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
               <XAxis dataKey="nome" tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
               <Tooltip
-                formatter={(value: number) => [`${value} cliente${value > 1 ? "s" : ""}`, "Clientes"]}
-                labelFormatter={(label, payload) => payload?.[0]?.payload?.nomeCompleto ?? label}
+                formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, "Clientes"]}
+                labelFormatter={(label, payload) => (payload as {payload?: {nomeCompleto?: string}}[])?.[0]?.payload?.nomeCompleto ?? label}
                 contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
               />
               <Bar dataKey="clientes" fill={ETAPA_COLOR} radius={[6, 6, 0, 0]} />
