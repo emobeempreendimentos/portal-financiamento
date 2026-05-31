@@ -20,11 +20,12 @@ export async function GET(
       return NextResponse.json({ success: false, error: "Documento não encontrado" }, { status: 404 });
     }
 
-    return new Response(doc.conteudo, {
+    const bytes = new Uint8Array(doc.conteudo);
+    return new Response(bytes, {
       headers: {
         "Content-Type": doc.mimeType,
         "Content-Disposition": `attachment; filename="${encodeURIComponent(doc.nome)}"`,
-        "Content-Length": doc.conteudo.length.toString(),
+        "Content-Length": bytes.byteLength.toString(),
       },
     });
   } catch (error) {
