@@ -4,7 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM =
   process.env.RESEND_FROM_EMAIL ||
-  "Emobe Empreendimentos <onboarding@resend.dev>";
+  "Emobe Empreendimentos <contato@emobe.com.br>";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_APP_URL || "https://financiamento.emobe.com.br";
