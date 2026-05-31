@@ -42,7 +42,7 @@
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.1",
     "resend": "^4.5.1",
-    "recharts": "^2.15.0",
+    "recharts": "^3.0.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4"
   },
