@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { FileBarChart } from "lucide-react";
 import { StatsCards } from "@/components/admin/StatsCards";
 import { PendenciasModal } from "@/components/admin/PendenciasModal";
 import { CanceladosPanel } from "@/components/admin/CanceladosPanel";
@@ -88,11 +90,22 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Dashboard</h1>
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
-          Visão geral de todos os financiamentos
-        </p>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Dashboard</h1>
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+            Visão geral de todos os financiamentos
+          </p>
+        </div>
+        <Link
+          href="/admin/relatorio-geral"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm"
+        >
+          <FileBarChart className="h-4 w-4 text-zinc-500" />
+          Relatório Geral
+        </Link>
       </motion.div>
 
       {stats && (
