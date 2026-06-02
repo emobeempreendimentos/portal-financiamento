@@ -13,11 +13,11 @@ export async function PATCH(
     const { action, motivo } = await request.json();
 
     const statusMap: Record<string, Record<string, unknown>> = {
-      cancelar:    { statusGeral: "cancelado",   motivoCancelamento: motivo || null },
-      reativar:    { statusGeral: "em_andamento", motivoCancelamento: null },
+      cancelar:    { statusGeral: "cancelado",    motivoCancelamento: motivo || null },
+      reativar:    { statusGeral: "em_andamento", motivoCancelamento: null, concluidoEm: null },
       pausar:      { statusGeral: "pausado" },
-      concluir:    { statusGeral: "concluido" },
-      em_andamento:{ statusGeral: "em_andamento" },
+      concluir:    { statusGeral: "concluido",    concluidoEm: new Date() },
+      em_andamento:{ statusGeral: "em_andamento", concluidoEm: null },
     };
     const data = statusMap[action] ?? {};
 

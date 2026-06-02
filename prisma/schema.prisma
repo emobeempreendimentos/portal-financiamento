@@ -32,6 +32,7 @@ model Financiamento {
   userId      String      @unique
   statusGeral        String      @default("em_andamento")
   motivoCancelamento String?
+  concluidoEm        DateTime?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
+const DIAS_ACESSO_POS_CONCLUSAO = 3;
+
 export async function GET() {
   try {
     const session = await requireAuth();
@@ -20,6 +22,29 @@ export async function GET() {
 
     if (!user) {
       return NextResponse.json({ success: false, error: "Usuário não encontrado" }, { status: 404 });
+    }
+
+    const fin = user.financiamento;
+
+    // Processo cancelado → acesso bloqueado imediatamente
+    if (fin?.statusGeral === "cancelado") {
+      return NextResponse.json({
+        success: false,
+        bloqueio: "cancelado",
+        motivo: fin.motivoCancelamento || null,
+      }, { status: 403 });
+    }
+
+    // Processo concluído → acesso liberado por N dias após conclusão
+    if (fin?.statusGeral === "concluido" && fin.concluidoEm) {
+      const diasPassados = (Date.now() - new Date(fin.concluidoEm).getTime()) / (1000 * 60 * 60 * 24);
+      if (diasPassados > DIAS_ACESSO_POS_CONCLUSAO) {
+        return NextResponse.json({
+          success: false,
+          bloqueio: "expirado",
+          concluidoEm: fin.concluidoEm,
+        }, { status: 403 });
+      }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -51,6 +51,7 @@ export interface Financiamento {
   userId: string;
   statusGeral: StatusGeral;
   motivoCancelamento?: string | null;
+  concluidoEm?: string | null;
   createdAt: string;
   updatedAt: string;
   user?: User;
