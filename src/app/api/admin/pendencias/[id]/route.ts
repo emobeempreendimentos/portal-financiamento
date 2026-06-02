@@ -19,6 +19,10 @@ export async function PATCH(
           ? { status: "concluida", concluidoEm: new Date() }
           : { status: "aberta", concluidoEm: null },
     });
+    await prisma.financiamento.update({
+      where: { id: pendencia.financiamentoId },
+      data: { updatedAt: new Date() },
+    });
     return NextResponse.json({ success: true, data: pendencia });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Erro interno";

@@ -56,6 +56,12 @@ export async function PATCH(
         },
       });
 
+      // Atualiza updatedAt do financiamento para reordenar lista
+      await prisma.financiamento.update({
+        where: { id: etapaAtual.financiamentoId },
+        data: { updatedAt: new Date() },
+      });
+
       // Enviar email de notificação ao cliente quando etapa avança
       if (status === "em_andamento" || status === "concluido") {
         const { nome: clienteNome, email: clienteEmail } = etapaAtual.financiamento.user;

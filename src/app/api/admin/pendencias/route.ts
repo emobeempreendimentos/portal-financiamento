@@ -32,6 +32,10 @@ export async function POST(request: NextRequest) {
     const pendencia = await prisma.pendencia.create({
       data: { financiamentoId, descricao: descricao.trim() },
     });
+    await prisma.financiamento.update({
+      where: { id: financiamentoId },
+      data: { updatedAt: new Date() },
+    });
     return NextResponse.json({ success: true, data: pendencia });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Erro interno";

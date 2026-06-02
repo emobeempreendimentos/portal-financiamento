@@ -32,6 +32,10 @@ export async function POST(
         criadoPor: session.nome,
       },
     });
+    await prisma.financiamento.update({
+      where: { id: user.financiamento.id },
+      data: { updatedAt: new Date() },
+    });
 
     return NextResponse.json({ success: true, data: interacao });
   } catch (error) {

@@ -17,7 +17,7 @@ export async function GET() {
           },
         },
       },
-      orderBy: { createdAt: "asc" },
+      orderBy: { financiamento: { updatedAt: "desc" } },
     });
 
     return NextResponse.json({ success: true, data: clientes });

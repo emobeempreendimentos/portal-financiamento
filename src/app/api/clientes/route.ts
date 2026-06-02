@@ -29,7 +29,7 @@ export async function GET() {
           include: { etapas: { orderBy: { ordem: "asc" } } },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { financiamento: { updatedAt: "desc" } },
     });
 
     return NextResponse.json({ success: true, data: clientes });
