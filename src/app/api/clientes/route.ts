@@ -16,21 +16,24 @@ export async function GET() {
   try {
     await requireAdmin();
 
-    const clientes = await prisma.user.findMany({
-      where: {
-        role: "cliente",
-        OR: [
-          { financiamento: null },
-          { financiamento: { statusGeral: { notIn: ["cancelado", "concluido"] } } },
-        ],
-      },
+    const todos = await prisma.user.findMany({
+      where: { role: "cliente" },
       include: {
         financiamento: {
           include: { etapas: { orderBy: { ordem: "asc" } } },
         },
       },
-      orderBy: { financiamento: { updatedAt: "desc" } },
     });
+
+    // Filtra encerrados (cancelado/concluido) e ordena por última movimentação
+    const STATUS_ENCERRADO = ["cancelado", "concluido"];
+    const clientes = todos
+      .filter((c) => !c.financiamento || !STATUS_ENCERRADO.includes(c.financiamento.statusGeral))
+      .sort((a, b) => {
+        const aT = a.financiamento?.updatedAt ? new Date(a.financiamento.updatedAt).getTime() : new Date(a.createdAt).getTime();
+        const bT = b.financiamento?.updatedAt ? new Date(b.financiamento.updatedAt).getTime() : new Date(b.createdAt).getTime();
+        return bT - aT;
+      });
 
     return NextResponse.json({ success: true, data: clientes });
   } catch (error) {
