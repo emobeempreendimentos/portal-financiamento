@@ -21,7 +21,7 @@ export async function GET() {
         role: "cliente",
         OR: [
           { financiamento: null },
-          { financiamento: { statusGeral: { not: "cancelado" } } },
+          { financiamento: { statusGeral: { notIn: ["cancelado", "concluido"] } } },
         ],
       },
       include: {
