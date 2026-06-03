@@ -7,9 +7,10 @@ import { AdminStats } from "@/types";
 interface StatsCardsProps {
   stats: AdminStats;
   onPendenciasClick?: () => void;
+  onCardClick?: (tipo: "todos" | "aprovacao" | "concluidos") => void;
 }
 
-export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
+export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCardsProps) {
   const cards = [
     {
       label: "Total de Clientes",
@@ -18,7 +19,8 @@ export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
       color: "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
       suffix: "",
       alert: false,
-      clickable: false,
+      clickable: true,
+      onClick: () => onCardClick?.("todos"),
     },
     {
       label: "Em Aprovação",
@@ -27,7 +29,8 @@ export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
       color: "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
       suffix: "",
       alert: false,
-      clickable: false,
+      clickable: true,
+      onClick: () => onCardClick?.("aprovacao"),
     },
     {
       label: "Concluídos",
@@ -36,7 +39,8 @@ export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
       color: "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400",
       suffix: "",
       alert: false,
-      clickable: false,
+      clickable: true,
+      onClick: () => onCardClick?.("concluidos"),
     },
     {
       label: "Tempo Médio",
@@ -46,6 +50,7 @@ export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
       suffix: " dias",
       alert: false,
       clickable: false,
+      onClick: undefined,
     },
     {
       label: "Pendências Abertas",
@@ -57,6 +62,7 @@ export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
       suffix: "",
       alert: stats.pendenciasAbertas > 0,
       clickable: true,
+      onClick: onPendenciasClick,
     },
   ];
 
@@ -69,7 +75,7 @@ export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.1 }}
           whileHover={{ y: -2 }}
-          onClick={card.clickable ? onPendenciasClick : undefined}
+          onClick={card.clickable ? card.onClick : undefined}
           className={`rounded-2xl border p-5 shadow-sm dark:bg-zinc-900 ${card.alert ? "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-900/10" : "border-zinc-100 bg-white dark:border-zinc-800"} ${card.clickable ? "cursor-pointer hover:shadow-md transition-shadow" : "cursor-default"}`}
         >
           <div className={`h-10 w-10 rounded-xl ${card.color} flex items-center justify-center mb-3`}>

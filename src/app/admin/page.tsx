@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FileBarChart } from "lucide-react";
 import { StatsCards } from "@/components/admin/StatsCards";
 import { PendenciasModal } from "@/components/admin/PendenciasModal";
+import { ClientesModal } from "@/components/admin/ClientesModal";
 import { CanceladosPanel } from "@/components/admin/CanceladosPanel";
 import { DashboardCharts } from "@/components/admin/DashboardCharts";
 import { ClientTable } from "@/components/admin/ClientTable";
@@ -34,6 +35,7 @@ export default function AdminPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [pendenciasAbertas, setPendenciasAbertas] = useState<PendenciaAberta[]>([]);
   const [loadingPendencias, setLoadingPendencias] = useState(false);
+  const [clientesModal, setClientesModal] = useState<{ open: boolean; titulo: string; lista: ClienteComFinanciamento[]; loading: boolean }>({ open: false, titulo: "", lista: [], loading: false });
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -69,6 +71,32 @@ export default function AdminPage() {
       setLoadingPendencias(false);
     }
   }, []);
+
+  const handleCardClick = useCallback(async (tipo: "todos" | "aprovacao" | "concluidos") => {
+    const titulos = { todos: "Total de Clientes", aprovacao: "Em Aprovação", concluidos: "Concluídos" };
+    setClientesModal({ open: true, titulo: titulos[tipo], lista: [], loading: true });
+
+    try {
+      if (tipo === "todos") {
+        const res = await fetch("/api/admin/relatorio-geral");
+        const json = await res.json();
+        setClientesModal((p) => ({ ...p, lista: json.data || [], loading: false }));
+      } else if (tipo === "aprovacao") {
+        const lista = clientes.filter((c) =>
+          c.financiamento?.etapas?.some((e) => e.nome === "Aprovação" && e.status === "em_andamento")
+        );
+        setClientesModal((p) => ({ ...p, lista, loading: false }));
+      } else if (tipo === "concluidos") {
+        const res = await fetch("/api/admin/cancelados");
+        const json = await res.json();
+        const lista = (json.data || []).filter((f: { statusGeral: string; user: ClienteComFinanciamento }) => f.statusGeral === "concluido").map((f: { user: ClienteComFinanciamento; statusGeral: string }) => ({ ...f.user, financiamento: f }));
+        setClientesModal((p) => ({ ...p, lista, loading: false }));
+      }
+    } catch {
+      addToast({ title: "Erro ao carregar clientes", variant: "error" });
+      setClientesModal((p) => ({ ...p, loading: false }));
+    }
+  }, [clientes]);
 
   function handleDelete(id: string) {
     setClientes((prev) => prev.filter((c) => c.id !== id));
@@ -110,7 +138,7 @@ export default function AdminPage() {
 
       {stats && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <StatsCards stats={stats} onPendenciasClick={handlePendenciasClick} />
+          <StatsCards stats={stats} onPendenciasClick={handlePendenciasClick} onCardClick={handleCardClick} />
         </motion.div>
       )}
 
@@ -119,6 +147,14 @@ export default function AdminPage() {
         onClose={() => setModalOpen(false)}
         pendencias={pendenciasAbertas}
         loading={loadingPendencias}
+      />
+
+      <ClientesModal
+        open={clientesModal.open}
+        onClose={() => setClientesModal((p) => ({ ...p, open: false }))}
+        titulo={clientesModal.titulo}
+        clientes={clientesModal.lista}
+        loading={clientesModal.loading}
       />
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
