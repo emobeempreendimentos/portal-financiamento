@@ -27,27 +27,22 @@ export async function GET() {
 
     const concluidos = financiamentos.filter((f) => f.statusGeral === "concluido").length;
 
-    // Calculate average days for completed financiamentos
+    // Tempo médio usando concluidoEm (campo direto, mais confiável)
     const concluídosComData = financiamentos.filter(
-      (f) => f.statusGeral === "concluido"
+      (f) => f.statusGeral === "concluido" && f.concluidoEm
     );
     const tempoMedioDias =
       concluídosComData.length > 0
         ? Math.round(
             concluídosComData.reduce((acc, f) => {
-              const etapasFinal = f.etapas.filter((e) => e.dataConclusao);
-              if (etapasFinal.length === 0) return acc;
-              const ultimaData = etapasFinal.reduce((max, e) =>
-                new Date(e.dataConclusao!) > new Date(max.dataConclusao!) ? e : max
-              );
               const dias = Math.floor(
-                (new Date(ultimaData.dataConclusao!).getTime() - new Date(f.createdAt).getTime()) /
+                (new Date(f.concluidoEm!).getTime() - new Date(f.createdAt).getTime()) /
                   (1000 * 60 * 60 * 24)
               );
-              return acc + dias;
+              return acc + Math.max(dias, 0);
             }, 0) / concluídosComData.length
           )
-        : 0;
+        : -1; // -1 = sem dados suficientes
 
     return NextResponse.json({
       success: true,

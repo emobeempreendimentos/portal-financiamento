@@ -76,7 +76,7 @@ export function StatsCards({ stats, onPendenciasClick }: StatsCardsProps) {
             <card.icon className="h-5 w-5" />
           </div>
           <div className="text-2xl font-bold text-zinc-900 dark:text-white">
-            {card.value}{card.suffix}
+            {card.value === -1 ? "—" : `${card.value}${card.suffix}`}
           </div>
           <div className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{card.label}</div>
           {card.clickable && (
