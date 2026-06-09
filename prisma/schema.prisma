@@ -103,3 +103,15 @@ model LancamentoFinanceiro {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model LancamentoPessoal {
+  id          String   @id @default(cuid())
+  descricao   String
+  valor       Float
+  tipo        String   // "receita" | "despesa"
+  categoria   String
+  data        DateTime
+  observacao  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

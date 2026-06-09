@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, UserPlus, Building2, ChevronRight, Landmark } from "lucide-react";
+import { LayoutDashboard, Users, UserPlus, Building2, ChevronRight, Landmark, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navGroups = [
@@ -16,9 +16,10 @@ const navGroups = [
     ],
   },
   {
-    label: "Empresa",
+    label: "Financeiro",
     items: [
-      { href: "/admin/financeiro", label: "Controle Financeiro", icon: Landmark, exact: false },
+      { href: "/admin/financeiro", label: "Empresa", icon: Landmark, exact: false },
+      { href: "/admin/financeiro-pessoal", label: "Pessoal", icon: User, exact: false },
     ],
   },
 ];

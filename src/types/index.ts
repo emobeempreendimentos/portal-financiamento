@@ -118,6 +118,18 @@ export interface GraficoMes {
   despesas: number;
 }
 
+export interface LancamentoPessoal {
+  id: string;
+  descricao: string;
+  valor: number;
+  tipo: "receita" | "despesa";
+  categoria: string;
+  data: string;
+  observacao?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface JWTPayload {
   userId: string;
   email: string;
