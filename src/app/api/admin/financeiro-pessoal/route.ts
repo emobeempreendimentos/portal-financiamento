@@ -82,6 +82,8 @@ export async function POST(request: NextRequest) {
         tipo,
         categoria,
         data: new Date(data),
+        formaPagamento: body.formaPagamento || null,
+        parcelas: body.formaPagamento === "credito" && body.parcelas ? parseInt(body.parcelas) : null,
         observacao: observacao?.trim() || null,
       },
     });

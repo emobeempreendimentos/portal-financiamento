@@ -100,6 +100,8 @@ export interface LancamentoFinanceiro {
   tipo: "receita" | "despesa";
   categoria: string;
   data: string;
+  formaPagamento?: string | null;
+  parcelas?: number | null;
   observacao?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -125,6 +127,8 @@ export interface LancamentoPessoal {
   tipo: "receita" | "despesa";
   categoria: string;
   data: string;
+  formaPagamento?: string | null;
+  parcelas?: number | null;
   observacao?: string | null;
   createdAt: string;
   updatedAt: string;

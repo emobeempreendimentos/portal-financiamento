@@ -93,25 +93,29 @@ model Historico {
 }
 
 model LancamentoFinanceiro {
-  id          String   @id @default(cuid())
-  descricao   String
-  valor       Float
-  tipo        String   // "receita" | "despesa"
-  categoria   String
-  data        DateTime
-  observacao  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  descricao      String
+  valor          Float
+  tipo           String   // "receita" | "despesa"
+  categoria      String
+  data           DateTime
+  formaPagamento String?  // "pix" | "credito" | "debito" | "dinheiro"
+  parcelas       Int?     // apenas quando formaPagamento = "credito"
+  observacao     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model LancamentoPessoal {
-  id          String   @id @default(cuid())
-  descricao   String
-  valor       Float
-  tipo        String   // "receita" | "despesa"
-  categoria   String
-  data        DateTime
-  observacao  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  descricao      String
+  valor          Float
+  tipo           String   // "receita" | "despesa"
+  categoria      String
+  data           DateTime
+  formaPagamento String?  // "pix" | "credito" | "debito" | "dinheiro"
+  parcelas       Int?     // apenas quando formaPagamento = "credito"
+  observacao     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

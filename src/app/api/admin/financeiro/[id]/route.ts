@@ -9,6 +9,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const body = await request.json();
     const { descricao, valor, tipo, categoria, data, observacao } = body;
 
+    const formaPagamento = body.formaPagamento ?? undefined;
+    const parcelas = formaPagamento === "credito" && body.parcelas
+      ? parseInt(body.parcelas)
+      : formaPagamento !== "credito"
+      ? null
+      : undefined;
+
     const lancamento = await prisma.lancamentoFinanceiro.update({
       where: { id },
       data: {
@@ -17,6 +24,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         ...(tipo !== undefined && { tipo }),
         ...(categoria !== undefined && { categoria }),
         ...(data !== undefined && { data: new Date(data) }),
+        ...(formaPagamento !== undefined && { formaPagamento: formaPagamento || null }),
+        ...(parcelas !== undefined && { parcelas }),
         ...(observacao !== undefined && { observacao: observacao?.trim() || null }),
       },
     });
