@@ -91,3 +91,15 @@ model Historico {
   createdAt       DateTime      @default(now())
   financiamento   Financiamento @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
 }
+
+model LancamentoFinanceiro {
+  id          String   @id @default(cuid())
+  descricao   String
+  valor       Float
+  tipo        String   // "receita" | "despesa"
+  categoria   String
+  data        DateTime
+  observacao  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

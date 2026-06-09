@@ -93,6 +93,31 @@ export interface Pendencia {
   concluidoEm?: string | null;
 }
 
+export interface LancamentoFinanceiro {
+  id: string;
+  descricao: string;
+  valor: number;
+  tipo: "receita" | "despesa";
+  categoria: string;
+  data: string;
+  observacao?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResumoFinanceiro {
+  totalReceitas: number;
+  totalDespesas: number;
+  saldo: number;
+  totalLancamentos: number;
+}
+
+export interface GraficoMes {
+  label: string;
+  receitas: number;
+  despesas: number;
+}
+
 export interface JWTPayload {
   userId: string;
   email: string;
