@@ -289,7 +289,7 @@ export default function FinanceiroPage() {
                 }
               />
               <Tooltip
-                formatter={(value: number) => [fmt(value)]}
+                formatter={(value) => [fmt(Number(value))]}
                 contentStyle={{
                   borderRadius: "12px",
                   border: "1px solid #e4e4e7",
