@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   TrendingUp,
   TrendingDown,
@@ -14,6 +15,7 @@ import {
   ChevronDown,
   Filter,
   User,
+  FileBarChart2,
 } from "lucide-react";
 import {
   BarChart,
@@ -199,10 +201,17 @@ export default function FinanceiroPessoalPage() {
             <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5">Controle financeiro pessoal</p>
           </div>
         </div>
-        <button onClick={abrirNovo}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition-colors shadow-sm">
-          <Plus className="h-4 w-4" />Novo Lançamento
-        </button>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/financeiro-pessoal/relatorio" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-zinc-900 text-sm font-medium text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors shadow-sm">
+            <FileBarChart2 className="h-4 w-4" />
+            Relatório
+          </Link>
+          <button onClick={abrirNovo}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition-colors shadow-sm">
+            <Plus className="h-4 w-4" />Novo Lançamento
+          </button>
+        </div>
       </motion.div>
 
       {/* Cards de resumo */}

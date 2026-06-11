@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   TrendingUp,
   TrendingDown,
@@ -13,6 +14,7 @@ import {
   X,
   ChevronDown,
   Filter,
+  FileBarChart2,
 } from "lucide-react";
 import {
   BarChart,
@@ -191,10 +193,17 @@ export default function FinanceiroPage() {
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Controle Financeiro</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Gerencie receitas e despesas da empresa</p>
         </div>
-        <button onClick={abrirNovo}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm">
-          <Plus className="h-4 w-4" />Novo Lançamento
-        </button>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/financeiro/relatorio" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm">
+            <FileBarChart2 className="h-4 w-4 text-zinc-500" />
+            Relatório
+          </Link>
+          <button onClick={abrirNovo}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm">
+            <Plus className="h-4 w-4" />Novo Lançamento
+          </button>
+        </div>
       </motion.div>
 
       {/* Cards de resumo */}
