@@ -15,6 +15,17 @@ import { useToast } from "@/components/ui/toast";
 import { calcularProgresso, formatDate, getInitials } from "@/lib/utils";
 import { User, Financiamento, Etapa } from "@/types";
 
+function diasSemMovimento(updatedAt?: string | null): number {
+  if (!updatedAt) return 999;
+  return Math.floor((Date.now() - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function corAtividade(dias: number) {
+  if (dias <= 5)  return { bg: "#dcfce7", text: "#15803d", dot: "#22c55e" };
+  if (dias <= 10) return { bg: "#fef3c7", text: "#92400e", dot: "#f59e0b" };
+  return           { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" };
+}
+
 interface ClienteComFinanciamento extends User {
   financiamento?: (Financiamento & { etapas: Etapa[] }) | null;
 }
@@ -119,6 +130,11 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
                 const etapaAtual = cliente.financiamento?.etapas.find(
                   (e) => e.status === "em_andamento"
                 )?.nome || (progresso === 100 ? "Concluído" : "Não iniciado");
+                const statusAtivo = ["em_andamento", "pausado"].includes(
+                  cliente.financiamento?.statusGeral || ""
+                );
+                const dias = statusAtivo ? diasSemMovimento(cliente.financiamento?.updatedAt) : null;
+                const cor = dias !== null ? corAtividade(dias) : null;
 
                 return (
                   <motion.div
@@ -160,6 +176,18 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
                         {etapaAtual}
                       </Badge>
                     </div>
+
+                    {/* Atividade */}
+                    {cor && dias !== null && (
+                      <span
+                        style={{ backgroundColor: cor.bg, color: cor.text }}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium shrink-0"
+                        title={`${dias} dia${dias !== 1 ? "s" : ""} sem movimentação`}
+                      >
+                        <span style={{ backgroundColor: cor.dot }} className="h-1.5 w-1.5 rounded-full shrink-0" />
+                        {dias}d
+                      </span>
+                    )}
 
                     {/* Data */}
                     <div className="hidden lg:block text-xs text-zinc-400 w-24 text-right">

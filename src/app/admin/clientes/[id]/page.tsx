@@ -18,6 +18,17 @@ import { useToast } from "@/components/ui/toast";
 import { calcularProgresso, getInitials } from "@/lib/utils";
 import { User, Financiamento, Etapa, Historico, Pendencia } from "@/types";
 
+function diasSemMovimento(updatedAt?: string | null): number {
+  if (!updatedAt) return 999;
+  return Math.floor((Date.now() - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function corAtividade(dias: number) {
+  if (dias <= 5)  return { bg: "#dcfce7", text: "#15803d", dot: "#22c55e", label: "Ativo" };
+  if (dias <= 10) return { bg: "#fef3c7", text: "#92400e", dot: "#f59e0b", label: "Atenção" };
+  return           { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Parado" };
+}
+
 interface ClienteDetalhado extends User {
   financiamento: (Financiamento & {
     etapas: Etapa[];
@@ -227,6 +238,20 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           <Badge variant={progresso === 100 ? "success" : "info"}>
             {progresso}% concluído
           </Badge>
+          {cliente.financiamento && ["em_andamento", "pausado"].includes(cliente.financiamento.statusGeral) && (() => {
+            const dias = diasSemMovimento(cliente.financiamento!.updatedAt);
+            const cor = corAtividade(dias);
+            return (
+              <span
+                style={{ backgroundColor: cor.bg, color: cor.text }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                title={`${dias} dia${dias !== 1 ? "s" : ""} sem movimentação`}
+              >
+                <span style={{ backgroundColor: cor.dot }} className="h-2 w-2 rounded-full shrink-0" />
+                {cor.label} · {dias}d
+              </span>
+            );
+          })()}
           <a
             href={`/admin/clientes/${id}/relatorio`}
             target="_blank"
