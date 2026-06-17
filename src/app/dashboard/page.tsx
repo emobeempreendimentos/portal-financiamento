@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Header } from "@/components/layout/Header";
 import { ClientInfo } from "@/components/dashboard/ClientInfo";
 import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
+import { CelebrationOverlay } from "@/components/dashboard/CelebrationOverlay";
 import { DocumentosPanel } from "@/components/admin/DocumentosPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
@@ -50,6 +51,7 @@ export default function DashboardPage() {
     motivo?: string | null;
     concluidoEm?: string;
   } | null>(null);
+  const [novasEtapas, setNovasEtapas] = useState<Etapa[]>([]);
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -80,7 +82,20 @@ export default function DashboardPage() {
           });
           return;
         }
-        setData(json.data);
+        const usuario = json.data as DashboardData;
+        setData(usuario);
+
+        // Detecta etapas concluídas desde a última visita
+        const storageKey = `portal_etapas_vistas_${usuario.id}`;
+        const vistas: string[] = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        const concluidas = (usuario.financiamento?.etapas || []).filter(
+          (e) => e.status === "concluido"
+        );
+        const novas = concluidas.filter((e) => !vistas.includes(e.id));
+        if (novas.length > 0) {
+          setNovasEtapas(novas);
+        }
+        localStorage.setItem(storageKey, JSON.stringify(concluidas.map((e) => e.id)));
       } catch {
         addToast({ title: "Erro ao carregar dados", variant: "error" });
       } finally {
@@ -172,6 +187,7 @@ export default function DashboardPage() {
   if (!data) return null;
 
   const etapas = data.financiamento?.etapas || [];
+
   const historico = data.financiamento?.historico || [];
   const progresso = calcularProgresso(etapas);
   const etapasConcluidas = etapas.filter((e) => e.status === "concluido").length;
@@ -194,6 +210,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <CelebrationOverlay etapas={novasEtapas} onDismiss={() => setNovasEtapas([])} />
       <Header user={data} darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-5">
