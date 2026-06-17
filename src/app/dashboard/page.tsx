@@ -402,7 +402,7 @@ export default function DashboardPage() {
                               : "text-zinc-400 dark:text-zinc-500"
                           )}
                         >
-                          {NOME_ABREV[etapa.nome] || etapa.nome}
+                          {etapa.nome}
                         </span>
                       </div>
                       {!isLast && (
