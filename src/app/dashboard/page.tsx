@@ -246,7 +246,14 @@ export default function DashboardPage() {
         {/* ── HERO: anel de progresso + info ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
-            <div className="h-1.5 bg-green-500" />
+            <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden">
+              <motion.div
+                className="absolute inset-y-0 left-0 bg-green-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${progresso}%` }}
+                transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+              />
+            </div>
             <div className="p-6">
             <div className="flex items-center gap-6">
               {/* Donut chart */}
@@ -347,10 +354,10 @@ export default function DashboardPage() {
                 <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">/{etapas.length}</span>
               </p>
             </div>
-            <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">Etapa atual</p>
-              <p className="text-sm font-bold text-zinc-900 dark:text-white leading-tight">
-                {etapaAtual?.nome ?? (progresso === 100 ? "Concluído 🎉" : "—")}
+            <div className="rounded-2xl border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/10 p-4">
+              <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Etapa atual</p>
+              <p className="text-base font-bold text-blue-900 dark:text-blue-200 leading-tight">
+                {etapaAtual?.nome ?? (progresso === 100 ? "Concluído" : "—")}
               </p>
             </div>
             <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
@@ -364,7 +371,7 @@ export default function DashboardPage() {
         {etapas.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
-              <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-6">
+              <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">
                 Etapas do processo
               </p>
               <div className="flex items-start">
@@ -408,10 +415,10 @@ export default function DashboardPage() {
                       {!isLast && (
                         <div
                           className={cn(
-                            "flex-1 h-0.5 mb-6 mx-1",
+                            "flex-1 mb-6 mx-1 rounded-full transition-all",
                             etapa.status === "concluido"
-                              ? "bg-green-400"
-                              : "bg-zinc-200 dark:bg-zinc-700"
+                              ? "h-1 bg-green-400"
+                              : "h-0.5 bg-zinc-200 dark:bg-zinc-700"
                           )}
                         />
                       )}
@@ -427,7 +434,7 @@ export default function DashboardPage() {
         {hasChartData && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
-              <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-1">
+              <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 Duração por etapa
               </p>
               <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-5">
