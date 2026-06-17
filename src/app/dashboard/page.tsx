@@ -245,17 +245,19 @@ export default function DashboardPage() {
 
         {/* ── HERO: anel de progresso + info ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+          <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+            <div className="h-1.5 bg-green-500" />
+            <div className="p-6">
             <div className="flex items-center gap-6">
               {/* Donut chart */}
               <div className="relative shrink-0">
-                <PieChart width={110} height={110}>
+                <PieChart width={130} height={130}>
                   <Pie
                     data={[{ v: progresso }, { v: Math.max(0, 100 - progresso) }]}
-                    cx={55}
-                    cy={55}
-                    innerRadius={36}
-                    outerRadius={50}
+                    cx={65}
+                    cy={65}
+                    innerRadius={44}
+                    outerRadius={58}
                     startAngle={90}
                     endAngle={-270}
                     dataKey="v"
@@ -267,14 +269,14 @@ export default function DashboardPage() {
                   </Pie>
                 </PieChart>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xl font-bold text-zinc-900 dark:text-white">{progresso}%</span>
-                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400">concluído</span>
+                  <span className="text-2xl font-bold text-zinc-900 dark:text-white">{progresso}%</span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">concluído</span>
                 </div>
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-bold text-zinc-900 dark:text-white truncate">{data.nome}</h1>
+                <h1 className="text-2xl font-bold text-zinc-900 dark:text-white truncate">{data.nome}</h1>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
                   {data.banco && (
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
@@ -331,6 +333,7 @@ export default function DashboardPage() {
                 </p>
               </motion.div>
             )}
+            </div>
           </div>
         </motion.div>
 
@@ -391,7 +394,7 @@ export default function DashboardPage() {
                         </div>
                         <span
                           className={cn(
-                            "text-[9px] mt-2 text-center leading-tight max-w-[56px] px-0.5",
+                            "text-[11px] mt-2 text-center leading-tight max-w-[64px] px-0.5",
                             etapa.status === "concluido"
                               ? "text-green-600 dark:text-green-400 font-medium"
                               : etapa.status === "em_andamento"
@@ -399,7 +402,7 @@ export default function DashboardPage() {
                               : "text-zinc-400 dark:text-zinc-500"
                           )}
                         >
-                          {etapa.nome}
+                          {NOME_ABREV[etapa.nome] || etapa.nome}
                         </span>
                       </div>
                       {!isLast && (
