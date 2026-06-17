@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { ClientInfo } from "@/components/dashboard/ClientInfo";
 import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { CelebrationOverlay } from "@/components/dashboard/CelebrationOverlay";
+import { SatisfactionSurvey } from "@/components/dashboard/SatisfactionSurvey";
 import { DocumentosPanel } from "@/components/admin/DocumentosPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
@@ -52,6 +53,7 @@ export default function DashboardPage() {
     concluidoEm?: string;
   } | null>(null);
   const [novasEtapas, setNovasEtapas] = useState<Etapa[]>([]);
+  const [avaliacaoEnviada, setAvaliacaoEnviada] = useState(false);
   const { addToast } = useToast();
 
   useEffect(() => {
@@ -488,6 +490,15 @@ export default function DashboardPage() {
                 </span>
               </div>
             </div>
+          </motion.div>
+        )}
+
+        {/* ── AVALIAÇÃO DE SATISFAÇÃO ── */}
+        {data.financiamento?.statusGeral === "concluido" &&
+          !data.financiamento.avaliacao &&
+          !avaliacaoEnviada && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+            <SatisfactionSurvey onSubmitted={(_av) => setAvaliacaoEnviada(true)} />
           </motion.div>
         )}
 

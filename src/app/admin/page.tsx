@@ -8,6 +8,7 @@ import { StatsCards } from "@/components/admin/StatsCards";
 import { PendenciasModal } from "@/components/admin/PendenciasModal";
 import { ClientesModal } from "@/components/admin/ClientesModal";
 import { CanceladosPanel } from "@/components/admin/CanceladosPanel";
+import { AvaliacoesPanel } from "@/components/admin/AvaliacoesPanel";
 import { DashboardCharts } from "@/components/admin/DashboardCharts";
 import { ClientTable } from "@/components/admin/ClientTable";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -167,6 +168,10 @@ export default function AdminPage() {
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
         <CanceladosPanel />
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+        <AvaliacoesPanel />
       </motion.div>
     </div>
   );

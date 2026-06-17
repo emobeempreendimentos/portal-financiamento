@@ -15,6 +15,7 @@ export async function GET() {
           include: {
             etapas: { orderBy: { ordem: "asc" } },
             historico: { orderBy: { createdAt: "desc" }, take: 10 },
+            avaliacao: true,
           },
         },
       },

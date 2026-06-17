@@ -40,6 +40,17 @@ model Financiamento {
   historico   Historico[]
   pendencias  Pendencia[]
   documentos  Documento[]
+  avaliacao   Avaliacao?
+}
+
+model Avaliacao {
+  id              String        @id @default(cuid())
+  financiamentoId String        @unique
+  nota            Int
+  recomendaria    Boolean
+  comentario      String?
+  createdAt       DateTime      @default(now())
+  financiamento   Financiamento @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
 }
 
 model Etapa {

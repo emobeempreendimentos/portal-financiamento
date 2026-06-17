@@ -46,6 +46,21 @@ export interface Historico {
   createdAt: string;
 }
 
+export interface Avaliacao {
+  id: string;
+  financiamentoId: string;
+  nota: number;
+  recomendaria: boolean;
+  comentario?: string | null;
+  createdAt: string;
+}
+
+export interface AvaliacaoComCliente extends Avaliacao {
+  financiamento: {
+    user: Pick<User, "id" | "nome" | "email">;
+  };
+}
+
 export interface Financiamento {
   id: string;
   userId: string;
@@ -57,6 +72,7 @@ export interface Financiamento {
   user?: User;
   etapas?: Etapa[];
   historico?: Historico[];
+  avaliacao?: Avaliacao | null;
 }
 
 export interface FinanciamentoComDetalhes extends Financiamento {
