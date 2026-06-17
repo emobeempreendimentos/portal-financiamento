@@ -51,16 +51,26 @@ export function LoginForm() {
         initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
-        className="hidden lg:flex lg:w-1/2 bg-zinc-950 text-white flex-col justify-between p-12"
+        className="hidden lg:flex lg:w-1/2 text-white flex-col justify-between p-12 relative overflow-hidden"
       >
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-zinc-800 flex items-center justify-center">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+            alt="Casa moderna em condomínio"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/90 via-zinc-950/75 to-zinc-950/85" />
+        </div>
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-zinc-800/80 backdrop-blur-sm flex items-center justify-center">
             <Building2 className="h-5 w-5 text-green-400" />
           </div>
           <span className="font-bold text-xl">Portal do Financiamento</span>
         </div>
 
-        <div className="space-y-6">
+        <div className="relative z-10 space-y-6">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -71,7 +81,7 @@ export function LoginForm() {
             <span className="text-green-400">financiamento</span>{" "}
             em tempo real
           </motion.h1>
-          <p className="text-zinc-400 text-lg leading-relaxed">
+          <p className="text-zinc-300 text-lg leading-relaxed">
             Transparência total em cada etapa do seu processo imobiliário.
             Do contrato à entrega das chaves.
           </p>
@@ -83,15 +93,15 @@ export function LoginForm() {
               { label: "Notificações", value: "Automáticas" },
               { label: "Suporte", value: "24/7" },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl bg-zinc-900 p-4 border border-zinc-800">
+              <div key={item.label} className="rounded-2xl bg-zinc-900/60 backdrop-blur-sm p-4 border border-zinc-700/50">
                 <div className="text-2xl font-bold text-green-400">{item.value}</div>
-                <div className="text-sm text-zinc-400 mt-1">{item.label}</div>
+                <div className="text-sm text-zinc-300 mt-1">{item.label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-zinc-600 text-sm">
+        <p className="relative z-10 text-zinc-500 text-sm">
           © {new Date().getFullYear()} Portal do Financiamento. Todos os direitos reservados.
         </p>
       </motion.div>
