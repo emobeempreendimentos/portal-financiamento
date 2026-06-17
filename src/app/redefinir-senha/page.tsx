@@ -111,7 +111,7 @@ function RedefinirSenhaForm() {
         <div className="h-9 w-9 rounded-xl bg-zinc-900 dark:bg-zinc-800 flex items-center justify-center">
           <Building2 className="h-4 w-4 text-green-400" />
         </div>
-        <span className="font-bold text-zinc-900 dark:text-white">Portal do Financiamento</span>
+        <span className="font-bold text-zinc-900 dark:text-white">Portal de Financiamento Emobe</span>
       </div>
 
       <div className="flex flex-col items-center text-center">
@@ -210,7 +210,7 @@ export default function RedefinirSenhaPage() {
           <div className="h-10 w-10 rounded-2xl bg-zinc-800 flex items-center justify-center">
             <Building2 className="h-5 w-5 text-green-400" />
           </div>
-          <span className="font-bold text-xl">Portal do Financiamento</span>
+          <span className="font-bold text-xl">Portal de Financiamento Emobe</span>
         </div>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold leading-tight">
@@ -222,7 +222,7 @@ export default function RedefinirSenhaPage() {
           </p>
         </div>
         <p className="text-zinc-600 text-sm">
-          © {new Date().getFullYear()} Portal do Financiamento. Todos os direitos reservados.
+          © {new Date().getFullYear()} Portal de Financiamento Emobe. Todos os direitos reservados.
         </p>
       </motion.div>
 
