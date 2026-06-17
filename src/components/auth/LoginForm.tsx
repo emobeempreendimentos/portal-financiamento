@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
+import Link from "next/link";
 
 export function LoginForm() {
   const { addToast } = useToast();
@@ -142,7 +143,15 @@ export function LoginForm() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="senha">Senha</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="senha">Senha</Label>
+                <Link
+                  href="/esqueci-senha"
+                  className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+                >
+                  Esqueci minha senha
+                </Link>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
                 <Input

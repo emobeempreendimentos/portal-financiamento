@@ -6,7 +6,15 @@ const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "portal-financiamento-secret-key-emobe-2024"
 );
 
-const PUBLIC_ROUTES = ["/login", "/api/auth/login", "/api/setup"];
+const PUBLIC_ROUTES = [
+  "/login",
+  "/esqueci-senha",
+  "/redefinir-senha",
+  "/api/auth/login",
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
+  "/api/setup",
+];
 const ADMIN_ROUTES = ["/admin"];
 
 export async function proxy(request: NextRequest) {
