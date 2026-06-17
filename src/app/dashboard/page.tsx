@@ -18,7 +18,7 @@ import {
 } from "recharts";
 import {
   CheckCircle2, Loader2, FileCheck, Wrench, PenLine,
-  Receipt, BookOpen, KeyRound, Building, Clock,
+  Receipt, BookOpen, KeyRound, Building, Clock, Hash,
 } from "lucide-react";
 
 interface DashboardData extends User {
@@ -275,12 +275,20 @@ export default function DashboardPage() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <h1 className="text-xl font-bold text-zinc-900 dark:text-white truncate">{data.nome}</h1>
-                {data.banco && (
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1.5">
-                    <Building className="h-3.5 w-3.5 shrink-0" />
-                    {data.banco}
-                  </p>
-                )}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
+                  {data.banco && (
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                      <Building className="h-3.5 w-3.5 shrink-0" />
+                      {data.banco}
+                    </p>
+                  )}
+                  {data.financiamento?.protocolo && (
+                    <p className="text-sm text-zinc-400 dark:text-zinc-500 flex items-center gap-1 font-mono">
+                      <Hash className="h-3 w-3 shrink-0" />
+                      EMB-{String(data.financiamento.protocolo).padStart(5, "0")}
+                    </p>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-2 mt-3">
                   {data.financiamento?.statusGeral === "em_andamento" && (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">

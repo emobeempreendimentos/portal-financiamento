@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -230,7 +230,15 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             </div>
             <div>
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{cliente.nome}</h1>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm">{cliente.email}</p>
+              <div className="flex items-center gap-3 mt-0.5">
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm">{cliente.email}</p>
+                {cliente.financiamento?.protocolo && (
+                  <span className="inline-flex items-center gap-1 text-xs font-mono font-medium text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md">
+                    <Hash className="h-3 w-3" />
+                    EMB-{String(cliente.financiamento.protocolo).padStart(5, "0")}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>

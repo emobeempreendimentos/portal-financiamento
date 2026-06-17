@@ -29,6 +29,7 @@ model User {
 
 model Financiamento {
   id          String      @id @default(cuid())
+  protocolo   Int         @unique @default(autoincrement())
   userId      String      @unique
   statusGeral        String      @default("em_andamento")
   motivoCancelamento String?

@@ -63,6 +63,7 @@ export interface AvaliacaoComCliente extends Avaliacao {
 
 export interface Financiamento {
   id: string;
+  protocolo: number;
   userId: string;
   statusGeral: StatusGeral;
   motivoCancelamento?: string | null;
