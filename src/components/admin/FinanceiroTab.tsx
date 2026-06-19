@@ -11,89 +11,54 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
 
-interface Props {
-  financiamentoId: string;
-}
+interface Props { financiamentoId: string }
 
-/* ── tipos locais para os formulários ── */
-interface FormCorretor {
-  id?: string;
-  nome: string;
-  creci: string;
-  percentual: string;
-  valor: string;
-}
-
+/* ── tipos locais ── */
+interface FormCorretor { id?: string; nome: string; creci: string; percentual: string; valor: string }
 interface FormComissao {
-  percentual: string;
-  valor: string;
-  dataPrevistaRecebimento: string;
-  dataEfetivaRecebimento: string;
-  status: string;
-  houveAdiantamento: boolean;
-  valorAdiantado: string;
-  dataAdiantamento: string;
-  obsAdiantamento: string;
-  houveDivisao: boolean;
-  percentualPrincipal: string;
-  corretores: FormCorretor[];
+  percentual: string; valor: string; dataPrevistaRecebimento: string; dataEfetivaRecebimento: string; status: string;
+  houveAdiantamento: boolean; valorAdiantado: string; dataAdiantamento: string; obsAdiantamento: string;
+  houveDivisao: boolean; percentualPrincipal: string; corretores: FormCorretor[];
 }
-
 interface FormVenda {
-  tipoVenda: string;
-  valorImovel: string;
-  dataVenda: string;
-  statusVenda: string;
-  // À vista
-  sinalValor: string;
-  sinalData: string;
-  sinalFormaPagamento: string;
-  sinalStatus: string;
-  escrituraValorRestante: string;
-  escrituraDataPrevista: string;
-  escrituraDataQuitacao: string;
-  escrituraStatus: string;
-  // Financiamento
-  entradaValor: string;
-  entradaData: string;
-  entradaFormaPagamento: string;
-  usouFgts: boolean;
-  fgtsValor: string;
-  bancoFinanciador: string;
-  valorFinanciado: string;
-  contratoDataAssinatura: string;
-  contratoStatus: string;
-  valorLiberadoBanco: string;
-  dataLiberacaoBanco: string;
+  tipoVenda: string; valorImovel: string; dataVenda: string; statusVenda: string;
+  sinalValor: string; sinalData: string; sinalFormaPagamento: string; sinalStatus: string;
+  escrituraValorRestante: string; escrituraDataPrevista: string; escrituraDataQuitacao: string; escrituraStatus: string;
+  entradaValor: string; entradaData: string; entradaFormaPagamento: string;
+  usouFgts: boolean; fgtsValor: string; bancoFinanciador: string; valorFinanciado: string;
+  contratoDataAssinatura: string; contratoStatus: string; valorLiberadoBanco: string; dataLiberacaoBanco: string;
 }
+interface HistoricoItem { id: string; descricao: string; usuario: string; createdAt: string }
 
-interface HistoricoItem {
-  id: string;
-  descricao: string;
-  usuario: string;
-  createdAt: string;
-}
+/* ── helpers de conversão ── */
 
-/* ── helpers ── */
-const fmt = (v?: number | null) =>
-  v != null ? v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—";
+/** "1.500,00" → 1500 */
+const n = (s: string): number | null => {
+  if (!s.trim()) return null;
+  const num = Number(s.replace(/\./g, "").replace(",", "."));
+  return isNaN(num) ? null : num;
+};
 
-const n = (s: string): number | null => (s.trim() === "" ? null : Number(s));
+/** 1500 → "1.500,00" para exibição no formulário */
+const brl = (v: unknown): string => {
+  if (v == null) return "";
+  const num = Number(v);
+  if (isNaN(num) || num === 0) return "";
+  return num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 const d = (s: string): string | null => (s.trim() === "" ? null : s);
 
 function emptyVenda(): FormVenda {
   return {
-    tipoVenda: "financiamento",
-    valorImovel: "", dataVenda: "", statusVenda: "em_andamento",
+    tipoVenda: "financiamento", valorImovel: "", dataVenda: "", statusVenda: "em_andamento",
     sinalValor: "", sinalData: "", sinalFormaPagamento: "pix", sinalStatus: "pendente",
     escrituraValorRestante: "", escrituraDataPrevista: "", escrituraDataQuitacao: "", escrituraStatus: "pendente",
     entradaValor: "", entradaData: "", entradaFormaPagamento: "pix",
-    usouFgts: false, fgtsValor: "",
-    bancoFinanciador: "", valorFinanciado: "", contratoDataAssinatura: "", contratoStatus: "em_analise",
-    valorLiberadoBanco: "", dataLiberacaoBanco: "",
+    usouFgts: false, fgtsValor: "", bancoFinanciador: "", valorFinanciado: "",
+    contratoDataAssinatura: "", contratoStatus: "em_analise", valorLiberadoBanco: "", dataLiberacaoBanco: "",
   };
 }
-
 function emptyComissao(): FormComissao {
   return {
     percentual: "", valor: "", dataPrevistaRecebimento: "", dataEfetivaRecebimento: "", status: "pendente",
@@ -104,45 +69,64 @@ function emptyComissao(): FormComissao {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function apiToFormVenda(data: any): FormVenda {
-  const s = (v: unknown) => (v != null ? String(v) : "");
   const dt = (v: unknown) => (v ? new Date(v as string).toISOString().slice(0, 10) : "");
   return {
     tipoVenda: data.tipoVenda ?? "financiamento",
-    valorImovel: s(data.valorImovel), dataVenda: dt(data.dataVenda), statusVenda: data.statusVenda ?? "em_andamento",
-    sinalValor: s(data.sinalValor), sinalData: dt(data.sinalData),
+    valorImovel: brl(data.valorImovel), dataVenda: dt(data.dataVenda), statusVenda: data.statusVenda ?? "em_andamento",
+    sinalValor: brl(data.sinalValor), sinalData: dt(data.sinalData),
     sinalFormaPagamento: data.sinalFormaPagamento ?? "pix", sinalStatus: data.sinalStatus ?? "pendente",
-    escrituraValorRestante: s(data.escrituraValorRestante), escrituraDataPrevista: dt(data.escrituraDataPrevista),
+    escrituraValorRestante: brl(data.escrituraValorRestante), escrituraDataPrevista: dt(data.escrituraDataPrevista),
     escrituraDataQuitacao: dt(data.escrituraDataQuitacao), escrituraStatus: data.escrituraStatus ?? "pendente",
-    entradaValor: s(data.entradaValor), entradaData: dt(data.entradaData),
+    entradaValor: brl(data.entradaValor), entradaData: dt(data.entradaData),
     entradaFormaPagamento: data.entradaFormaPagamento ?? "pix",
-    usouFgts: data.usouFgts ?? false, fgtsValor: s(data.fgtsValor),
-    bancoFinanciador: data.bancoFinanciador ?? "", valorFinanciado: s(data.valorFinanciado),
+    usouFgts: data.usouFgts ?? false, fgtsValor: brl(data.fgtsValor),
+    bancoFinanciador: data.bancoFinanciador ?? "", valorFinanciado: brl(data.valorFinanciado),
     contratoDataAssinatura: dt(data.contratoDataAssinatura), contratoStatus: data.contratoStatus ?? "em_analise",
-    valorLiberadoBanco: s(data.valorLiberadoBanco), dataLiberacaoBanco: dt(data.dataLiberacaoBanco),
+    valorLiberadoBanco: brl(data.valorLiberadoBanco), dataLiberacaoBanco: dt(data.dataLiberacaoBanco),
   };
 }
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function apiToFormComissao(c: any): FormComissao {
-  const s = (v: unknown) => (v != null ? String(v) : "");
   const dt = (v: unknown) => (v ? new Date(v as string).toISOString().slice(0, 10) : "");
   return {
-    percentual: s(c.percentual), valor: s(c.valor),
+    percentual: c.percentual != null ? String(c.percentual) : "",
+    valor: brl(c.valor),
     dataPrevistaRecebimento: dt(c.dataPrevistaRecebimento), dataEfetivaRecebimento: dt(c.dataEfetivaRecebimento),
     status: c.status ?? "pendente",
     houveAdiantamento: c.houveAdiantamento ?? false,
-    valorAdiantado: s(c.valorAdiantado), dataAdiantamento: dt(c.dataAdiantamento),
+    valorAdiantado: brl(c.valorAdiantado), dataAdiantamento: dt(c.dataAdiantamento),
     obsAdiantamento: c.obsAdiantamento ?? "",
-    houveDivisao: c.houveDivisao ?? false, percentualPrincipal: s(c.percentualPrincipal),
+    houveDivisao: c.houveDivisao ?? false,
+    percentualPrincipal: c.percentualPrincipal != null ? String(c.percentualPrincipal) : "",
     corretores: (c.corretores ?? []).map((cr: { id?: string; nome?: string; creci?: string; percentual?: number; valor?: number }) => ({
       id: cr.id, nome: cr.nome ?? "", creci: cr.creci ?? "",
       percentual: cr.percentual != null ? String(cr.percentual) : "",
-      valor: cr.valor != null ? String(cr.valor) : "",
+      valor: brl(cr.valor),
     })),
   };
 }
 
-/* ── sub-componentes ── */
+/* ── componentes de UI ── */
+
+/** Input de moeda BRL: digita apenas dígitos, formata como "1.500,00" */
+function CurrencyInput({ value, onChange, placeholder = "0,00" }: {
+  value: string; onChange: (v: string) => void; placeholder?: string;
+}) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/\D/g, "");
+    if (!digits) { onChange(""); return; }
+    const cents = parseInt(digits, 10);
+    const formatted = (cents / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    onChange(formatted);
+  }
+  return (
+    <div className="relative">
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none select-none">R$</span>
+      <Input type="text" inputMode="numeric" className="pl-9" value={value} onChange={handleChange} placeholder={placeholder} />
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     pendente:   { label: "Pendente",   cls: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
@@ -204,38 +188,37 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   );
 }
 
-function Divider() {
-  return <div className="border-t border-zinc-100 dark:border-zinc-800" />;
-}
-
+function Divider() { return <div className="border-t border-zinc-100 dark:border-zinc-800" />; }
 function SubTitle({ children }: { children: React.ReactNode }) {
   return <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">{children}</p>;
 }
 
 function SummaryCard({ label, value, color = "zinc" }: { label: string; value: string; color?: "zinc" | "green" | "amber" | "blue" }) {
-  const cls: Record<string, string> = {
-    zinc:  "bg-zinc-50 dark:bg-zinc-800/50 border-zinc-100 dark:border-zinc-700 text-zinc-500 text-zinc-700 dark:text-zinc-300",
-    green: "bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-800/30 text-green-600 dark:text-green-400 text-green-700 dark:text-green-300",
-    amber: "bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/30 text-amber-600 dark:text-amber-400 text-amber-700 dark:text-amber-300",
-    blue:  "bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30 text-blue-600 dark:text-blue-400 text-blue-700 dark:text-blue-300",
-  };
-  const parts = cls[color].split(" ");
+  const styles = {
+    zinc:  { wrap: "bg-zinc-50 dark:bg-zinc-800/50 border-zinc-100 dark:border-zinc-700",   lbl: "text-zinc-500",                             val: "text-zinc-700 dark:text-zinc-300" },
+    green: { wrap: "bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-800/30", lbl: "text-green-600 dark:text-green-400",    val: "text-green-700 dark:text-green-300" },
+    amber: { wrap: "bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/30", lbl: "text-amber-600 dark:text-amber-400",    val: "text-amber-700 dark:text-amber-300" },
+    blue:  { wrap: "bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30",     lbl: "text-blue-600 dark:text-blue-400",      val: "text-blue-700 dark:text-blue-300" },
+  }[color];
   return (
-    <div className={`rounded-xl border p-3 text-center ${parts[0]} ${parts[1]} ${parts[2]}`}>
-      <p className={`text-xs mb-1 ${parts[3]} ${parts[4]}`}>{label}</p>
-      <p className={`font-bold ${parts[5]} ${parts[6]}`}>{value}</p>
+    <div className={`rounded-xl border p-3 text-center ${styles.wrap}`}>
+      <p className={`text-xs mb-1 ${styles.lbl}`}>{label}</p>
+      <p className={`font-bold ${styles.val}`}>{value}</p>
     </div>
   );
 }
 
+const fmt = (v: number | null) =>
+  v != null ? v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—";
+
 /* ── componente principal ── */
 export function FinanceiroTab({ financiamentoId }: Props) {
   const { addToast } = useToast();
-  const [loading, setLoading]   = useState(true);
-  const [saving, setSaving]     = useState(false);
+  const [loading, setLoading]     = useState(true);
+  const [saving, setSaving]       = useState(false);
   const [historico, setHistorico] = useState<HistoricoItem[]>([]);
-  const [venda, setVenda]       = useState<FormVenda>(emptyVenda());
-  const [comissao, setComissao] = useState<FormComissao>(emptyComissao());
+  const [venda, setVenda]         = useState<FormVenda>(emptyVenda());
+  const [comissao, setComissao]   = useState<FormComissao>(emptyComissao());
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -257,9 +240,9 @@ export function FinanceiroTab({ financiamentoId }: Props) {
   useEffect(() => { load(); }, [load]);
 
   /* cálculos automáticos */
-  const calcComissaoAuto = () => {
+  const calcComissaoAuto = (): number | null => {
     const vi = n(venda.valorImovel);
-    const pc = n(comissao.percentual);
+    const pc = venda.valorImovel && comissao.percentual ? Number(comissao.percentual) : null;
     return vi && pc ? (vi * pc) / 100 : null;
   };
 
@@ -269,11 +252,9 @@ export function FinanceiroTab({ financiamentoId }: Props) {
     return total - adiant;
   };
 
-  const totalRecebidoAvista = () => {
-    const sinal     = venda.sinalStatus === "pago"     ? (n(venda.sinalValor) ?? 0) : 0;
-    const escritura = venda.escrituraStatus === "pago" ? (n(venda.escrituraValorRestante) ?? 0) : 0;
-    return sinal + escritura;
-  };
+  const totalRecebidoAvista = () =>
+    (venda.sinalStatus === "pago" ? (n(venda.sinalValor) ?? 0) : 0) +
+    (venda.escrituraStatus === "pago" ? (n(venda.escrituraValorRestante) ?? 0) : 0);
 
   const totalRecebidoFin = () =>
     (n(venda.entradaValor) ?? 0) +
@@ -289,56 +270,42 @@ export function FinanceiroTab({ financiamentoId }: Props) {
   async function handleSave() {
     setSaving(true);
     try {
+      const comissaoCalc = calcComissaoAuto();
       const payload = {
-        tipoVenda:            venda.tipoVenda,
-        valorImovel:          n(venda.valorImovel),
-        dataVenda:            d(venda.dataVenda),
-        statusVenda:          venda.statusVenda,
-        sinalValor:           n(venda.sinalValor),
-        sinalData:            d(venda.sinalData),
-        sinalFormaPagamento:  venda.sinalFormaPagamento,
-        sinalStatus:          venda.sinalStatus,
+        tipoVenda: venda.tipoVenda, valorImovel: n(venda.valorImovel),
+        dataVenda: d(venda.dataVenda), statusVenda: venda.statusVenda,
+        sinalValor: n(venda.sinalValor), sinalData: d(venda.sinalData),
+        sinalFormaPagamento: venda.sinalFormaPagamento, sinalStatus: venda.sinalStatus,
         escrituraValorRestante: n(venda.escrituraValorRestante),
-        escrituraDataPrevista:  d(venda.escrituraDataPrevista),
-        escrituraDataQuitacao:  d(venda.escrituraDataQuitacao),
-        escrituraStatus:        venda.escrituraStatus,
-        entradaValor:          n(venda.entradaValor),
-        entradaData:           d(venda.entradaData),
+        escrituraDataPrevista: d(venda.escrituraDataPrevista),
+        escrituraDataQuitacao: d(venda.escrituraDataQuitacao), escrituraStatus: venda.escrituraStatus,
+        entradaValor: n(venda.entradaValor), entradaData: d(venda.entradaData),
         entradaFormaPagamento: venda.entradaFormaPagamento,
-        usouFgts:              venda.usouFgts,
-        fgtsValor:             n(venda.fgtsValor),
-        bancoFinanciador:      d(venda.bancoFinanciador),
-        valorFinanciado:       n(venda.valorFinanciado),
-        contratoDataAssinatura: d(venda.contratoDataAssinatura),
-        contratoStatus:        venda.contratoStatus,
-        valorLiberadoBanco:    n(venda.valorLiberadoBanco),
-        dataLiberacaoBanco:    d(venda.dataLiberacaoBanco),
+        usouFgts: venda.usouFgts, fgtsValor: n(venda.fgtsValor),
+        bancoFinanciador: d(venda.bancoFinanciador), valorFinanciado: n(venda.valorFinanciado),
+        contratoDataAssinatura: d(venda.contratoDataAssinatura), contratoStatus: venda.contratoStatus,
+        valorLiberadoBanco: n(venda.valorLiberadoBanco), dataLiberacaoBanco: d(venda.dataLiberacaoBanco),
         comissao: {
-          percentual:              n(comissao.percentual),
-          valor:                   n(comissao.valor) ?? calcComissaoAuto(),
+          percentual: comissao.percentual ? Number(comissao.percentual) : null,
+          valor: n(comissao.valor) ?? comissaoCalc,
           dataPrevistaRecebimento: d(comissao.dataPrevistaRecebimento),
-          dataEfetivaRecebimento:  d(comissao.dataEfetivaRecebimento),
-          status:                  comissao.status,
-          houveAdiantamento:       comissao.houveAdiantamento,
-          valorAdiantado:          n(comissao.valorAdiantado),
-          dataAdiantamento:        d(comissao.dataAdiantamento),
-          obsAdiantamento:         comissao.obsAdiantamento || null,
-          houveDivisao:            comissao.houveDivisao,
-          percentualPrincipal:     n(comissao.percentualPrincipal),
+          dataEfetivaRecebimento: d(comissao.dataEfetivaRecebimento),
+          status: comissao.status,
+          houveAdiantamento: comissao.houveAdiantamento,
+          valorAdiantado: n(comissao.valorAdiantado), dataAdiantamento: d(comissao.dataAdiantamento),
+          obsAdiantamento: comissao.obsAdiantamento || null,
+          houveDivisao: comissao.houveDivisao,
+          percentualPrincipal: comissao.percentualPrincipal ? Number(comissao.percentualPrincipal) : null,
           corretores: comissao.corretores.map((c) => ({
-            id:         c.id,
-            nome:       c.nome,
-            creci:      c.creci || null,
-            percentual: n(c.percentual),
-            valor:      n(c.valor),
+            id: c.id, nome: c.nome, creci: c.creci || null,
+            percentual: c.percentual ? Number(c.percentual) : null,
+            valor: n(c.valor),
           })),
         },
       };
 
       const res = await fetch(`/api/admin/financiamentos/${financiamentoId}/financeiro`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
       const json = await res.json();
@@ -351,22 +318,14 @@ export function FinanceiroTab({ financiamentoId }: Props) {
     }
   }
 
-  const setV = (k: keyof FormVenda, v: FormVenda[typeof k]) =>
-    setVenda((p) => ({ ...p, [k]: v }));
-  const setC = (k: keyof FormComissao, v: FormComissao[typeof k]) =>
-    setComissao((p) => ({ ...p, [k]: v }));
+  const setV = (k: keyof FormVenda, v: FormVenda[typeof k]) => setVenda((p) => ({ ...p, [k]: v }));
+  const setC = (k: keyof FormComissao, v: FormComissao[typeof k]) => setComissao((p) => ({ ...p, [k]: v }));
 
   function addCorretor() {
-    setComissao((p) => ({
-      ...p,
-      corretores: [...p.corretores, { nome: "", creci: "", percentual: "", valor: "" }],
-    }));
+    setComissao((p) => ({ ...p, corretores: [...p.corretores, { nome: "", creci: "", percentual: "", valor: "" }] }));
   }
   function updateCorretor(i: number, k: keyof FormCorretor, v: string) {
-    setComissao((p) => {
-      const arr = p.corretores.map((c, idx) => idx === i ? { ...c, [k]: v } : c);
-      return { ...p, corretores: arr };
-    });
+    setComissao((p) => ({ ...p, corretores: p.corretores.map((c, idx) => idx === i ? { ...c, [k]: v } : c) }));
   }
   function removeCorretor(i: number) {
     setComissao((p) => ({ ...p, corretores: p.corretores.filter((_, idx) => idx !== i) }));
@@ -375,9 +334,7 @@ export function FinanceiroTab({ financiamentoId }: Props) {
   if (loading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 h-40 animate-pulse" />
-        ))}
+        {[1, 2, 3].map((i) => <div key={i} className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 h-40 animate-pulse" />)}
       </div>
     );
   }
@@ -398,9 +355,8 @@ export function FinanceiroTab({ financiamentoId }: Props) {
               <option value="avista">Pagamento à Vista</option>
             </Sel>
           </F>
-          <F label="Valor total do imóvel (R$)">
-            <Input type="number" placeholder="0,00" value={venda.valorImovel}
-              onChange={(e) => setV("valorImovel", e.target.value)} />
+          <F label="Valor total do imóvel">
+            <CurrencyInput value={venda.valorImovel} onChange={(v) => setV("valorImovel", v)} />
           </F>
           <F label="Data da venda">
             <Input type="date" value={venda.dataVenda} onChange={(e) => setV("dataVenda", e.target.value)} />
@@ -424,7 +380,7 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                 <div>
                   <SubTitle>Sinal</SubTitle>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <F label="Valor do sinal (R$)"><Input type="number" value={venda.sinalValor} onChange={(e) => setV("sinalValor", e.target.value)} /></F>
+                    <F label="Valor do sinal"><CurrencyInput value={venda.sinalValor} onChange={(v) => setV("sinalValor", v)} /></F>
                     <F label="Data do pagamento"><Input type="date" value={venda.sinalData} onChange={(e) => setV("sinalData", e.target.value)} /></F>
                     <F label="Forma de pagamento">
                       <Sel value={venda.sinalFormaPagamento} onChange={(v) => setV("sinalFormaPagamento", v)}>
@@ -443,7 +399,7 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                 <div>
                   <SubTitle>Escritura</SubTitle>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <F label="Valor restante (R$)"><Input type="number" value={venda.escrituraValorRestante} onChange={(e) => setV("escrituraValorRestante", e.target.value)} /></F>
+                    <F label="Valor restante"><CurrencyInput value={venda.escrituraValorRestante} onChange={(v) => setV("escrituraValorRestante", v)} /></F>
                     <F label="Data prevista"><Input type="date" value={venda.escrituraDataPrevista} onChange={(e) => setV("escrituraDataPrevista", e.target.value)} /></F>
                     <F label="Data da quitação"><Input type="date" value={venda.escrituraDataQuitacao} onChange={(e) => setV("escrituraDataQuitacao", e.target.value)} /></F>
                     <F label="Status">
@@ -477,7 +433,7 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                 <div>
                   <SubTitle>Entrada</SubTitle>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <F label="Valor da entrada (R$)"><Input type="number" value={venda.entradaValor} onChange={(e) => setV("entradaValor", e.target.value)} /></F>
+                    <F label="Valor da entrada"><CurrencyInput value={venda.entradaValor} onChange={(v) => setV("entradaValor", v)} /></F>
                     <F label="Data de pagamento"><Input type="date" value={venda.entradaData} onChange={(e) => setV("entradaData", e.target.value)} /></F>
                     <F label="Forma de pagamento">
                       <Sel value={venda.entradaFormaPagamento} onChange={(v) => setV("entradaFormaPagamento", v)}>
@@ -496,7 +452,7 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                   <AnimatePresence>
                     {venda.usouFgts && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                        <F label="Valor do FGTS (R$)"><Input type="number" value={venda.fgtsValor} onChange={(e) => setV("fgtsValor", e.target.value)} /></F>
+                        <F label="Valor do FGTS"><CurrencyInput value={venda.fgtsValor} onChange={(v) => setV("fgtsValor", v)} /></F>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -506,7 +462,7 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                   <SubTitle>Contrato Bancário</SubTitle>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <F label="Banco"><Input value={venda.bancoFinanciador} onChange={(e) => setV("bancoFinanciador", e.target.value)} placeholder="Ex: Caixa Econômica" /></F>
-                    <F label="Valor financiado (R$)"><Input type="number" value={venda.valorFinanciado} onChange={(e) => setV("valorFinanciado", e.target.value)} /></F>
+                    <F label="Valor financiado"><CurrencyInput value={venda.valorFinanciado} onChange={(v) => setV("valorFinanciado", v)} /></F>
                     <F label="Data da assinatura"><Input type="date" value={venda.contratoDataAssinatura} onChange={(e) => setV("contratoDataAssinatura", e.target.value)} /></F>
                     <F label="Status da aprovação">
                       <Sel value={venda.contratoStatus} onChange={(v) => setV("contratoStatus", v)}>
@@ -521,7 +477,7 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                 <div>
                   <SubTitle>Recebimento da Construtora</SubTitle>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <F label="Valor liberado pelo banco (R$)"><Input type="number" value={venda.valorLiberadoBanco} onChange={(e) => setV("valorLiberadoBanco", e.target.value)} /></F>
+                    <F label="Valor liberado pelo banco"><CurrencyInput value={venda.valorLiberadoBanco} onChange={(v) => setV("valorLiberadoBanco", v)} /></F>
                     <F label="Data de liberação"><Input type="date" value={venda.dataLiberacaoBanco} onChange={(e) => setV("dataLiberacaoBanco", e.target.value)} /></F>
                   </div>
                 </div>
@@ -529,10 +485,10 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                 <div>
                   <SubTitle>Resumo</SubTitle>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <SummaryCard color="zinc"  label="Entrada"         value={fmt(n(venda.entradaValor))} />
-                    <SummaryCard color="zinc"  label="FGTS"            value={venda.usouFgts ? fmt(n(venda.fgtsValor)) : "—"} />
-                    <SummaryCard color="blue"  label="Valor financiado" value={fmt(n(venda.valorFinanciado))} />
-                    <SummaryCard color="green" label="Total recebido"   value={fmt(totalRecebidoFin())} />
+                    <SummaryCard color="zinc"  label="Entrada"          value={fmt(n(venda.entradaValor))} />
+                    <SummaryCard color="zinc"  label="FGTS"             value={venda.usouFgts ? fmt(n(venda.fgtsValor)) : "—"} />
+                    <SummaryCard color="blue"  label="Valor financiado"  value={fmt(n(venda.valorFinanciado))} />
+                    <SummaryCard color="green" label="Total recebido"    value={fmt(totalRecebidoFin())} />
                   </div>
                 </div>
               </div>
@@ -546,18 +502,22 @@ export function FinanceiroTab({ financiamentoId }: Props) {
         <div className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <F label="Percentual (%)">
-              <Input type="number" step="0.1" value={comissao.percentual}
-                onChange={(e) => {
-                  setC("percentual", e.target.value);
-                  const vi = n(venda.valorImovel);
-                  const pc = e.target.value ? Number(e.target.value) : null;
-                  if (vi && pc) setC("valor", String((vi * pc) / 100));
-                }} />
+              <div className="relative">
+                <Input type="number" step="0.1" min="0" max="100" value={comissao.percentual}
+                  onChange={(e) => {
+                    setC("percentual", e.target.value);
+                    const vi = n(venda.valorImovel);
+                    const pc = e.target.value ? Number(e.target.value) : null;
+                    if (vi && pc) setC("valor", brl((vi * pc) / 100));
+                  }}
+                  className="pr-8" placeholder="0" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">%</span>
+              </div>
             </F>
-            <F label="Valor da comissão (R$)">
-              <Input type="number" value={comissao.valor}
-                placeholder={comissaoCalc != null ? fmt(comissaoCalc) : "0,00"}
-                onChange={(e) => setC("valor", e.target.value)} />
+            <F label="Valor da comissão">
+              <CurrencyInput value={comissao.valor}
+                placeholder={comissaoCalc != null ? brl(comissaoCalc) : "0,00"}
+                onChange={(v) => setC("valor", v)} />
             </F>
             <F label="Data prevista de recebimento">
               <Input type="date" value={comissao.dataPrevistaRecebimento} onChange={(e) => setC("dataPrevistaRecebimento", e.target.value)} />
@@ -571,8 +531,10 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                 <option value="parcial">Parcial</option><option value="cancelada">Cancelada</option>
               </Sel>
             </F>
+            <F label="Status atual">
+              <div className="flex items-center h-10"><StatusBadge status={comissao.status} /></div>
+            </F>
           </div>
-
           <Divider />
 
           {/* Adiantamento */}
@@ -586,7 +548,7 @@ export function FinanceiroTab({ financiamentoId }: Props) {
               {comissao.houveAdiantamento && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <F label="Valor adiantado (R$)"><Input type="number" value={comissao.valorAdiantado} onChange={(e) => setC("valorAdiantado", e.target.value)} /></F>
+                    <F label="Valor adiantado"><CurrencyInput value={comissao.valorAdiantado} onChange={(v) => setC("valorAdiantado", v)} /></F>
                     <F label="Data do adiantamento"><Input type="date" value={comissao.dataAdiantamento} onChange={(e) => setC("dataAdiantamento", e.target.value)} /></F>
                     <div className="sm:col-span-2 space-y-1.5">
                       <Label className="text-xs text-zinc-500">Observações</Label>
@@ -605,7 +567,6 @@ export function FinanceiroTab({ financiamentoId }: Props) {
               )}
             </AnimatePresence>
           </div>
-
           <Divider />
 
           {/* Divisão */}
@@ -619,11 +580,12 @@ export function FinanceiroTab({ financiamentoId }: Props) {
               {comissao.houveDivisao && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden space-y-4">
                   <F label="% do corretor principal">
-                    <Input type="number" step="1" max="100" value={comissao.percentualPrincipal}
-                      onChange={(e) => setC("percentualPrincipal", e.target.value)} placeholder="Ex: 70" />
+                    <div className="relative">
+                      <Input type="number" step="1" min="0" max="100" value={comissao.percentualPrincipal}
+                        onChange={(e) => setC("percentualPrincipal", e.target.value)} placeholder="Ex: 70" className="pr-8" />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">%</span>
+                    </div>
                   </F>
-
-                  {/* Resumo da divisão */}
                   {comissao.percentualPrincipal && comissaoTotal && (
                     <div className="grid grid-cols-2 gap-3">
                       <SummaryCard color="green"
@@ -632,12 +594,10 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                       {comissao.corretores.map((c, i) => (
                         <SummaryCard key={i} color="blue"
                           label={`${c.nome || `Corretor ${i + 1}`} (${c.percentual || 0}%)`}
-                          value={fmt(comissaoTotal && c.percentual ? (comissaoTotal * Number(c.percentual)) / 100 : 0)} />
+                          value={fmt(c.percentual ? (comissaoTotal * Number(c.percentual)) / 100 : 0)} />
                       ))}
                     </div>
                   )}
-
-                  {/* Lista de corretores */}
                   <div className="space-y-3">
                     {comissao.corretores.map((c, i) => (
                       <div key={i} className="rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 space-y-3">
@@ -653,8 +613,15 @@ export function FinanceiroTab({ financiamentoId }: Props) {
                         <div className="grid grid-cols-2 gap-3">
                           <F label="Nome"><Input value={c.nome} onChange={(e) => updateCorretor(i, "nome", e.target.value)} placeholder="Nome completo" /></F>
                           <F label="CRECI"><Input value={c.creci} onChange={(e) => updateCorretor(i, "creci", e.target.value)} placeholder="00000-J" /></F>
-                          <F label="% da divisão"><Input type="number" value={c.percentual} onChange={(e) => updateCorretor(i, "percentual", e.target.value)} placeholder="30" /></F>
-                          <F label="Valor (R$)"><Input type="number" value={c.valor} onChange={(e) => updateCorretor(i, "valor", e.target.value)} /></F>
+                          <F label="% da divisão">
+                            <div className="relative">
+                              <Input type="number" value={c.percentual} onChange={(e) => updateCorretor(i, "percentual", e.target.value)} placeholder="30" className="pr-8" />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">%</span>
+                            </div>
+                          </F>
+                          <F label="Valor">
+                            <CurrencyInput value={c.valor} onChange={(v) => updateCorretor(i, "valor", v)} />
+                          </F>
                         </div>
                       </div>
                     ))}
@@ -700,13 +667,6 @@ export function FinanceiroTab({ financiamentoId }: Props) {
             ))}
           </div>
         </Card>
-      )}
-
-      {/* badge de status visível no topo da seção comissão */}
-      {comissao.status && (
-        <div className="flex justify-end">
-          <StatusBadge status={comissao.status} />
-        </div>
       )}
     </div>
   );
