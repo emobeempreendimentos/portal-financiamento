@@ -43,6 +43,9 @@ interface FormVenda {
   // Pagamento à vista
   sinalValor: string; sinalData: string; sinalFormaPagamento: string; sinalStatus: string;
   escrituraValorRestante: string; escrituraDataPrevista: string; escrituraDataQuitacao: string; escrituraStatus: string;
+  // Dados bancários do vendedor
+  pixChave: string; pixTipo: string;
+  contaBanco: string; contaAgencia: string; contaNumero: string; contaTipo: string; contaTitular: string;
 }
 interface HistoricoItem { id: string; descricao: string; usuario: string; createdAt: string }
 
@@ -70,6 +73,7 @@ function emptyVenda(): FormVenda {
     usouFgts: false, fgtsValor: "",
     sinalValor: "", sinalData: "", sinalFormaPagamento: "pix", sinalStatus: "pendente",
     escrituraValorRestante: "", escrituraDataPrevista: "", escrituraDataQuitacao: "", escrituraStatus: "pendente",
+    pixChave: "", pixTipo: "cpf", contaBanco: "", contaAgencia: "", contaNumero: "", contaTipo: "corrente", contaTitular: "",
   };
 }
 function emptyComissao(): FormComissao {
@@ -97,6 +101,10 @@ function toFormVenda(data: any): FormVenda {
     escrituraValorRestante: brl(data.escrituraValorRestante),
     escrituraDataPrevista: dt(data.escrituraDataPrevista),
     escrituraDataQuitacao: dt(data.escrituraDataQuitacao), escrituraStatus: data.escrituraStatus ?? "pendente",
+    pixChave: data.pixChave ?? "", pixTipo: data.pixTipo ?? "cpf",
+    contaBanco: data.contaBanco ?? "", contaAgencia: data.contaAgencia ?? "",
+    contaNumero: data.contaNumero ?? "", contaTipo: data.contaTipo ?? "corrente",
+    contaTitular: data.contaTitular ?? "",
   };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -275,6 +283,10 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           escrituraValorRestante: n(venda.escrituraValorRestante),
           escrituraDataPrevista: d(venda.escrituraDataPrevista),
           escrituraDataQuitacao: d(venda.escrituraDataQuitacao), escrituraStatus: venda.escrituraStatus,
+          pixChave: d(venda.pixChave), pixTipo: d(venda.pixTipo),
+          contaBanco: d(venda.contaBanco), contaAgencia: d(venda.contaAgencia),
+          contaNumero: d(venda.contaNumero), contaTipo: d(venda.contaTipo),
+          contaTitular: d(venda.contaTitular),
           comissao: {
             percentual: comissao.percentual ? Number(comissao.percentual) : null,
             valor: n(comissao.valor) ?? comissaoCalc,
@@ -619,6 +631,52 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+        </div>
+      </Card>
+
+      {/* ── DADOS BANCÁRIOS DO VENDEDOR ── */}
+      <Card title="Conta e PIX do Vendedor" icon={DollarSign}>
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">PIX</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <F label="Tipo de chave">
+                <Sel value={venda.pixTipo} onChange={(v) => setV("pixTipo", v)}>
+                  <option value="cpf">CPF</option>
+                  <option value="cnpj">CNPJ</option>
+                  <option value="email">E-mail</option>
+                  <option value="telefone">Telefone</option>
+                  <option value="aleatoria">Chave aleatória</option>
+                </Sel>
+              </F>
+              <F label="Chave PIX">
+                <Input value={venda.pixChave} onChange={(e) => setV("pixChave", e.target.value)} placeholder="Digite a chave PIX" />
+              </F>
+            </div>
+          </div>
+          <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4">
+            <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Dados Bancários</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <F label="Titular da conta">
+                <Input value={venda.contaTitular} onChange={(e) => setV("contaTitular", e.target.value)} placeholder="Nome completo ou razão social" />
+              </F>
+              <F label="Banco">
+                <Input value={venda.contaBanco} onChange={(e) => setV("contaBanco", e.target.value)} placeholder="Ex: Caixa Econômica Federal" />
+              </F>
+              <F label="Agência">
+                <Input value={venda.contaAgencia} onChange={(e) => setV("contaAgencia", e.target.value)} placeholder="0000" />
+              </F>
+              <F label="Conta">
+                <Input value={venda.contaNumero} onChange={(e) => setV("contaNumero", e.target.value)} placeholder="00000-0" />
+              </F>
+              <F label="Tipo de conta">
+                <Sel value={venda.contaTipo} onChange={(v) => setV("contaTipo", v)}>
+                  <option value="corrente">Corrente</option>
+                  <option value="poupanca">Poupança</option>
+                </Sel>
+              </F>
+            </div>
           </div>
         </div>
       </Card>

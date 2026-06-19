@@ -55,6 +55,8 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
       entradaValor, entradaData, entradaFormaPagamento,
       usouFgts, fgtsValor, bancoFinanciador, valorFinanciado,
       contratoDataAssinatura, contratoStatus, valorLiberadoBanco, dataLiberacaoBanco,
+      // Dados bancários do vendedor
+      pixChave, pixTipo, contaBanco, contaAgencia, contaNumero, contaTipo, contaTitular,
       // Comissão
       comissao,
       // Histórico entries (opção de adicionar evento manual)
@@ -88,6 +90,13 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
       contratoStatus: contratoStatus ?? null,
       valorLiberadoBanco: valorLiberadoBanco ?? null,
       dataLiberacaoBanco: parseDate(dataLiberacaoBanco),
+      pixChave: pixChave ?? null,
+      pixTipo: pixTipo ?? null,
+      contaBanco: contaBanco ?? null,
+      contaAgencia: contaAgencia ?? null,
+      contaNumero: contaNumero ?? null,
+      contaTipo: contaTipo ?? null,
+      contaTitular: contaTitular ?? null,
     };
 
     const existing = await prisma.financeiroVenda.findUnique({
