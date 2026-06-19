@@ -321,7 +321,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
 
       {/* ── INFO DO PROCESSO (read-only) ── */}
       <Card title="Informações da Venda" icon={DollarSign}>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
             <p className="text-xs text-zinc-400 mb-1">Banco / Tipo</p>
             <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{banco || "Não informado"}</p>
@@ -337,6 +337,17 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             <Badge status={statusGeral} />
           </div>
         </div>
+        <F label="Valor do imóvel">
+          <CurrencyInput value={venda.valorImovel} onChange={(v) => {
+            setV("valorImovel", v);
+            const vi = n(v);
+            const pc = comissao.percentual ? Number(comissao.percentual) : null;
+            if (vi && vi > 0 && pc) setC("valor", brl((vi * pc) / 100));
+            else if (vi && vi > 0 && n(comissao.valor)) {
+              setC("percentual", parseFloat(((n(comissao.valor)! / vi) * 100).toFixed(4)).toString());
+            }
+          }} />
+        </F>
       </Card>
 
       {/* ── TOGGLE TIPO DE PAGAMENTO ── */}
@@ -468,20 +479,6 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
       {/* ── COMISSÃO ── */}
       <Card title="Comissão Imobiliária" icon={TrendingUp}>
         <div className="space-y-4">
-          <F label="Valor total do imóvel (base de cálculo)">
-            <CurrencyInput value={venda.valorImovel} onChange={(v) => {
-              setV("valorImovel", v);
-              // recalcula valor se % já estiver preenchido
-              const vi = n(v);
-              const pc = comissao.percentual ? Number(comissao.percentual) : null;
-              if (vi && vi > 0 && pc) setC("valor", brl((vi * pc) / 100));
-              // recalcula % se valor já estiver preenchido
-              else if (vi && vi > 0 && n(comissao.valor)) {
-                const val = n(comissao.valor)!;
-                setC("percentual", parseFloat(((val / vi) * 100).toFixed(4)).toString());
-              }
-            }} />
-          </F>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <F label="Percentual (%)">
               <div className="relative">
