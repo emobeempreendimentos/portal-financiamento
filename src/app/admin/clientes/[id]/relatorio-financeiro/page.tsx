@@ -131,7 +131,7 @@ export default function RelatorioFinanceiroPage({ params }: { params: Promise<{ 
         {/* Cabeçalho */}
         <div className="flex items-start justify-between mb-10 border-b border-gray-200 pb-8">
           <div>
-            <div className="text-2xl font-bold text-green-700 tracking-tight mb-1">Emobe Empreendimentos</div>
+            <img src="/logo.png" alt="Emobe Empreendimentos" className="h-14 object-contain mb-2" />
             <div className="text-sm text-gray-400">Relatório Financeiro de Venda</div>
           </div>
           <div className="text-right">
@@ -146,7 +146,6 @@ export default function RelatorioFinanceiroPage({ params }: { params: Promise<{ 
           <Row label="Cliente"      value={cliente.nome} />
           {cliente.cpf && <Row label="CPF" value={cliente.cpf} />}
           {cliente.conjuge && <Row label="Cônjuge" value={`${cliente.conjuge}${cliente.conjugeCpf ? ` — ${cliente.conjugeCpf}` : ""}`} />}
-          {cliente.telefone && <Row label="Telefone" value={cliente.telefone} />}
           <Row label="Tipo de pagamento"  value={avista ? "Pagamento à Vista" : "Financiamento Bancário"} />
           <Row label="Data de início"     value={D(cliente.financiamento?.createdAt)} />
           <Row label="Status do processo" value={STATUS_PT[cliente.financiamento?.statusGeral ?? ""] ?? "—"} />
