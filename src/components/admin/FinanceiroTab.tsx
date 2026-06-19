@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign, TrendingUp, Save, Loader2, FileBarChart2,
-  CheckCircle2, Clock, AlertCircle, Plus, Trash2, User2,
+  CheckCircle2, Clock, AlertCircle, Plus, Trash2, User2, CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,19 @@ interface FormVenda {
   contaBanco: string; contaAgencia: string; contaNumero: string; contaTipo: string; contaTitular: string;
 }
 interface HistoricoItem { id: string; descricao: string; usuario: string; createdAt: string }
+interface FormContaPagamento {
+  tipo: "vendedor" | "imobiliaria";
+  descricao: string;
+  formaPagamento: string;
+  pixChave: string;
+  pixTipo: string;
+  banco: string;
+  agencia: string;
+  numero: string;
+  contaTipo: string;
+  titular: string;
+  valor: string;
+}
 
 /* ── helpers ── */
 const n = (s: string): number | null => {
@@ -82,6 +95,9 @@ function emptyComissao(): FormComissao {
     houveAdiantamento: false, valorAdiantado: "", dataAdiantamento: "", obsAdiantamento: "",
     houveDivisao: false, percentualPrincipal: "", corretores: [],
   };
+}
+function emptyContaPagamento(tipo: "vendedor" | "imobiliaria"): FormContaPagamento {
+  return { tipo, descricao: "", formaPagamento: "pix", pixChave: "", pixTipo: "cpf", banco: "", agencia: "", numero: "", contaTipo: "corrente", titular: "", valor: "" };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toFormVenda(data: any): FormVenda {
@@ -192,6 +208,77 @@ function Badge({ status }: { status: string }) {
   return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span>;
 }
 
+function ContaEntryForm({ cp, onChange, onDelete }: {
+  cp: FormContaPagamento;
+  onChange: (updates: Partial<FormContaPagamento>) => void;
+  onDelete: () => void;
+}) {
+  const isPix    = cp.formaPagamento === "pix";
+  const isTedDoc = cp.formaPagamento === "ted" || cp.formaPagamento === "doc";
+  return (
+    <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+          {cp.tipo === "vendedor" ? "Vendedor" : "Imobiliária"}
+        </span>
+        <button type="button" onClick={onDelete} className="text-red-400 hover:text-red-600 transition-colors">
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <F label="Descrição">
+          <Input value={cp.descricao} onChange={(e) => onChange({ descricao: e.target.value })} placeholder="Ex: Entrada, Sinal, Comissão…" />
+        </F>
+        <F label="Forma de pagamento">
+          <Sel value={cp.formaPagamento} onChange={(v) => onChange({ formaPagamento: v })}>
+            <option value="pix">PIX</option>
+            <option value="ted">TED</option>
+            <option value="doc">DOC</option>
+            <option value="dinheiro">Dinheiro</option>
+          </Sel>
+        </F>
+        {isPix && (<>
+          <F label="Tipo de chave PIX">
+            <Sel value={cp.pixTipo} onChange={(v) => onChange({ pixTipo: v })}>
+              <option value="cpf">CPF</option>
+              <option value="cnpj">CNPJ</option>
+              <option value="email">E-mail</option>
+              <option value="telefone">Telefone</option>
+              <option value="aleatoria">Chave aleatória</option>
+            </Sel>
+          </F>
+          <F label="Chave PIX">
+            <Input value={cp.pixChave} onChange={(e) => onChange({ pixChave: e.target.value })} placeholder="Digite a chave" />
+          </F>
+        </>)}
+        {isTedDoc && (<>
+          <F label="Banco">
+            <Input value={cp.banco} onChange={(e) => onChange({ banco: e.target.value })} placeholder="Ex: Caixa Econômica" />
+          </F>
+          <F label="Agência">
+            <Input value={cp.agencia} onChange={(e) => onChange({ agencia: e.target.value })} placeholder="0000" />
+          </F>
+          <F label="Conta">
+            <Input value={cp.numero} onChange={(e) => onChange({ numero: e.target.value })} placeholder="00000-0" />
+          </F>
+          <F label="Tipo de conta">
+            <Sel value={cp.contaTipo} onChange={(v) => onChange({ contaTipo: v })}>
+              <option value="corrente">Corrente</option>
+              <option value="poupanca">Poupança</option>
+            </Sel>
+          </F>
+        </>)}
+        <F label="Titular">
+          <Input value={cp.titular} onChange={(e) => onChange({ titular: e.target.value })} placeholder="Nome completo ou razão social" />
+        </F>
+        <F label="Valor">
+          <CurrencyInput value={cp.valor} onChange={(v) => onChange({ valor: v })} />
+        </F>
+      </div>
+    </div>
+  );
+}
+
 function Card({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
@@ -214,6 +301,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
   const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [venda, setVenda]         = useState<FormVenda>(emptyVenda());
   const [comissao, setComissao]   = useState<FormComissao>(emptyComissao());
+  const [contas, setContas]       = useState<FormContaPagamento[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -224,6 +312,20 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
         setVenda(toFormVenda(json.data));
         if (json.data.comissao) setComissao(toFormComissao(json.data.comissao));
         setHistorico(json.data.historico ?? []);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setContas((json.data.contasPagamento ?? []).map((cp: any) => ({
+          tipo: cp.tipo as "vendedor" | "imobiliaria",
+          descricao: cp.descricao ?? "",
+          formaPagamento: cp.formaPagamento ?? "pix",
+          pixChave: cp.pixChave ?? "",
+          pixTipo: cp.pixTipo ?? "cpf",
+          banco: cp.banco ?? "",
+          agencia: cp.agencia ?? "",
+          numero: cp.numero ?? "",
+          contaTipo: cp.contaTipo ?? "corrente",
+          titular: cp.titular ?? "",
+          valor: brl(cp.valor),
+        })));
       } else {
         // Pré-preenche banco do processo
         setVenda((p) => ({ ...p, bancoFinanciador: banco ?? "" }));
@@ -287,6 +389,19 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           contaBanco: d(venda.contaBanco), contaAgencia: d(venda.contaAgencia),
           contaNumero: d(venda.contaNumero), contaTipo: d(venda.contaTipo),
           contaTitular: d(venda.contaTitular),
+          contasPagamento: contas.map((cp) => ({
+            tipo: cp.tipo,
+            descricao: cp.descricao || null,
+            formaPagamento: cp.formaPagamento || null,
+            pixChave:  cp.formaPagamento === "pix" ? (cp.pixChave || null) : null,
+            pixTipo:   cp.formaPagamento === "pix" ? (cp.pixTipo  || null) : null,
+            banco:     (cp.formaPagamento === "ted" || cp.formaPagamento === "doc") ? (cp.banco    || null) : null,
+            agencia:   (cp.formaPagamento === "ted" || cp.formaPagamento === "doc") ? (cp.agencia  || null) : null,
+            numero:    (cp.formaPagamento === "ted" || cp.formaPagamento === "doc") ? (cp.numero   || null) : null,
+            contaTipo: (cp.formaPagamento === "ted" || cp.formaPagamento === "doc") ? (cp.contaTipo|| null) : null,
+            titular:   cp.titular || null,
+            valor:     n(cp.valor),
+          })),
           comissao: {
             percentual: comissao.percentual ? Number(comissao.percentual) : null,
             valor: n(comissao.valor) ?? comissaoCalc,
@@ -678,6 +793,91 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
               </F>
             </div>
           </div>
+        </div>
+      </Card>
+
+      {/* ── RELATÓRIO DE PAGAMENTO AO COMPRADOR ── */}
+      <Card title="Relatório de Pagamento ao Comprador" icon={CreditCard}>
+        <div className="space-y-5">
+
+          {/* Contas do Vendedor */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Contas do Vendedor</p>
+              <div className="flex items-center gap-3">
+                {(venda.pixChave || venda.contaBanco) && (
+                  <button type="button"
+                    onClick={() => {
+                      const cp = emptyContaPagamento("vendedor");
+                      cp.descricao = "Conta do Vendedor";
+                      if (venda.pixChave) {
+                        cp.formaPagamento = "pix"; cp.pixChave = venda.pixChave; cp.pixTipo = venda.pixTipo || "cpf";
+                      } else {
+                        cp.formaPagamento = "ted"; cp.banco = venda.contaBanco; cp.agencia = venda.contaAgencia;
+                        cp.numero = venda.contaNumero; cp.contaTipo = venda.contaTipo || "corrente";
+                      }
+                      cp.titular = venda.contaTitular;
+                      setContas((p) => [...p, cp]);
+                    }}
+                    className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors">
+                    Importar conta cadastrada
+                  </button>
+                )}
+                <button type="button" onClick={() => setContas((p) => [...p, emptyContaPagamento("vendedor")])}
+                  className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-700 transition-colors">
+                  <Plus className="h-3.5 w-3.5" /> Adicionar
+                </button>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {contas.map((cp, gi) => cp.tipo !== "vendedor" ? null : (
+                <ContaEntryForm key={gi} cp={cp}
+                  onChange={(upd) => setContas((p) => p.map((c, i) => i === gi ? { ...c, ...upd } : c))}
+                  onDelete={() => setContas((p) => p.filter((_, i) => i !== gi))} />
+              ))}
+              {contas.filter((c) => c.tipo === "vendedor").length === 0 && (
+                <p className="text-xs text-zinc-400 text-center py-3 italic">Nenhuma conta do vendedor adicionada</p>
+              )}
+            </div>
+          </div>
+
+          {/* Contas da Imobiliária */}
+          <div className="border-t border-zinc-100 dark:border-zinc-800 pt-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Contas da Imobiliária</p>
+              <button type="button" onClick={() => setContas((p) => [...p, emptyContaPagamento("imobiliaria")])}
+                className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400 hover:text-green-700 transition-colors">
+                <Plus className="h-3.5 w-3.5" /> Adicionar
+              </button>
+            </div>
+            <div className="space-y-3">
+              {contas.map((cp, gi) => cp.tipo !== "imobiliaria" ? null : (
+                <ContaEntryForm key={gi} cp={cp}
+                  onChange={(upd) => setContas((p) => p.map((c, i) => i === gi ? { ...c, ...upd } : c))}
+                  onDelete={() => setContas((p) => p.filter((_, i) => i !== gi))} />
+              ))}
+              {contas.filter((c) => c.tipo === "imobiliaria").length === 0 && (
+                <p className="text-xs text-zinc-400 text-center py-3 italic">Nenhuma conta da imobiliária adicionada</p>
+              )}
+            </div>
+          </div>
+
+          {/* Total */}
+          {contas.some((c) => n(c.valor)) && (
+            <div className="flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 pt-4">
+              <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Total a pagar</p>
+              <p className="text-sm font-bold text-zinc-900 dark:text-white">
+                {fmt(contas.reduce((s, c) => s + (n(c.valor) ?? 0), 0))}
+              </p>
+            </div>
+          )}
+
+          {/* Botão do relatório */}
+          <a href={`/admin/clientes/${clienteId}/relatorio-pagamento`} target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+            <FileBarChart2 className="h-4 w-4 text-zinc-500" />
+            Gerar Relatório de Pagamento
+          </a>
         </div>
       </Card>
 

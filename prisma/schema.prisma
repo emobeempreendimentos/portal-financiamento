@@ -151,6 +151,7 @@ model FinanceiroVenda {
   financiamento   Financiamento         @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
   comissao        ComissaoImobiliaria?
   historico       HistoricoFinanceiro[]
+  contasPagamento ContaPagamento[]
 }
 
 model ComissaoImobiliaria {
@@ -196,6 +197,26 @@ model HistoricoFinanceiro {
   createdAt         DateTime @default(now())
 
   financeiroVenda FinanceiroVenda @relation(fields: [financeiroVendaId], references: [id], onDelete: Cascade)
+}
+
+model ContaPagamento {
+  id                String          @id @default(cuid())
+  financeiroVendaId String
+  tipo              String          // "vendedor" | "imobiliaria"
+  descricao         String?
+  formaPagamento    String?         // "pix" | "ted" | "doc" | "dinheiro"
+  pixChave          String?
+  pixTipo           String?
+  banco             String?
+  agencia           String?
+  numero            String?
+  contaTipo         String?
+  titular           String?
+  valor             Float?
+  ordem             Int             @default(0)
+  createdAt         DateTime        @default(now())
+
+  financeiroVenda   FinanceiroVenda @relation(fields: [financeiroVendaId], references: [id], onDelete: Cascade)
 }
 
 model LancamentoFinanceiro {

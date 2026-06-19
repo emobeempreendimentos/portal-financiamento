@@ -22,6 +22,7 @@ export async function GET(_req: NextRequest, { params }: { params: Params }) {
       include: {
         comissao: { include: { corretores: true } },
         historico: { orderBy: { createdAt: "desc" } },
+        contasPagamento: { orderBy: { ordem: "asc" } },
       },
     });
 
@@ -57,6 +58,8 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
       contratoDataAssinatura, contratoStatus, valorLiberadoBanco, dataLiberacaoBanco,
       // Dados bancários do vendedor
       pixChave, pixTipo, contaBanco, contaAgencia, contaNumero, contaTipo, contaTitular,
+      // Contas de pagamento (relatório)
+      contasPagamento,
       // Comissão
       comissao,
       // Histórico entries (opção de adicionar evento manual)
@@ -113,6 +116,29 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
     } else {
       financeiroVenda = await prisma.financeiroVenda.create({
         data: { financiamentoId: id, ...vendaData },
+      });
+    }
+
+    // Re-criar contas de pagamento (delete + insert)
+    await prisma.contaPagamento.deleteMany({ where: { financeiroVendaId: financeiroVenda.id } });
+    if (Array.isArray(contasPagamento) && contasPagamento.length > 0) {
+      await prisma.contaPagamento.createMany({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: contasPagamento.map((cp: any, idx: number) => ({
+          financeiroVendaId: financeiroVenda.id,
+          tipo:          cp.tipo          ?? "vendedor",
+          descricao:     cp.descricao     ?? null,
+          formaPagamento:cp.formaPagamento?? null,
+          pixChave:      cp.pixChave      ?? null,
+          pixTipo:       cp.pixTipo       ?? null,
+          banco:         cp.banco         ?? null,
+          agencia:       cp.agencia       ?? null,
+          numero:        cp.numero        ?? null,
+          contaTipo:     cp.contaTipo     ?? null,
+          titular:       cp.titular       ?? null,
+          valor:         cp.valor != null ? Number(cp.valor) : null,
+          ordem:         idx,
+        })),
       });
     }
 
@@ -185,6 +211,7 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
       include: {
         comissao: { include: { corretores: true } },
         historico: { orderBy: { createdAt: "desc" } },
+        contasPagamento: { orderBy: { ordem: "asc" } },
       },
     });
 
