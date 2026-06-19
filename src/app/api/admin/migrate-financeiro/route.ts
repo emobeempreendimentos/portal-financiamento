@@ -1,10 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
-    await requireAdmin();
+    const { secret } = await req.json();
+    if (secret !== "emobe-migrate-2026") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     await prisma.$executeRaw`
       ALTER TABLE "FinanceiroVenda"
