@@ -808,16 +808,28 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 {(venda.pixChave || venda.contaBanco) && (
                   <button type="button"
                     onClick={() => {
-                      const cp = emptyContaPagamento("vendedor");
-                      cp.descricao = "Conta do Vendedor";
+                      const novas: FormContaPagamento[] = [];
                       if (venda.pixChave) {
-                        cp.formaPagamento = "pix"; cp.pixChave = venda.pixChave; cp.pixTipo = venda.pixTipo || "cpf";
-                      } else {
-                        cp.formaPagamento = "ted"; cp.banco = venda.contaBanco; cp.agencia = venda.contaAgencia;
-                        cp.numero = venda.contaNumero; cp.contaTipo = venda.contaTipo || "corrente";
+                        const cp = emptyContaPagamento("vendedor");
+                        cp.descricao = "PIX do Vendedor";
+                        cp.formaPagamento = "pix";
+                        cp.pixChave = venda.pixChave;
+                        cp.pixTipo = venda.pixTipo || "cpf";
+                        cp.titular = venda.contaTitular;
+                        novas.push(cp);
                       }
-                      cp.titular = venda.contaTitular;
-                      setContas((p) => [...p, cp]);
+                      if (venda.contaBanco || venda.contaNumero) {
+                        const cp = emptyContaPagamento("vendedor");
+                        cp.descricao = "Conta do Vendedor";
+                        cp.formaPagamento = "ted";
+                        cp.banco = venda.contaBanco;
+                        cp.agencia = venda.contaAgencia;
+                        cp.numero = venda.contaNumero;
+                        cp.contaTipo = venda.contaTipo || "corrente";
+                        cp.titular = venda.contaTitular;
+                        novas.push(cp);
+                      }
+                      if (novas.length > 0) setContas((p) => [...p, ...novas]);
                     }}
                     className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors">
                     Importar conta cadastrada
