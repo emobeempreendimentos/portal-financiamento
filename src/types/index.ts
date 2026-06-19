@@ -151,6 +151,74 @@ export interface LancamentoPessoal {
   updatedAt: string;
 }
 
+export interface CorretorParticipante {
+  id: string;
+  comissaoId: string;
+  nome: string;
+  creci?: string | null;
+  percentual?: number | null;
+  valor?: number | null;
+}
+
+export interface ComissaoImobiliaria {
+  id: string;
+  financeiroVendaId: string;
+  percentual?: number | null;
+  valor?: number | null;
+  dataPrevistaRecebimento?: string | null;
+  dataEfetivaRecebimento?: string | null;
+  status: string;
+  houveAdiantamento: boolean;
+  valorAdiantado?: number | null;
+  dataAdiantamento?: string | null;
+  obsAdiantamento?: string | null;
+  houveDivisao: boolean;
+  percentualPrincipal?: number | null;
+  createdAt: string;
+  updatedAt: string;
+  corretores?: CorretorParticipante[];
+}
+
+export interface HistoricoFinanceiro {
+  id: string;
+  financeiroVendaId: string;
+  descricao: string;
+  usuario: string;
+  createdAt: string;
+}
+
+export interface FinanceiroVenda {
+  id: string;
+  financiamentoId: string;
+  tipoVenda: string;
+  valorImovel?: number | null;
+  dataVenda?: string | null;
+  statusVenda: string;
+  sinalValor?: number | null;
+  sinalData?: string | null;
+  sinalFormaPagamento?: string | null;
+  sinalStatus?: string | null;
+  escrituraValorRestante?: number | null;
+  escrituraDataPrevista?: string | null;
+  escrituraDataQuitacao?: string | null;
+  escrituraStatus?: string | null;
+  entradaValor?: number | null;
+  entradaData?: string | null;
+  entradaFormaPagamento?: string | null;
+  usouFgts: boolean;
+  fgtsValor?: number | null;
+  bancoFinanciador?: string | null;
+  valorFinanciado?: number | null;
+  contratoDataAssinatura?: string | null;
+  contratoStatus?: string | null;
+  valorLiberadoBanco?: number | null;
+  dataLiberacaoBanco?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  comissao?: ComissaoImobiliaria | null;
+  historico?: HistoricoFinanceiro[];
+}
+
 export interface JWTPayload {
   userId: string;
   email: string;

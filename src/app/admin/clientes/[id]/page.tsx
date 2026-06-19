@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2, Hash } from "lucide-react";
+import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2, Hash, DollarSign, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { EditStepForm } from "@/components/admin/EditStepForm";
 import { PendenciasPanel } from "@/components/admin/PendenciasPanel";
 import { DocumentosPanel } from "@/components/admin/DocumentosPanel";
+import { FinanceiroTab } from "@/components/admin/FinanceiroTab";
 import { ProgressBar } from "@/components/dashboard/ProgressBar";
 import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,6 +52,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [motivoCancelamento, setMotivoCancelamento] = useState("");
   const [salvandoCancelamento, setSalvandoCancelamento] = useState(false);
   const [salvandoStatus, setSalvandoStatus] = useState(false);
+  const [activeTab, setActiveTab] = useState<"processo" | "financeiro">("processo");
 
   useEffect(() => {
     fetch(`/api/clientes/${id}`)
@@ -274,6 +276,37 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Progress */}
       <ProgressBar progresso={progresso} />
+
+      {/* Tab navigation */}
+      <div className="flex gap-1 p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl w-fit">
+        {([
+          { key: "processo", label: "Processo", icon: Settings },
+          { key: "financeiro", label: "Financeiro", icon: DollarSign },
+        ] as const).map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === key
+                ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm"
+                : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+            }`}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── ABA FINANCEIRO ── */}
+      {activeTab === "financeiro" && cliente.financiamento && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <FinanceiroTab financiamentoId={cliente.financiamento.id} />
+        </motion.div>
+      )}
+
+      {/* ── ABA PROCESSO ── */}
+      {activeTab === "processo" && <>
 
       {/* Status do Processo */}
       {cliente.financiamento && cliente.financiamento.statusGeral !== "cancelado" && (
@@ -558,6 +591,8 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           isAdmin
         />
       </motion.div>
+
+      </> /* fim aba processo */}
     </div>
   );
 }

@@ -41,7 +41,8 @@ model Financiamento {
   historico   Historico[]
   pendencias  Pendencia[]
   documentos  Documento[]
-  avaliacao   Avaliacao?
+  avaliacao        Avaliacao?
+  financeiroVenda  FinanceiroVenda?
 }
 
 model Avaliacao {
@@ -102,6 +103,90 @@ model Historico {
   criadoPor       String
   createdAt       DateTime      @default(now())
   financiamento   Financiamento @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
+}
+
+model FinanceiroVenda {
+  id              String   @id @default(cuid())
+  financiamentoId String   @unique
+  tipoVenda       String   @default("financiamento") // "avista" | "financiamento"
+  valorImovel     Float?
+  dataVenda       DateTime?
+  statusVenda     String   @default("em_andamento")
+
+  // Pagamento à Vista
+  sinalValor             Float?
+  sinalData              DateTime?
+  sinalFormaPagamento    String?
+  sinalStatus            String?   @default("pendente")
+  escrituraValorRestante Float?
+  escrituraDataPrevista  DateTime?
+  escrituraDataQuitacao  DateTime?
+  escrituraStatus        String?   @default("pendente")
+
+  // Financiamento Bancário
+  entradaValor           Float?
+  entradaData            DateTime?
+  entradaFormaPagamento  String?
+  usouFgts               Boolean   @default(false)
+  fgtsValor              Float?
+  bancoFinanciador       String?
+  valorFinanciado        Float?
+  contratoDataAssinatura DateTime?
+  contratoStatus         String?   @default("em_analise")
+  valorLiberadoBanco     Float?
+  dataLiberacaoBanco     DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  financiamento   Financiamento         @relation(fields: [financiamentoId], references: [id], onDelete: Cascade)
+  comissao        ComissaoImobiliaria?
+  historico       HistoricoFinanceiro[]
+}
+
+model ComissaoImobiliaria {
+  id                      String    @id @default(cuid())
+  financeiroVendaId       String    @unique
+  percentual              Float?
+  valor                   Float?
+  dataPrevistaRecebimento DateTime?
+  dataEfetivaRecebimento  DateTime?
+  status                  String    @default("pendente")
+
+  houveAdiantamento Boolean   @default(false)
+  valorAdiantado    Float?
+  dataAdiantamento  DateTime?
+  obsAdiantamento   String?
+
+  houveDivisao        Boolean @default(false)
+  percentualPrincipal Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  financeiroVenda FinanceiroVenda        @relation(fields: [financeiroVendaId], references: [id], onDelete: Cascade)
+  corretores      CorretorParticipante[]
+}
+
+model CorretorParticipante {
+  id         String  @id @default(cuid())
+  comissaoId String
+  nome       String
+  creci      String?
+  percentual Float?
+  valor      Float?
+
+  comissao ComissaoImobiliaria @relation(fields: [comissaoId], references: [id], onDelete: Cascade)
+}
+
+model HistoricoFinanceiro {
+  id                String   @id @default(cuid())
+  financeiroVendaId String
+  descricao         String
+  usuario           String
+  createdAt         DateTime @default(now())
+
+  financeiroVenda FinanceiroVenda @relation(fields: [financeiroVendaId], references: [id], onDelete: Cascade)
 }
 
 model LancamentoFinanceiro {
