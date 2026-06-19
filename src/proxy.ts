@@ -14,7 +14,6 @@ const PUBLIC_ROUTES = [
   "/api/auth/forgot-password",
   "/api/auth/reset-password",
   "/api/setup",
-  "/api/migrate-financeiro",
 ];
 const ADMIN_ROUTES = ["/admin"];
 
