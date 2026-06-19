@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { useToast } from "@/components/ui/toast";
 import { User } from "@/types";
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isRelatorio = pathname.includes("/relatorio");
   const [user, setUser] = useState<User | null>(null);
   const [darkMode, setDarkMode] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -30,6 +33,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     localStorage.setItem("darkMode", String(next));
     document.documentElement.classList.toggle("dark", next);
   }
+
+  if (isRelatorio) return <>{children}</>;
 
   if (!user) {
     return (
