@@ -301,7 +301,15 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
       {/* ── ABA FINANCEIRO ── */}
       {activeTab === "financeiro" && cliente.financiamento && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <FinanceiroTab financiamentoId={cliente.financiamento.id} />
+          <FinanceiroTab
+            financiamentoId={cliente.financiamento.id}
+            clienteId={id}
+            banco={cliente.banco}
+            statusGeral={cliente.financiamento.statusGeral}
+            dataInicio={cliente.financiamento.createdAt}
+            clienteNome={cliente.nome}
+            protocolo={cliente.financiamento.protocolo}
+          />
         </motion.div>
       )}
 
