@@ -228,8 +228,16 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
   useEffect(() => { load(); }, [load]);
 
   /* cálculos */
+  const baseCalculo = (): number | null => {
+    if (venda.tipoVenda === "financiamento") {
+      const total = (n(venda.entradaValor) ?? 0) + (n(venda.valorFinanciado) ?? 0);
+      return total > 0 ? total : null;
+    }
+    const total = (n(venda.sinalValor) ?? 0) + (n(venda.escrituraValorRestante) ?? 0);
+    return total > 0 ? total : null;
+  };
   const calcComissaoAuto = (): number | null => {
-    const vi = venda.tipoVenda === "financiamento" ? n(venda.valorFinanciado) : n(venda.sinalValor);
+    const vi = baseCalculo();
     const pc = comissao.percentual ? Number(comissao.percentual) : null;
     return vi && pc ? (vi * pc) / 100 : null;
   };
@@ -459,7 +467,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 <Input type="number" step="0.01" min="0" max="100" value={comissao.percentual}
                   onChange={(e) => {
                     setC("percentual", e.target.value);
-                    const vi = venda.tipoVenda === "financiamento" ? n(venda.valorFinanciado) : n(venda.sinalValor);
+                    const vi = baseCalculo();
                     const pc = e.target.value ? Number(e.target.value) : null;
                     if (vi && pc) setC("valor", brl((vi * pc) / 100));
                     else if (!e.target.value) setC("valor", "");
@@ -471,11 +479,10 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
               <CurrencyInput value={comissao.valor} placeholder="0,00"
                 onChange={(v) => {
                   setC("valor", v);
-                  const vi = venda.tipoVenda === "financiamento" ? n(venda.valorFinanciado) : n(venda.sinalValor);
+                  const vi = baseCalculo();
                   const val = n(v);
                   if (vi && val && vi > 0) {
-                    const pc = (val / vi) * 100;
-                    setC("percentual", parseFloat(pc.toFixed(4)).toString());
+                    setC("percentual", parseFloat(((val / vi) * 100).toFixed(4)).toString());
                   } else if (!v) {
                     setC("percentual", "");
                   }
