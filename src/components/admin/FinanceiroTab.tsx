@@ -32,6 +32,7 @@ interface FormComissao {
 }
 interface FormVenda {
   tipoVenda: string;
+  valorImovel: string;
   // Financiamento bancário
   bancoFinanciador: string; valorFinanciado: string;
   contratoDataAssinatura: string; contratoStatus: string;
@@ -63,7 +64,7 @@ const fmt = (v: number | null) =>
 
 function emptyVenda(): FormVenda {
   return {
-    tipoVenda: "financiamento",
+    tipoVenda: "financiamento", valorImovel: "",
     bancoFinanciador: "", valorFinanciado: "", contratoDataAssinatura: "", contratoStatus: "em_analise",
     entradaValor: "", entradaData: "", entradaFormaPagamento: "pix",
     usouFgts: false, fgtsValor: "",
@@ -83,6 +84,7 @@ function toFormVenda(data: any): FormVenda {
   const dt = (v: unknown) => (v ? new Date(v as string).toISOString().slice(0, 10) : "");
   return {
     tipoVenda: data.tipoVenda ?? "financiamento",
+    valorImovel: brl(data.valorImovel),
     bancoFinanciador: data.bancoFinanciador ?? "",
     valorFinanciado: brl(data.valorFinanciado),
     contratoDataAssinatura: dt(data.contratoDataAssinatura),
@@ -229,6 +231,10 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
 
   /* cálculos */
   const baseCalculo = (): number | null => {
+    // Campo explícito tem prioridade
+    const explicit = n(venda.valorImovel);
+    if (explicit && explicit > 0) return explicit;
+    // Fallback: soma dos campos financeiros
     if (venda.tipoVenda === "financiamento") {
       const total = (n(venda.entradaValor) ?? 0) + (n(venda.valorFinanciado) ?? 0);
       return total > 0 ? total : null;
@@ -258,6 +264,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tipoVenda: venda.tipoVenda,
+          valorImovel: n(venda.valorImovel),
           bancoFinanciador: d(venda.bancoFinanciador), valorFinanciado: n(venda.valorFinanciado),
           contratoDataAssinatura: d(venda.contratoDataAssinatura), contratoStatus: venda.contratoStatus,
           entradaValor: n(venda.entradaValor), entradaData: d(venda.entradaData),
@@ -461,6 +468,20 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
       {/* ── COMISSÃO ── */}
       <Card title="Comissão Imobiliária" icon={TrendingUp}>
         <div className="space-y-4">
+          <F label="Valor total do imóvel (base de cálculo)">
+            <CurrencyInput value={venda.valorImovel} onChange={(v) => {
+              setV("valorImovel", v);
+              // recalcula valor se % já estiver preenchido
+              const vi = n(v);
+              const pc = comissao.percentual ? Number(comissao.percentual) : null;
+              if (vi && vi > 0 && pc) setC("valor", brl((vi * pc) / 100));
+              // recalcula % se valor já estiver preenchido
+              else if (vi && vi > 0 && n(comissao.valor)) {
+                const val = n(comissao.valor)!;
+                setC("percentual", parseFloat(((val / vi) * 100).toFixed(4)).toString());
+              }
+            }} />
+          </F>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <F label="Percentual (%)">
               <div className="relative">
