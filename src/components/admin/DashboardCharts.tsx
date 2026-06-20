@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { User, Financiamento, Etapa } from "@/types";
@@ -16,11 +17,9 @@ interface DashboardChartsProps {
 
 const STATUS_COLORS: Record<string, string> = {
   "Em Andamento": "#22c55e",
-  "Concluído":    "#3b82f6",
+  "Concluído":    "#16a34a",
   "Pausado":      "#f59e0b",
 };
-
-const ETAPA_COLOR = "#22c55e";
 
 const ETAPAS_ORDEM = [
   "Aprovação",
@@ -32,6 +31,15 @@ const ETAPAS_ORDEM = [
 ];
 
 export function DashboardCharts({ clientes }: DashboardChartsProps) {
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains("dark"));
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+
   if (clientes.length === 0) return null;
 
   // Status distribution
@@ -68,32 +76,38 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Status Pie */}
       <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
-        <h3 className="font-semibold text-zinc-900 dark:text-white text-sm mb-4">Distribuição por Status</h3>
+        <h3 className="font-semibold text-zinc-900 dark:text-white text-sm mb-1">Distribuição por Status</h3>
         {pieData.length === 0 ? (
-          <p className="text-sm text-zinc-400 text-center py-8">Sem dados</p>
+          <div className="flex flex-col items-center justify-center py-10 gap-2">
+            <div className="h-10 w-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+              <span className="text-lg text-zinc-300">—</span>
+            </div>
+            <p className="text-sm text-zinc-400">Nenhum cliente ainda</p>
+          </div>
         ) : (
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                innerRadius={55}
-                outerRadius={85}
-                paddingAngle={3}
-                dataKey="value"
-              >
-                {pieData.map((entry) => (
-                  <Cell key={entry.name} fill={STATUS_COLORS[entry.name] ?? "#94a3b8"} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, ""]}
-                contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
-              />
-              <Legend iconType="circle" iconSize={8} />
-            </PieChart>
-          </ResponsiveContainer>
+          <>
+            <div className="flex gap-4 mb-3">
+              {pieData.map((entry) => (
+                <span key={entry.name} className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: STATUS_COLORS[entry.name] ?? "#94a3b8" }} />
+                  {entry.name} ({entry.value})
+                </span>
+              ))}
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
+                  {pieData.map((entry) => (
+                    <Cell key={entry.name} fill={STATUS_COLORS[entry.name] ?? "#94a3b8"} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, ""]}
+                  contentStyle={{ borderRadius: 10, border: "none", background: isDark ? "#18181b" : "#fff", color: isDark ? "#fff" : "#18181b", fontSize: 12 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </>
         )}
       </div>
 
@@ -101,18 +115,24 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
       <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
         <h3 className="font-semibold text-zinc-900 dark:text-white text-sm mb-4">Clientes por Etapa Atual</h3>
         {barData.length === 0 ? (
-          <p className="text-sm text-zinc-400 text-center py-8">Nenhuma etapa em andamento</p>
+          <div className="flex flex-col items-center justify-center py-10 gap-2">
+            <div className="h-10 w-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+              <span className="text-lg text-zinc-300">—</span>
+            </div>
+            <p className="text-sm text-zinc-400">Nenhuma etapa em andamento</p>
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={barData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="nome" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#27272a" : "#f1f5f9"} vertical={false} />
+              <XAxis dataKey="nome" tick={{ fontSize: 10, fill: isDark ? "#a1a1aa" : "#71717a" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: isDark ? "#a1a1aa" : "#71717a" }} allowDecimals={false} axisLine={false} tickLine={false} />
               <Tooltip
                 formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, "Clientes"]}
-                contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+                contentStyle={{ borderRadius: 10, border: "none", background: isDark ? "#18181b" : "#fff", color: isDark ? "#fff" : "#18181b", fontSize: 12 }}
+                cursor={{ fill: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" }}
               />
-              <Bar dataKey="clientes" fill={ETAPA_COLOR} radius={[6, 6, 0, 0]} />
+              <Bar dataKey="clientes" fill="#22c55e" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}

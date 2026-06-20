@@ -55,43 +55,45 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        <div className="flex h-full flex-col p-4 gap-1">
+        <div className="flex h-full flex-col py-4 gap-0.5">
           {navGroups.map((group) => (
-            <div key={group.label} className="mb-2">
-              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+            <div key={group.label} className="mb-3 px-3">
+              <p className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-300 dark:text-zinc-600">
                 {group.label}
               </p>
-              {group.items.map((item) => {
-                const active = isActive(item.href, item.exact);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    className="relative"
-                  >
-                    <motion.div
-                      whileHover={{ x: 2 }}
-                      className={cn(
-                        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
-                        active
-                          ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                          : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
-                      )}
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const active = isActive(item.href, item.exact);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onClose}
+                      className="relative block"
                     >
-                      <item.icon className="h-4 w-4 shrink-0" />
-                      <span>{item.label}</span>
                       {active && (
-                        <ChevronRight className="ml-auto h-3.5 w-3.5 opacity-60" />
+                        <span className="absolute left-0 inset-y-1.5 w-[3px] bg-green-500 rounded-r-full" />
                       )}
-                    </motion.div>
-                  </Link>
-                );
-              })}
+                      <motion.div
+                        whileHover={{ x: active ? 0 : 2 }}
+                        className={cn(
+                          "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                          active
+                            ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                            : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100"
+                        )}
+                      >
+                        <item.icon className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : "")} />
+                        <span>{item.label}</span>
+                      </motion.div>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           ))}
 
-          <div className="mt-auto p-3 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-100 dark:border-green-900/30">
+          <div className="mt-auto mx-3 p-3 rounded-2xl bg-green-50 dark:bg-green-900/15 border border-green-100 dark:border-green-900/30">
             <div className="flex items-center gap-2 mb-1">
               <Building2 className="h-4 w-4 text-green-600 dark:text-green-400" />
               <span className="text-xs font-semibold text-green-700 dark:text-green-400">Portal Admin</span>

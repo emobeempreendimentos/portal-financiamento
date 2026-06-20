@@ -46,63 +46,78 @@ export function LoginForm() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left panel */}
+      {/* Left panel — branded */}
       <motion.div
         initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
-        className="hidden lg:flex lg:w-1/2 text-white flex-col justify-between p-12 relative overflow-hidden"
+        className="hidden lg:flex lg:w-1/2 text-white flex-col justify-between p-12 relative overflow-hidden bg-zinc-950"
       >
-        {/* Background image */}
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
-            alt="Casa moderna em condomínio"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/90 via-zinc-950/75 to-zinc-950/85" />
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-green-500/8 blur-3xl" />
+          <div className="absolute bottom-0 -left-20 w-80 h-80 rounded-full bg-green-500/6 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-green-500/5" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full border border-green-500/8" />
         </div>
 
+        {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-zinc-800/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="h-10 w-10 rounded-2xl bg-green-500/15 border border-green-500/20 flex items-center justify-center">
             <Building2 className="h-5 w-5 text-green-400" />
           </div>
-          <span className="font-bold text-xl">Portal de Financiamento Emobe</span>
+          <span className="font-bold text-lg tracking-tight">Emobe Empreendimentos</span>
         </div>
 
-        <div className="relative z-10 space-y-6">
-          <motion.h1
+        {/* Main content */}
+        <div className="relative z-10 space-y-8">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-4xl font-bold leading-tight"
+            className="space-y-4"
           >
-            Acompanhe seu{" "}
-            <span className="text-green-400">financiamento</span>{" "}
-            em tempo real
-          </motion.h1>
-          <p className="text-zinc-300 text-lg leading-relaxed">
-            Transparência total em cada etapa do seu processo imobiliário.
-            Do contrato à entrega das chaves.
-          </p>
+            <h1 className="text-4xl font-bold leading-tight">
+              Seu financiamento,{" "}
+              <span className="text-green-400">transparente</span>{" "}
+              do início ao fim
+            </h1>
+            <p className="text-zinc-400 text-base leading-relaxed">
+              Acompanhe cada etapa do seu processo imobiliário em tempo real. Do contrato à entrega das chaves.
+            </p>
+          </motion.div>
 
-          <div className="grid grid-cols-2 gap-4 pt-4">
+          {/* Process steps */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+            className="space-y-2"
+          >
             {[
-              { label: "Etapas monitoradas", value: "6" },
-              { label: "Atualização", value: "Real-time" },
-              { label: "Notificações", value: "Automáticas" },
-              { label: "Suporte", value: "24/7" },
-            ].map((item) => (
-              <div key={item.label} className="rounded-2xl bg-zinc-900/60 backdrop-blur-sm p-4 border border-zinc-700/50">
-                <div className="text-2xl font-bold text-green-400">{item.value}</div>
-                <div className="text-sm text-zinc-300 mt-1">{item.label}</div>
+              { step: "01", label: "Aprovação do crédito" },
+              { step: "02", label: "Aprovação de engenharia" },
+              { step: "03", label: "Assinatura de contrato" },
+              { step: "04", label: "ITBI e registro" },
+              { step: "05", label: "Registro em cartório" },
+              { step: "06", label: "Entrega das chaves" },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 group">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 transition-colors
+                  ${i < 3 ? "bg-green-500 text-white" : "bg-zinc-800 text-zinc-500 group-hover:bg-zinc-700"}`}>
+                  {i < 3 ? "✓" : item.step}
+                </div>
+                <div className={`h-px flex-1 ${i < 2 ? "bg-green-500/40" : "bg-zinc-800"}`} />
+                <span className={`text-xs ${i < 3 ? "text-green-400 font-medium" : "text-zinc-500"}`}>
+                  {item.label}
+                </span>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
-        <p className="relative z-10 text-zinc-500 text-sm">
-          © {new Date().getFullYear()} Portal de Financiamento Emobe. Todos os direitos reservados.
+        <p className="relative z-10 text-zinc-600 text-xs">
+          © {new Date().getFullYear()} Emobe Empreendimentos. Todos os direitos reservados.
         </p>
       </motion.div>
 

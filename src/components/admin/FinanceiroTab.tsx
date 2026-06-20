@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign, TrendingUp, Save, Loader2, FileBarChart2,
-  CheckCircle2, Clock, AlertCircle, Plus, Trash2, User2, CreditCard,
+  CheckCircle2, Clock, AlertCircle, Plus, Trash2, User2, CreditCard, ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -293,6 +293,41 @@ function Card({ title, icon: Icon, children }: { title: string; icon: React.Elem
   );
 }
 
+function CollapsibleCard({ title, icon: Icon, defaultOpen = true, summary, children }: {
+  title: string; icon: React.ElementType; defaultOpen?: boolean; summary?: string; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+      <button type="button" onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-2.5 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40 transition-colors text-left">
+        <div className="h-7 w-7 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0">
+          <Icon className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+        </div>
+        <h3 className="font-semibold text-zinc-900 dark:text-white text-sm">{title}</h3>
+        {!open && summary && (
+          <span className="ml-2 text-xs text-zinc-400 dark:text-zinc-500 truncate max-w-[200px]">{summary}</span>
+        )}
+        <ChevronDown className={`ml-auto h-4 w-4 text-zinc-400 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="p-5">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 /* ── componente principal ── */
 export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, dataInicio, clienteNome, protocolo }: Props) {
   const { addToast } = useToast();
@@ -498,7 +533,8 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
       <AnimatePresence mode="wait">
         {!avista ? (
           <motion.div key="fin" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-            <Card title="Financiamento Bancário" icon={DollarSign}>
+            <CollapsibleCard title="Financiamento Bancário" icon={DollarSign} defaultOpen={true}
+              summary={[venda.bancoFinanciador, venda.valorFinanciado ? `R$ ${venda.valorFinanciado}` : ""].filter(Boolean).join(" · ") || undefined}>
               <div className="space-y-4">
                 {/* Banco */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -559,12 +595,13 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                   </AnimatePresence>
                 </div>
               </div>
-            </Card>
+            </CollapsibleCard>
           </motion.div>
         ) : (
           /* ── PAGAMENTO À VISTA ── */
           <motion.div key="avista" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-            <Card title="Pagamento à Vista" icon={CheckCircle2}>
+            <CollapsibleCard title="Pagamento à Vista" icon={CheckCircle2} defaultOpen={true}
+              summary={venda.sinalValor ? `Sinal R$ ${venda.sinalValor}` : undefined}>
               <div className="space-y-4">
                 <div>
                   <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Sinal</p>
@@ -598,13 +635,14 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                   </div>
                 </div>
               </div>
-            </Card>
+            </CollapsibleCard>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* ── COMISSÃO ── */}
-      <Card title="Comissão Imobiliária" icon={TrendingUp}>
+      <CollapsibleCard title="Comissão Imobiliária" icon={TrendingUp} defaultOpen={true}
+        summary={comissao.percentual ? `${comissao.percentual}% · ${comissao.valor || "—"} · ${comissao.status}` : undefined}>
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <F label="Percentual (%)">
@@ -748,10 +786,12 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             </AnimatePresence>
           </div>
         </div>
-      </Card>
+      </CollapsibleCard>
 
       {/* ── DADOS BANCÁRIOS DO VENDEDOR ── */}
-      <Card title="Conta e PIX do Vendedor" icon={DollarSign}>
+      <CollapsibleCard title="Conta e PIX do Vendedor" icon={DollarSign}
+        defaultOpen={!!(venda.pixChave || venda.contaBanco)}
+        summary={venda.pixChave ? `PIX ${venda.pixTipo?.toUpperCase()}: ${venda.pixChave}` : venda.contaBanco ? `Banco: ${venda.contaBanco}` : undefined}>
         <div className="space-y-4">
           <div>
             <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">PIX</p>
@@ -794,10 +834,12 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             </div>
           </div>
         </div>
-      </Card>
+      </CollapsibleCard>
 
       {/* ── RELATÓRIO DE PAGAMENTO AO COMPRADOR ── */}
-      <Card title="Relatório de Pagamento ao Comprador" icon={CreditCard}>
+      <CollapsibleCard title="Relatório de Pagamento ao Comprador" icon={CreditCard}
+        defaultOpen={contas.length > 0}
+        summary={contas.length > 0 ? `${contas.length} conta${contas.length > 1 ? "s" : ""} cadastrada${contas.length > 1 ? "s" : ""}` : undefined}>
         <div className="space-y-5">
 
           {/* Contas do Vendedor */}
@@ -891,7 +933,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             Gerar Relatório de Pagamento
           </a>
         </div>
-      </Card>
+      </CollapsibleCard>
 
       {/* ── AÇÕES ── */}
       <div className="flex gap-3">
@@ -911,7 +953,8 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
 
       {/* ── HISTÓRICO ── */}
       {historico.length > 0 && (
-        <Card title="Histórico Financeiro" icon={Clock}>
+        <CollapsibleCard title="Histórico Financeiro" icon={Clock} defaultOpen={false}
+          summary={`${historico.length} registro${historico.length > 1 ? "s" : ""}`}>
           <div className="space-y-3">
             {historico.map((h, i) => (
               <div key={h.id} className="flex gap-3">
@@ -928,7 +971,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
               </div>
             ))}
           </div>
-        </Card>
+        </CollapsibleCard>
       )}
     </div>
   );
