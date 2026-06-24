@@ -208,10 +208,11 @@ function Badge({ status }: { status: string }) {
   return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span>;
 }
 
-function ContaEntryForm({ cp, onChange, onDelete }: {
+function ContaEntryForm({ cp, onChange, onDelete, editingTab = true }: {
   cp: FormContaPagamento;
   onChange: (updates: Partial<FormContaPagamento>) => void;
   onDelete: () => void;
+  editingTab?: boolean;
 }) {
   const isPix    = cp.formaPagamento === "pix";
   const isTedDoc = cp.formaPagamento === "ted" || cp.formaPagamento === "doc";
@@ -898,7 +899,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             </div>
             <div className="space-y-3">
               {contas.map((cp, gi) => cp.tipo !== "vendedor" ? null : (
-                <ContaEntryForm key={gi} cp={cp}
+                <ContaEntryForm key={gi} cp={cp} editingTab={editingTab}
                   onChange={(upd) => setContas((p) => p.map((c, i) => i === gi ? { ...c, ...upd } : c))}
                   onDelete={() => setContas((p) => p.filter((_, i) => i !== gi))} />
               ))}
@@ -919,7 +920,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             </div>
             <div className="space-y-3">
               {contas.map((cp, gi) => cp.tipo !== "imobiliaria" ? null : (
-                <ContaEntryForm key={gi} cp={cp}
+                <ContaEntryForm key={gi} cp={cp} editingTab={editingTab}
                   onChange={(upd) => setContas((p) => p.map((c, i) => i === gi ? { ...c, ...upd } : c))}
                   onDelete={() => setContas((p) => p.filter((_, i) => i !== gi))} />
               ))}
