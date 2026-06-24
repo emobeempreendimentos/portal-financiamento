@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2, Hash, DollarSign, Settings } from "lucide-react";
+import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2, Hash, DollarSign, Settings, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,6 +53,8 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [salvandoCancelamento, setSalvandoCancelamento] = useState(false);
   const [salvandoStatus, setSalvandoStatus] = useState(false);
   const [activeTab, setActiveTab] = useState<"processo" | "financeiro">("processo");
+  const [editing, setEditing] = useState(false);
+  const [savedForm, setSavedForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", conjugeCpf: "", conjugeEmail: "", conjugeTelefone: "", banco: "" });
 
   useEffect(() => {
     fetch(`/api/clientes/${id}`)
@@ -60,7 +62,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
       .then(async (d) => {
         setCliente(d.data);
         const u = d.data;
-        setForm({
+        const initialForm = {
           nome: u.nome || "", email: u.email || "",
           telefone: u.telefone || "", cpf: u.cpf || "",
           conjuge: u.conjuge || "",
@@ -68,7 +70,9 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           conjugeEmail: u.conjugeEmail || "",
           conjugeTelefone: u.conjugeTelefone || "",
           banco: u.banco || "",
-        });
+        };
+        setForm(initialForm);
+        setSavedForm(initialForm);
         // Fetch pendências for this financiamento
         if (u.financiamento?.id) {
           const pRes = await fetch(`/api/admin/pendencias?financiamentoId=${u.financiamento.id}`);
@@ -93,6 +97,8 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
       if (!res.ok) throw new Error();
       const d = await res.json();
       setCliente((prev) => prev ? { ...prev, ...d.data } : prev);
+      setSavedForm(form);
+      setEditing(false);
       addToast({ title: "Cliente atualizado!", variant: "success" });
     } catch {
       addToast({ title: "Erro ao salvar", variant: "error" });
@@ -350,7 +356,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
         </motion.div>
       )}
 
-      {/* Edit client data */}
+      {/* Dados do Cliente */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -359,7 +365,18 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
         <div className="flex items-center gap-2 mb-5">
           <UserIcon className="h-4 w-4 text-zinc-400" />
           <h2 className="font-semibold text-zinc-900 dark:text-white">Dados do Cliente</h2>
+          {!editing && (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="ml-auto p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+              title="Editar dados"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             { name: "nome", label: "Nome Completo", type: "text" },
@@ -369,19 +386,25 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             { name: "conjuge", label: "Cônjuge (nome)", type: "text" },
             { name: "banco", label: "Banco Financiador", type: "text" },
           ].map((field) => (
-            <div key={field.name} className="space-y-1.5">
-              <Label htmlFor={field.name}>{field.label}</Label>
-              <Input
-                id={field.name}
-                type={field.type}
-                value={form[field.name as keyof typeof form]}
-                onChange={(e) => setForm((p) => ({ ...p, [field.name]: e.target.value }))}
-              />
+            <div key={field.name} className="space-y-1">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{field.label}</p>
+              {editing ? (
+                <Input
+                  id={field.name}
+                  type={field.type}
+                  value={form[field.name as keyof typeof form]}
+                  onChange={(e) => setForm((p) => ({ ...p, [field.name]: e.target.value }))}
+                />
+              ) : (
+                <p className="text-sm text-zinc-900 dark:text-white py-1.5 min-h-[34px] flex items-center">
+                  {form[field.name as keyof typeof form] || <span className="text-zinc-400 dark:text-zinc-600">—</span>}
+                </p>
+              )}
             </div>
           ))}
         </div>
 
-        {/* Campos adicionais do cônjuge — aparecem quando o nome é preenchido */}
+        {/* Campos adicionais do cônjuge */}
         <AnimatePresence>
           {form.conjuge.trim() && (
             <motion.div
@@ -391,7 +414,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
               transition={{ duration: 0.25 }}
               className="overflow-hidden"
             >
-              <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4 mt-1 space-y-3">
+              <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4 mt-3 space-y-3">
                 <div className="flex items-center gap-2">
                   <Users className="h-3.5 w-3.5 text-zinc-400" />
                   <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
@@ -400,22 +423,25 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[
-                    { name: "conjugeCpf", label: "CPF do Cônjuge", type: "text" },
-                    { name: "conjugeEmail", label: "Email do Cônjuge", type: "email" },
-                    { name: "conjugeTelefone", label: "Telefone do Cônjuge", type: "tel" },
+                    { name: "conjugeCpf", label: "CPF do Cônjuge", type: "text", placeholder: "000.000.000-00" },
+                    { name: "conjugeEmail", label: "Email do Cônjuge", type: "email", placeholder: "email@exemplo.com" },
+                    { name: "conjugeTelefone", label: "Telefone do Cônjuge", type: "tel", placeholder: "(00) 00000-0000" },
                   ].map((field) => (
-                    <div key={field.name} className="space-y-1.5">
-                      <Label htmlFor={field.name}>{field.label}</Label>
-                      <Input
-                        id={field.name}
-                        type={field.type}
-                        value={form[field.name as keyof typeof form]}
-                        onChange={(e) => setForm((p) => ({ ...p, [field.name]: e.target.value }))}
-                        placeholder={
-                          field.name === "conjugeCpf" ? "000.000.000-00" :
-                          field.name === "conjugeEmail" ? "email@exemplo.com" : "(00) 00000-0000"
-                        }
-                      />
+                    <div key={field.name} className="space-y-1">
+                      <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{field.label}</p>
+                      {editing ? (
+                        <Input
+                          id={field.name}
+                          type={field.type}
+                          value={form[field.name as keyof typeof form]}
+                          onChange={(e) => setForm((p) => ({ ...p, [field.name]: e.target.value }))}
+                          placeholder={field.placeholder}
+                        />
+                      ) : (
+                        <p className="text-sm text-zinc-900 dark:text-white py-1.5 min-h-[34px] flex items-center">
+                          {form[field.name as keyof typeof form] || <span className="text-zinc-400 dark:text-zinc-600">—</span>}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -423,10 +449,33 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             </motion.div>
           )}
         </AnimatePresence>
-        <Button variant="neon" className="w-full mt-5" onClick={handleSave} disabled={saving}>
-          <Save className="h-4 w-4 mr-2" />
-          {saving ? "Salvando..." : "Salvar Alterações"}
-        </Button>
+
+        <AnimatePresence>
+          {editing && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="flex gap-3 mt-5">
+                <Button variant="neon" className="flex-1" onClick={handleSave} disabled={saving}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {saving ? "Salvando..." : "Salvar"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => { setForm(savedForm); setEditing(false); }}
+                  disabled={saving}
+                  className="px-5"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       {/* Alterar Senha */}
