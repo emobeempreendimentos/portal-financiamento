@@ -143,7 +143,7 @@ function toFormComissao(c: any): FormComissao {
 }
 
 /* ── UI atoms ── */
-function CurrencyInput({ value, onChange, placeholder = "0,00" }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+function CurrencyInput({ value, onChange, placeholder = "0,00", disabled = false }: { value: string; onChange: (v: string) => void; placeholder?: string; disabled?: boolean }) {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "");
     if (!digits) { onChange(""); return; }
@@ -152,14 +152,14 @@ function CurrencyInput({ value, onChange, placeholder = "0,00" }: { value: strin
   return (
     <div className="relative">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none select-none">R$</span>
-      <Input disabled={!editingTab} type="text" inputMode="numeric" className="pl-9" value={value} onChange={handleChange} placeholder={placeholder} />
+      <Input disabled={disabled} type="text" inputMode="numeric" className="pl-9" value={value} onChange={handleChange} placeholder={placeholder} />
     </div>
   );
 }
 
-function Sel({ value, onChange, children }: { value: string; onChange: (v: string) => void; children: React.ReactNode }) {
+function Sel({ value, onChange, children, disabled = false }: { value: string; onChange: (v: string) => void; children: React.ReactNode; disabled?: boolean }) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value)} disabled={!editingTab}
+    <select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}
       className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500">
       {children}
     </select>
@@ -175,11 +175,11 @@ function F({ label, children }: { label: string; children: React.ReactNode }) {
   );
 }
 
-function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+function Toggle({ checked, onChange, label, disabled = false }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }) {
   return (
-    <button type="button" onClick={() => onChange(!checked)} disabled={!editingTab}
-      className={`flex items-center gap-2 text-sm font-medium transition-colors ${editingTab ? (checked ? "text-green-600 dark:text-green-400" : "text-zinc-500 dark:text-zinc-400") : "text-zinc-400 dark:text-zinc-600 cursor-not-allowed"}`}>
-      <div className={`relative w-10 h-5 rounded-full transition-colors ${checked ? "bg-green-500" : (editingTab ? "bg-zinc-200 dark:bg-zinc-700" : "bg-zinc-100 dark:bg-zinc-800")}`}>
+    <button type="button" onClick={() => onChange(!checked)} disabled={disabled}
+      className={`flex items-center gap-2 text-sm font-medium transition-colors ${!disabled ? (checked ? "text-green-600 dark:text-green-400" : "text-zinc-500 dark:text-zinc-400") : "text-zinc-400 dark:text-zinc-600 cursor-not-allowed"}`}>
+      <div className={`relative w-10 h-5 rounded-full transition-colors ${checked ? "bg-green-500" : (!disabled ? "bg-zinc-200 dark:bg-zinc-700" : "bg-zinc-100 dark:bg-zinc-800")}`}>
         <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : ""}`} />
       </div>
       {label}
@@ -230,7 +230,7 @@ function ContaEntryForm({ cp, onChange, onDelete }: {
           <Input disabled={!editingTab} value={cp.descricao} onChange={(e) => onChange({ descricao: e.target.value })} placeholder="Ex: Entrada, Sinal, Comissão…" />
         </F>
         <F label="Forma de pagamento">
-          <Sel value={cp.formaPagamento} onChange={(v) => onChange({ formaPagamento: v })}>
+          <Sel disabled={!editingTab} value={cp.formaPagamento} onChange={(v) => onChange({ formaPagamento: v })}>
             <option value="pix">PIX</option>
             <option value="ted">TED</option>
             <option value="doc">DOC</option>
@@ -239,7 +239,7 @@ function ContaEntryForm({ cp, onChange, onDelete }: {
         </F>
         {isPix && (<>
           <F label="Tipo de chave PIX">
-            <Sel value={cp.pixTipo} onChange={(v) => onChange({ pixTipo: v })}>
+            <Sel disabled={!editingTab} value={cp.pixTipo} onChange={(v) => onChange({ pixTipo: v })}>
               <option value="cpf">CPF</option>
               <option value="cnpj">CNPJ</option>
               <option value="email">E-mail</option>
@@ -262,7 +262,7 @@ function ContaEntryForm({ cp, onChange, onDelete }: {
             <Input disabled={!editingTab} value={cp.numero} onChange={(e) => onChange({ numero: e.target.value })} placeholder="00000-0" />
           </F>
           <F label="Tipo de conta">
-            <Sel value={cp.contaTipo} onChange={(v) => onChange({ contaTipo: v })}>
+            <Sel disabled={!editingTab} value={cp.contaTipo} onChange={(v) => onChange({ contaTipo: v })}>
               <option value="corrente">Corrente</option>
               <option value="poupanca">Poupança</option>
             </Sel>
@@ -272,7 +272,7 @@ function ContaEntryForm({ cp, onChange, onDelete }: {
           <Input disabled={!editingTab} value={cp.titular} onChange={(e) => onChange({ titular: e.target.value })} placeholder="Nome completo ou razão social" />
         </F>
         <F label="Valor">
-          <CurrencyInput value={cp.valor} onChange={(v) => onChange({ valor: v })} />
+          <CurrencyInput disabled={!editingTab} value={cp.valor} onChange={(v) => onChange({ valor: v })} />
         </F>
       </div>
     </div>
@@ -513,7 +513,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           </div>
         </div>
         <F label="Valor do imóvel">
-          <CurrencyInput value={venda.valorImovel} onChange={(v) => {
+          <CurrencyInput disabled={!editingTab} value={venda.valorImovel} onChange={(v) => {
             setV("valorImovel", v);
             const vi = n(v);
             const pc = comissao.percentual ? Number(comissao.percentual) : null;
@@ -555,13 +555,13 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                     <Input disabled={!editingTab} value={venda.bancoFinanciador} onChange={(e) => setV("bancoFinanciador", e.target.value)} placeholder="Ex: Caixa Econômica" />
                   </F>
                   <F label="Valor financiado">
-                    <CurrencyInput value={venda.valorFinanciado} onChange={(v) => setV("valorFinanciado", v)} />
+                    <CurrencyInput disabled={!editingTab} value={venda.valorFinanciado} onChange={(v) => setV("valorFinanciado", v)} />
                   </F>
                   <F label="Data da assinatura do contrato">
                     <Input disabled={!editingTab} type="date" value={venda.contratoDataAssinatura} onChange={(e) => setV("contratoDataAssinatura", e.target.value)} />
                   </F>
                   <F label="Status da aprovação">
-                    <Sel value={venda.contratoStatus} onChange={(v) => setV("contratoStatus", v)}>
+                    <Sel disabled={!editingTab} value={venda.contratoStatus} onChange={(v) => setV("contratoStatus", v)}>
                       <option value="em_analise">Em análise</option>
                       <option value="aprovado">Aprovado</option>
                       <option value="assinado">Assinado</option>
@@ -575,13 +575,13 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                   <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Entrada</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <F label="Valor da entrada">
-                      <CurrencyInput value={venda.entradaValor} onChange={(v) => setV("entradaValor", v)} />
+                      <CurrencyInput disabled={!editingTab} value={venda.entradaValor} onChange={(v) => setV("entradaValor", v)} />
                     </F>
                     <F label="Data">
                       <Input disabled={!editingTab} type="date" value={venda.entradaData} onChange={(e) => setV("entradaData", e.target.value)} />
                     </F>
                     <F label="Forma de pagamento">
-                      <Sel value={venda.entradaFormaPagamento} onChange={(v) => setV("entradaFormaPagamento", v)}>
+                      <Sel disabled={!editingTab} value={venda.entradaFormaPagamento} onChange={(v) => setV("entradaFormaPagamento", v)}>
                         <option value="pix">PIX</option>
                         <option value="ted">TED</option>
                         <option value="dinheiro">Dinheiro</option>
@@ -594,14 +594,14 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">FGTS</p>
-                    <Toggle checked={venda.usouFgts} onChange={(v) => setV("usouFgts", v)}
+                    <Toggle disabled={!editingTab} checked={venda.usouFgts} onChange={(v) => setV("usouFgts", v)}
                       label={venda.usouFgts ? "Utilizou FGTS" : "Não utilizou FGTS"} />
                   </div>
                   <AnimatePresence>
                     {venda.usouFgts && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                         <F label="Valor do FGTS">
-                          <CurrencyInput value={venda.fgtsValor} onChange={(v) => setV("fgtsValor", v)} />
+                          <CurrencyInput disabled={!editingTab} value={venda.fgtsValor} onChange={(v) => setV("fgtsValor", v)} />
                         </F>
                       </motion.div>
                     )}
@@ -619,16 +619,16 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 <div>
                   <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Sinal</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <F label="Valor"><CurrencyInput value={venda.sinalValor} onChange={(v) => setV("sinalValor", v)} /></F>
+                    <F label="Valor"><CurrencyInput disabled={!editingTab} value={venda.sinalValor} onChange={(v) => setV("sinalValor", v)} /></F>
                     <F label="Data"><Input disabled={!editingTab} type="date" value={venda.sinalData} onChange={(e) => setV("sinalData", e.target.value)} /></F>
                     <F label="Forma de pagamento">
-                      <Sel value={venda.sinalFormaPagamento} onChange={(v) => setV("sinalFormaPagamento", v)}>
+                      <Sel disabled={!editingTab} value={venda.sinalFormaPagamento} onChange={(v) => setV("sinalFormaPagamento", v)}>
                         <option value="pix">PIX</option><option value="ted">TED</option>
                         <option value="dinheiro">Dinheiro</option><option value="outro">Outro</option>
                       </Sel>
                     </F>
                     <F label="Status">
-                      <Sel value={venda.sinalStatus} onChange={(v) => setV("sinalStatus", v)}>
+                      <Sel disabled={!editingTab} value={venda.sinalStatus} onChange={(v) => setV("sinalStatus", v)}>
                         <option value="pendente">Pendente</option><option value="pago">Pago</option>
                       </Sel>
                     </F>
@@ -637,11 +637,11 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4">
                   <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Escritura</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <F label="Valor restante"><CurrencyInput value={venda.escrituraValorRestante} onChange={(v) => setV("escrituraValorRestante", v)} /></F>
+                    <F label="Valor restante"><CurrencyInput disabled={!editingTab} value={venda.escrituraValorRestante} onChange={(v) => setV("escrituraValorRestante", v)} /></F>
                     <F label="Data prevista"><Input disabled={!editingTab} type="date" value={venda.escrituraDataPrevista} onChange={(e) => setV("escrituraDataPrevista", e.target.value)} /></F>
                     <F label="Data da quitação"><Input disabled={!editingTab} type="date" value={venda.escrituraDataQuitacao} onChange={(e) => setV("escrituraDataQuitacao", e.target.value)} /></F>
                     <F label="Status">
-                      <Sel value={venda.escrituraStatus} onChange={(v) => setV("escrituraStatus", v)}>
+                      <Sel disabled={!editingTab} value={venda.escrituraStatus} onChange={(v) => setV("escrituraStatus", v)}>
                         <option value="pendente">Pendente</option><option value="pago">Pago</option>
                       </Sel>
                     </F>
@@ -672,7 +672,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
               </div>
             </F>
             <F label="Valor da comissão">
-              <CurrencyInput value={comissao.valor} placeholder="0,00"
+              <CurrencyInput disabled={!editingTab} value={comissao.valor} placeholder="0,00"
                 onChange={(v) => {
                   setC("valor", v);
                   const vi = baseCalculo();
@@ -691,7 +691,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
               <Input disabled={!editingTab} type="date" value={comissao.dataEfetivaRecebimento} onChange={(e) => setC("dataEfetivaRecebimento", e.target.value)} />
             </F>
             <F label="Status">
-              <Sel value={comissao.status} onChange={(v) => setC("status", v)}>
+              <Sel disabled={!editingTab} value={comissao.status} onChange={(v) => setC("status", v)}>
                 <option value="pendente">Pendente</option><option value="recebida">Recebida</option>
                 <option value="parcial">Parcial</option><option value="cancelada">Cancelada</option>
               </Sel>
@@ -705,14 +705,14 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Adiantamento</p>
-              <Toggle checked={comissao.houveAdiantamento} onChange={(v) => setC("houveAdiantamento", v)}
+              <Toggle disabled={!editingTab} checked={comissao.houveAdiantamento} onChange={(v) => setC("houveAdiantamento", v)}
                 label={comissao.houveAdiantamento ? "Houve adiantamento" : "Sem adiantamento"} />
             </div>
             <AnimatePresence>
               {comissao.houveAdiantamento && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <F label="Valor adiantado"><CurrencyInput value={comissao.valorAdiantado} onChange={(v) => setC("valorAdiantado", v)} /></F>
+                    <F label="Valor adiantado"><CurrencyInput disabled={!editingTab} value={comissao.valorAdiantado} onChange={(v) => setC("valorAdiantado", v)} /></F>
                     <F label="Data"><Input disabled={!editingTab} type="date" value={comissao.dataAdiantamento} onChange={(e) => setC("dataAdiantamento", e.target.value)} /></F>
                     <div className="sm:col-span-2 space-y-1.5">
                       <Label className="text-xs text-zinc-500">Observações</Label>
@@ -736,7 +736,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Divisão de Comissão</p>
-              <Toggle checked={comissao.houveDivisao} onChange={(v) => setC("houveDivisao", v)}
+              <Toggle disabled={!editingTab} checked={comissao.houveDivisao} onChange={(v) => setC("houveDivisao", v)}
                 label={comissao.houveDivisao ? "Há divisão" : "Sem divisão"} />
             </div>
             <AnimatePresence>
@@ -784,7 +784,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">%</span>
                             </div>
                           </F>
-                          <F label="Valor"><CurrencyInput value={c.valor} onChange={(v) => setComissao((p) => ({ ...p, corretores: p.corretores.map((x, idx) => idx === i ? { ...x, valor: v } : x) }))} /></F>
+                          <F label="Valor"><CurrencyInput disabled={!editingTab} value={c.valor} onChange={(v) => setComissao((p) => ({ ...p, corretores: p.corretores.map((x, idx) => idx === i ? { ...x, valor: v } : x) }))} /></F>
                         </div>
                       </div>
                     ))}
@@ -810,7 +810,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">PIX</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <F label="Tipo de chave">
-                <Sel value={venda.pixTipo} onChange={(v) => setV("pixTipo", v)}>
+                <Sel disabled={!editingTab} value={venda.pixTipo} onChange={(v) => setV("pixTipo", v)}>
                   <option value="cpf">CPF</option>
                   <option value="cnpj">CNPJ</option>
                   <option value="email">E-mail</option>
@@ -839,7 +839,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 <Input disabled={!editingTab} value={venda.contaNumero} onChange={(e) => setV("contaNumero", e.target.value)} placeholder="00000-0" />
               </F>
               <F label="Tipo de conta">
-                <Sel value={venda.contaTipo} onChange={(v) => setV("contaTipo", v)}>
+                <Sel disabled={!editingTab} value={venda.contaTipo} onChange={(v) => setV("contaTipo", v)}>
                   <option value="corrente">Corrente</option>
                   <option value="poupanca">Poupança</option>
                 </Sel>
