@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign, TrendingUp, Save, Loader2, FileBarChart2,
-  CheckCircle2, Clock, AlertCircle, Plus, Trash2, User2, CreditCard, ChevronDown,
+  CheckCircle2, Clock, AlertCircle, Plus, Trash2, User2, CreditCard, ChevronDown, Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -152,15 +152,15 @@ function CurrencyInput({ value, onChange, placeholder = "0,00" }: { value: strin
   return (
     <div className="relative">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none select-none">R$</span>
-      <Input type="text" inputMode="numeric" className="pl-9" value={value} onChange={handleChange} placeholder={placeholder} />
+      <Input disabled={!editingTab} type="text" inputMode="numeric" className="pl-9" value={value} onChange={handleChange} placeholder={placeholder} />
     </div>
   );
 }
 
 function Sel({ value, onChange, children }: { value: string; onChange: (v: string) => void; children: React.ReactNode }) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+    <select value={value} onChange={(e) => onChange(e.target.value)} disabled={!editingTab}
+      className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500">
       {children}
     </select>
   );
@@ -177,9 +177,9 @@ function F({ label, children }: { label: string; children: React.ReactNode }) {
 
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
-    <button type="button" onClick={() => onChange(!checked)}
-      className={`flex items-center gap-2 text-sm font-medium transition-colors ${checked ? "text-green-600 dark:text-green-400" : "text-zinc-500 dark:text-zinc-400"}`}>
-      <div className={`relative w-10 h-5 rounded-full transition-colors ${checked ? "bg-green-500" : "bg-zinc-200 dark:bg-zinc-700"}`}>
+    <button type="button" onClick={() => onChange(!checked)} disabled={!editingTab}
+      className={`flex items-center gap-2 text-sm font-medium transition-colors ${editingTab ? (checked ? "text-green-600 dark:text-green-400" : "text-zinc-500 dark:text-zinc-400") : "text-zinc-400 dark:text-zinc-600 cursor-not-allowed"}`}>
+      <div className={`relative w-10 h-5 rounded-full transition-colors ${checked ? "bg-green-500" : (editingTab ? "bg-zinc-200 dark:bg-zinc-700" : "bg-zinc-100 dark:bg-zinc-800")}`}>
         <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : ""}`} />
       </div>
       {label}
@@ -227,7 +227,7 @@ function ContaEntryForm({ cp, onChange, onDelete }: {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <F label="Descrição">
-          <Input value={cp.descricao} onChange={(e) => onChange({ descricao: e.target.value })} placeholder="Ex: Entrada, Sinal, Comissão…" />
+          <Input disabled={!editingTab} value={cp.descricao} onChange={(e) => onChange({ descricao: e.target.value })} placeholder="Ex: Entrada, Sinal, Comissão…" />
         </F>
         <F label="Forma de pagamento">
           <Sel value={cp.formaPagamento} onChange={(v) => onChange({ formaPagamento: v })}>
@@ -248,18 +248,18 @@ function ContaEntryForm({ cp, onChange, onDelete }: {
             </Sel>
           </F>
           <F label="Chave PIX">
-            <Input value={cp.pixChave} onChange={(e) => onChange({ pixChave: e.target.value })} placeholder="Digite a chave" />
+            <Input disabled={!editingTab} value={cp.pixChave} onChange={(e) => onChange({ pixChave: e.target.value })} placeholder="Digite a chave" />
           </F>
         </>)}
         {isTedDoc && (<>
           <F label="Banco">
-            <Input value={cp.banco} onChange={(e) => onChange({ banco: e.target.value })} placeholder="Ex: Caixa Econômica" />
+            <Input disabled={!editingTab} value={cp.banco} onChange={(e) => onChange({ banco: e.target.value })} placeholder="Ex: Caixa Econômica" />
           </F>
           <F label="Agência">
-            <Input value={cp.agencia} onChange={(e) => onChange({ agencia: e.target.value })} placeholder="0000" />
+            <Input disabled={!editingTab} value={cp.agencia} onChange={(e) => onChange({ agencia: e.target.value })} placeholder="0000" />
           </F>
           <F label="Conta">
-            <Input value={cp.numero} onChange={(e) => onChange({ numero: e.target.value })} placeholder="00000-0" />
+            <Input disabled={!editingTab} value={cp.numero} onChange={(e) => onChange({ numero: e.target.value })} placeholder="00000-0" />
           </F>
           <F label="Tipo de conta">
             <Sel value={cp.contaTipo} onChange={(v) => onChange({ contaTipo: v })}>
@@ -269,7 +269,7 @@ function ContaEntryForm({ cp, onChange, onDelete }: {
           </F>
         </>)}
         <F label="Titular">
-          <Input value={cp.titular} onChange={(e) => onChange({ titular: e.target.value })} placeholder="Nome completo ou razão social" />
+          <Input disabled={!editingTab} value={cp.titular} onChange={(e) => onChange({ titular: e.target.value })} placeholder="Nome completo ou razão social" />
         </F>
         <F label="Valor">
           <CurrencyInput value={cp.valor} onChange={(v) => onChange({ valor: v })} />
@@ -333,10 +333,14 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
   const { addToast } = useToast();
   const [loading, setLoading]     = useState(true);
   const [saving, setSaving]       = useState(false);
+  const [editingTab, setEditingTab] = useState(false);
   const [historico, setHistorico] = useState<HistoricoItem[]>([]);
   const [venda, setVenda]         = useState<FormVenda>(emptyVenda());
   const [comissao, setComissao]   = useState<FormComissao>(emptyComissao());
   const [contas, setContas]       = useState<FormContaPagamento[]>([]);
+  const [savedVenda, setSavedVenda]     = useState<FormVenda>(emptyVenda());
+  const [savedComissao, setSavedComissao] = useState<FormComissao>(emptyComissao());
+  const [savedContas, setSavedContas]   = useState<FormContaPagamento[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -344,11 +348,9 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
       const res  = await fetch(`/api/admin/financiamentos/${financiamentoId}/financeiro`);
       const json = await res.json();
       if (json.data) {
-        setVenda(toFormVenda(json.data));
-        if (json.data.comissao) setComissao(toFormComissao(json.data.comissao));
-        setHistorico(json.data.historico ?? []);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setContas((json.data.contasPagamento ?? []).map((cp: any) => ({
+        const vendaData = toFormVenda(json.data);
+        const comissaoData = json.data.comissao ? toFormComissao(json.data.comissao) : emptyComissao();
+        const contasData = (json.data.contasPagamento ?? []).map((cp: any) => ({
           tipo: cp.tipo as "vendedor" | "imobiliaria",
           descricao: cp.descricao ?? "",
           formaPagamento: cp.formaPagamento ?? "pix",
@@ -360,7 +362,14 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           contaTipo: cp.contaTipo ?? "corrente",
           titular: cp.titular ?? "",
           valor: brl(cp.valor),
-        })));
+        }));
+        setVenda(vendaData);
+        setSavedVenda(vendaData);
+        setComissao(comissaoData);
+        setSavedComissao(comissaoData);
+        setContas(contasData);
+        setSavedContas(contasData);
+        setHistorico(json.data.historico ?? []);
       } else {
         // Pré-preenche banco do processo
         setVenda((p) => ({ ...p, bancoFinanciador: banco ?? "" }));
@@ -458,6 +467,10 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
       if (!res.ok) throw new Error();
       const json = await res.json();
       setHistorico(json.data?.historico ?? []);
+      setSavedVenda(venda);
+      setSavedComissao(comissao);
+      setSavedContas(contas);
+      setEditingTab(false);
       addToast({ title: "Dados financeiros salvos!", variant: "success" });
     } catch {
       addToast({ title: "Erro ao salvar", variant: "error" });
@@ -539,13 +552,13 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 {/* Banco */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <F label="Banco">
-                    <Input value={venda.bancoFinanciador} onChange={(e) => setV("bancoFinanciador", e.target.value)} placeholder="Ex: Caixa Econômica" />
+                    <Input disabled={!editingTab} value={venda.bancoFinanciador} onChange={(e) => setV("bancoFinanciador", e.target.value)} placeholder="Ex: Caixa Econômica" />
                   </F>
                   <F label="Valor financiado">
                     <CurrencyInput value={venda.valorFinanciado} onChange={(v) => setV("valorFinanciado", v)} />
                   </F>
                   <F label="Data da assinatura do contrato">
-                    <Input type="date" value={venda.contratoDataAssinatura} onChange={(e) => setV("contratoDataAssinatura", e.target.value)} />
+                    <Input disabled={!editingTab} type="date" value={venda.contratoDataAssinatura} onChange={(e) => setV("contratoDataAssinatura", e.target.value)} />
                   </F>
                   <F label="Status da aprovação">
                     <Sel value={venda.contratoStatus} onChange={(v) => setV("contratoStatus", v)}>
@@ -565,7 +578,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                       <CurrencyInput value={venda.entradaValor} onChange={(v) => setV("entradaValor", v)} />
                     </F>
                     <F label="Data">
-                      <Input type="date" value={venda.entradaData} onChange={(e) => setV("entradaData", e.target.value)} />
+                      <Input disabled={!editingTab} type="date" value={venda.entradaData} onChange={(e) => setV("entradaData", e.target.value)} />
                     </F>
                     <F label="Forma de pagamento">
                       <Sel value={venda.entradaFormaPagamento} onChange={(v) => setV("entradaFormaPagamento", v)}>
@@ -607,7 +620,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                   <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Sinal</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <F label="Valor"><CurrencyInput value={venda.sinalValor} onChange={(v) => setV("sinalValor", v)} /></F>
-                    <F label="Data"><Input type="date" value={venda.sinalData} onChange={(e) => setV("sinalData", e.target.value)} /></F>
+                    <F label="Data"><Input disabled={!editingTab} type="date" value={venda.sinalData} onChange={(e) => setV("sinalData", e.target.value)} /></F>
                     <F label="Forma de pagamento">
                       <Sel value={venda.sinalFormaPagamento} onChange={(v) => setV("sinalFormaPagamento", v)}>
                         <option value="pix">PIX</option><option value="ted">TED</option>
@@ -625,8 +638,8 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                   <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Escritura</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <F label="Valor restante"><CurrencyInput value={venda.escrituraValorRestante} onChange={(v) => setV("escrituraValorRestante", v)} /></F>
-                    <F label="Data prevista"><Input type="date" value={venda.escrituraDataPrevista} onChange={(e) => setV("escrituraDataPrevista", e.target.value)} /></F>
-                    <F label="Data da quitação"><Input type="date" value={venda.escrituraDataQuitacao} onChange={(e) => setV("escrituraDataQuitacao", e.target.value)} /></F>
+                    <F label="Data prevista"><Input disabled={!editingTab} type="date" value={venda.escrituraDataPrevista} onChange={(e) => setV("escrituraDataPrevista", e.target.value)} /></F>
+                    <F label="Data da quitação"><Input disabled={!editingTab} type="date" value={venda.escrituraDataQuitacao} onChange={(e) => setV("escrituraDataQuitacao", e.target.value)} /></F>
                     <F label="Status">
                       <Sel value={venda.escrituraStatus} onChange={(v) => setV("escrituraStatus", v)}>
                         <option value="pendente">Pendente</option><option value="pago">Pago</option>
@@ -647,7 +660,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <F label="Percentual (%)">
               <div className="relative">
-                <Input type="number" step="0.01" min="0" max="100" value={comissao.percentual}
+                <Input disabled={!editingTab} type="number" step="0.01" min="0" max="100" value={comissao.percentual}
                   onChange={(e) => {
                     setC("percentual", e.target.value);
                     const vi = baseCalculo();
@@ -672,10 +685,10 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 }} />
             </F>
             <F label="Data prevista de recebimento">
-              <Input type="date" value={comissao.dataPrevistaRecebimento} onChange={(e) => setC("dataPrevistaRecebimento", e.target.value)} />
+              <Input disabled={!editingTab} type="date" value={comissao.dataPrevistaRecebimento} onChange={(e) => setC("dataPrevistaRecebimento", e.target.value)} />
             </F>
             <F label="Data efetiva de recebimento">
-              <Input type="date" value={comissao.dataEfetivaRecebimento} onChange={(e) => setC("dataEfetivaRecebimento", e.target.value)} />
+              <Input disabled={!editingTab} type="date" value={comissao.dataEfetivaRecebimento} onChange={(e) => setC("dataEfetivaRecebimento", e.target.value)} />
             </F>
             <F label="Status">
               <Sel value={comissao.status} onChange={(v) => setC("status", v)}>
@@ -700,7 +713,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <F label="Valor adiantado"><CurrencyInput value={comissao.valorAdiantado} onChange={(v) => setC("valorAdiantado", v)} /></F>
-                    <F label="Data"><Input type="date" value={comissao.dataAdiantamento} onChange={(e) => setC("dataAdiantamento", e.target.value)} /></F>
+                    <F label="Data"><Input disabled={!editingTab} type="date" value={comissao.dataAdiantamento} onChange={(e) => setC("dataAdiantamento", e.target.value)} /></F>
                     <div className="sm:col-span-2 space-y-1.5">
                       <Label className="text-xs text-zinc-500">Observações</Label>
                       <textarea value={comissao.obsAdiantamento} onChange={(e) => setC("obsAdiantamento", e.target.value)} rows={2}
@@ -731,7 +744,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden space-y-4">
                   <F label="% do corretor principal">
                     <div className="relative">
-                      <Input type="number" step="1" min="0" max="100" value={comissao.percentualPrincipal}
+                      <Input disabled={!editingTab} type="number" step="1" min="0" max="100" value={comissao.percentualPrincipal}
                         onChange={(e) => setC("percentualPrincipal", e.target.value)} placeholder="70" className="pr-8" />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">%</span>
                     </div>
@@ -763,11 +776,11 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                           </button>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                          <F label="Nome"><Input value={c.nome} onChange={(e) => setComissao((p) => ({ ...p, corretores: p.corretores.map((x, idx) => idx === i ? { ...x, nome: e.target.value } : x) }))} placeholder="Nome completo" /></F>
-                          <F label="CRECI"><Input value={c.creci} onChange={(e) => setComissao((p) => ({ ...p, corretores: p.corretores.map((x, idx) => idx === i ? { ...x, creci: e.target.value } : x) }))} placeholder="00000-J" /></F>
+                          <F label="Nome"><Input disabled={!editingTab} value={c.nome} onChange={(e) => setComissao((p) => ({ ...p, corretores: p.corretores.map((x, idx) => idx === i ? { ...x, nome: e.target.value } : x) }))} placeholder="Nome completo" /></F>
+                          <F label="CRECI"><Input disabled={!editingTab} value={c.creci} onChange={(e) => setComissao((p) => ({ ...p, corretores: p.corretores.map((x, idx) => idx === i ? { ...x, creci: e.target.value } : x) }))} placeholder="00000-J" /></F>
                           <F label="% da divisão">
                             <div className="relative">
-                              <Input type="number" value={c.percentual} onChange={(e) => setComissao((p) => ({ ...p, corretores: p.corretores.map((x, idx) => idx === i ? { ...x, percentual: e.target.value } : x) }))} placeholder="30" className="pr-8" />
+                              <Input disabled={!editingTab} type="number" value={c.percentual} onChange={(e) => setComissao((p) => ({ ...p, corretores: p.corretores.map((x, idx) => idx === i ? { ...x, percentual: e.target.value } : x) }))} placeholder="30" className="pr-8" />
                               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">%</span>
                             </div>
                           </F>
@@ -806,7 +819,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 </Sel>
               </F>
               <F label="Chave PIX">
-                <Input value={venda.pixChave} onChange={(e) => setV("pixChave", e.target.value)} placeholder="Digite a chave PIX" />
+                <Input disabled={!editingTab} value={venda.pixChave} onChange={(e) => setV("pixChave", e.target.value)} placeholder="Digite a chave PIX" />
               </F>
             </div>
           </div>
@@ -814,16 +827,16 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Dados Bancários</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <F label="Titular da conta">
-                <Input value={venda.contaTitular} onChange={(e) => setV("contaTitular", e.target.value)} placeholder="Nome completo ou razão social" />
+                <Input disabled={!editingTab} value={venda.contaTitular} onChange={(e) => setV("contaTitular", e.target.value)} placeholder="Nome completo ou razão social" />
               </F>
               <F label="Banco">
-                <Input value={venda.contaBanco} onChange={(e) => setV("contaBanco", e.target.value)} placeholder="Ex: Caixa Econômica Federal" />
+                <Input disabled={!editingTab} value={venda.contaBanco} onChange={(e) => setV("contaBanco", e.target.value)} placeholder="Ex: Caixa Econômica Federal" />
               </F>
               <F label="Agência">
-                <Input value={venda.contaAgencia} onChange={(e) => setV("contaAgencia", e.target.value)} placeholder="0000" />
+                <Input disabled={!editingTab} value={venda.contaAgencia} onChange={(e) => setV("contaAgencia", e.target.value)} placeholder="0000" />
               </F>
               <F label="Conta">
-                <Input value={venda.contaNumero} onChange={(e) => setV("contaNumero", e.target.value)} placeholder="00000-0" />
+                <Input disabled={!editingTab} value={venda.contaNumero} onChange={(e) => setV("contaNumero", e.target.value)} placeholder="00000-0" />
               </F>
               <F label="Tipo de conta">
                 <Sel value={venda.contaTipo} onChange={(v) => setV("contaTipo", v)}>
@@ -936,19 +949,39 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
       </CollapsibleCard>
 
       {/* ── AÇÕES ── */}
-      <div className="flex gap-3">
-        <Button variant="neon" className="flex-1" onClick={handleSave} disabled={saving}>
-          {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Salvando...</> : <><Save className="h-4 w-4 mr-2" />Salvar</>}
-        </Button>
-        <a
-          href={`/admin/clientes/${clienteId}/relatorio-financeiro`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm"
-        >
-          <FileBarChart2 className="h-4 w-4 text-zinc-500" />
-          Gerar Relatório
-        </a>
+      <div className="space-y-3">
+        <AnimatePresence>
+          {editingTab ? (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+              <div className="flex gap-3">
+                <Button variant="neon" className="flex-1" onClick={handleSave} disabled={saving}>
+                  {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Salvando...</> : <><Save className="h-4 w-4 mr-2" />Salvar</>}
+                </Button>
+                <Button variant="outline" onClick={() => { setVenda(savedVenda); setComissao(savedComissao); setContas(savedContas); setEditingTab(false); }} disabled={saving} className="px-5">
+                  Cancelar
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+              <div className="flex gap-3">
+                <Button variant="neon" className="flex-1" onClick={() => setEditingTab(true)}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <a
+                  href={`/admin/clientes/${clienteId}/relatorio-financeiro`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm"
+                >
+                  <FileBarChart2 className="h-4 w-4 text-zinc-500" />
+                  Gerar Relatório
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ── HISTÓRICO ── */}
