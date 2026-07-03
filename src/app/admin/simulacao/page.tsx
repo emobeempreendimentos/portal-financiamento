@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Save, FileDown, Loader2, ArrowLeft, DollarSign } from "lucide-react";
+import { Save, FileDown, Loader2, ArrowLeft, DollarSign, Pencil, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,6 +81,7 @@ export default function SimulacaoPage() {
   const [form, setForm] = useState<FormSimulacao>(emptyForm());
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [editing, setEditing] = useState(true);
 
   const handleCurrencyChange = (field: keyof FormSimulacao, value: string) => {
     const digits = value.replace(/\D/g, "");
@@ -147,6 +148,7 @@ export default function SimulacaoPage() {
         }),
       });
       if (!res.ok) throw new Error();
+      setEditing(false);
       addToast({ title: "Simulação salva!", variant: "success" });
     } catch {
       addToast({ title: "Erro ao salvar", variant: "error" });
@@ -215,7 +217,27 @@ export default function SimulacaoPage() {
           <ArrowLeft className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
         </button>
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Simulação de Financiamento</h1>
+        {!editing && (
+          <button
+            onClick={() => setEditing(true)}
+            className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            title="Editar simulação"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Editar
+          </button>
+        )}
       </div>
+
+      {/* Aviso de simulação salva/travada */}
+      {!editing && (
+        <div className="flex items-center gap-2 rounded-xl border border-green-100 dark:border-green-900/30 bg-green-50 dark:bg-green-900/15 px-4 py-2.5 text-sm text-green-700 dark:text-green-400">
+          <Lock className="h-3.5 w-3.5 shrink-0" />
+          Simulação salva. Clique em <span className="font-semibold">Editar</span> para alterar os dados.
+        </div>
+      )}
+
+      <fieldset disabled={!editing} className="space-y-6 min-w-0 disabled:opacity-70 transition-opacity">
 
       {/* Dados do Cliente */}
       <motion.div
@@ -545,22 +567,26 @@ export default function SimulacaoPage() {
         />
       </motion.div>
 
+      </fieldset>
+
       {/* Botões */}
       <div className="flex gap-3">
-        <Button variant="neon" className="flex-1" onClick={handleSave} disabled={saving}>
-          {saving ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Salvando...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4 mr-2" />
-              Salvar Simulação
-            </>
-          )}
-        </Button>
-        <Button onClick={handleGeneratePDF} disabled={generating} className="px-6">
+        {editing && (
+          <Button variant="neon" className="flex-1" onClick={handleSave} disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Salvar Simulação
+              </>
+            )}
+          </Button>
+        )}
+        <Button onClick={handleGeneratePDF} disabled={generating} className={editing ? "px-6" : "flex-1"}>
           {generating ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
