@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
     yPos += 15;
 
     // Dados das etapas
-    const etapas = [
+    const etapas: Array<{ num: string; titulo: string; desc: string; cor: [number, number, number] }> = [
       { num: "1", titulo: "APROVAÇÃO DE CRÉDITO", desc: "Nesta fase, o banco analisa sua documentação e capacidade de pagamento para aprovar o crédito do financiamento.", cor: [34, 139, 34] },
       { num: "2", titulo: "ENGENHARIA", desc: "Nesta fase, o banco analisa sua documentação e capacidade de pagamento para aprovar o crédito do financiamento.", cor: [144, 238, 144] },
       { num: "3", titulo: "CONTRATO JUNTO AO BANCO", desc: "Com o laudo aprovado, o contrato é emitido pela Caixa. Essa é a etapa em que o financiamento é formalizado.", cor: [152, 251, 152] },
@@ -225,7 +225,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Cabeçalho da etapa com número e título
-      doc.setFillColor(...etapa.cor);
+      doc.setFillColor(etapa.cor[0], etapa.cor[1], etapa.cor[2]);
       doc.rect(xPos, yPos, colWidth - 5, 8, "F");
 
       doc.setFontSize(12);
