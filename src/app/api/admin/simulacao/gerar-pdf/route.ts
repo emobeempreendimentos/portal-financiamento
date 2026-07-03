@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { LOGO_BASE64 } from "@/lib/logo-base64";
+
+// ── Paleta da marca EMOBE ──
+const GREEN: [number, number, number] = [132, 188, 73]; // verde EMOBE
+const DARK: [number, number, number] = [38, 38, 38];
+const GRAY: [number, number, number] = [113, 113, 122];
+const LIGHT: [number, number, number] = [245, 246, 247];
+const LOGO_RATIO = 3.089; // 766 / 248
+
+const fmtBRL = (v: number | null | undefined) =>
+  v != null ? `R$ ${Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,86 +42,9 @@ export async function POST(req: NextRequest) {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    let yPosition = 15;
 
-    // Logo e cabeçalho
-    // Desenho da logo (retângulos representando o ícone de casas)
-    doc.setFillColor(34, 197, 94); // green-500
-    doc.rect(15, yPosition - 2, 5, 6, "F"); // Primeira casa
-    doc.rect(21, yPosition - 2, 5, 6, "F"); // Segunda casa (menor)
-
-    doc.setFontSize(14);
-    doc.setTextColor(34, 197, 94); // green-500
-    doc.setFont("Helvetica", "bold");
-    doc.text("EMOBE", 30, yPosition + 2);
-
-    doc.setFontSize(10);
-    doc.setTextColor(100, 116, 139); // zinc-500
-    doc.setFont("Helvetica", "normal");
-    doc.text("EMPREENDIMENTOS IMOBILIÁRIOS", 30, yPosition + 7);
-
-    yPosition += 15;
-
-    doc.setFontSize(10);
-    doc.setTextColor(100, 116, 139); // zinc-500
-    doc.text(`Simulação de Financiamento - ${new Date().toLocaleDateString("pt-BR")}`, 15, yPosition);
-    yPosition += 12;
-
-    // Linha divisória
-    doc.setDrawColor(229, 231, 235); // zinc-200
-    doc.line(15, yPosition, pageWidth - 15, yPosition);
-    yPosition += 8;
-
-    // Dados do Cliente
-    doc.setFontSize(12);
-    doc.setTextColor(24, 24, 27); // zinc-900
-    doc.text("Dados do Cliente", 15, yPosition);
-    yPosition += 7;
-
-    const clienteData = [
-      ["Campo", "Valor"],
-      ["Nome", clienteNome],
-      ["CPF", clienteCpf],
-      ["Renda Mensal", `R$ ${clienteRenda?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`],
-      ["Data de Nascimento", clienteDataNascimento ? new Date(clienteDataNascimento).toLocaleDateString("pt-BR") : "—"],
-      ["Dependentes", clienteDependentes ? "Sim" : "Não"],
-      ...(clienteTemaFgts ? [["Valor FGTS", `R$ ${clienteValorFgts?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`]] : []),
-    ];
-
-    (doc as any).autoTable({
-      head: [clienteData[0]],
-      body: clienteData.slice(1),
-      startY: yPosition,
-      margin: 15,
-      theme: "grid",
-      headStyles: {
-        fillColor: [34, 197, 94],
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-        fontSize: 10,
-      },
-      bodyStyles: {
-        fontSize: 9,
-        textColor: [24, 24, 27],
-      },
-      alternateRowStyles: {
-        fillColor: [249, 250, 251],
-      },
-      columnStyles: {
-        0: { cellWidth: 60 },
-        1: { cellWidth: "auto" },
-      },
-    });
-
-    yPosition = (doc as any).lastAutoTable.finalY + 10;
-
-    // Dados da Simulação
-    doc.setFontSize(12);
-    doc.setTextColor(24, 24, 27);
-    doc.text("Dados da Simulação", 15, yPosition);
-    yPosition += 7;
-
-    const tipoFinanciamentoLabel = tipoFinanciamento === "mcmv" ? "Plano Minha Casa Minha Vida" : "SBPE";
+    // Labels traduzidos
+    const tipoFinanciamentoLabel = tipoFinanciamento === "mcmv" ? "Minha Casa Minha Vida" : "SBPE";
     const tipoImovelMap: Record<string, string> = {
       novo: "Imóvel Novo",
       usado: "Imóvel Usado",
@@ -118,247 +52,308 @@ export async function POST(req: NextRequest) {
       lote: "Lote",
     };
     const tipoImovelLabel = tipoImovelMap[tipoImovel] || tipoImovel;
-
     const bancoMap: Record<string, string> = {
       caixa: "Caixa Econômica Federal",
       banco_brasil: "Banco do Brasil",
       itau: "Banco Itaú",
     };
     const bancoLabel = bancoMap[banco] || banco;
-
     const sistemaAmortizacaoLabel = sistemaAmortizacao === "price" ? "Price (Parcelas Fixas)" : "SAC (Parcelas Decrescentes)";
-    const taxaPeriodoLabel = taxaPeriodo === "ano" ? "ao ano" : "ao mês";
+    const taxaPeriodoLabel = taxaPeriodo === "ano" ? "a.a" : "a.m";
 
-    const simulacaoData = [
-      ["Campo", "Valor"],
-      ["Tipo de Financiamento", tipoFinanciamentoLabel],
-      ["Tipo de Imóvel", tipoImovelLabel],
-      ["Banco", bancoLabel],
-      ["Valor do Imóvel", `R$ ${valorImovel?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`],
-      ["Valor da Entrada", `R$ ${valorEntrada?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`],
-      ["Valor da Parcela Inicial", `R$ ${valorParcelaInicial?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`],
-      ["Valor da Parcela Final", `R$ ${valorParcelaFinal?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`],
-      [`Prazo (${prazoPeriodo})`, prazo || "—"],
-      ["Taxa de Juros", `${taxaJuros} % ${taxaPeriodoLabel}`],
-      ["Sistema de Amortização", sistemaAmortizacaoLabel],
+    // ══════════════ PÁGINA 1 — SIMULAÇÃO ══════════════
+
+    // Cabeçalho: logo + data
+    doc.addImage(LOGO_BASE64, "PNG", 15, 14, 46, 46 / LOGO_RATIO);
+
+    doc.setFontSize(8);
+    doc.setTextColor(...GRAY);
+    doc.setFont("Helvetica", "normal");
+    doc.text(new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }), pageWidth - 15, 20, { align: "right" });
+
+    // Linha de acento verde
+    doc.setFillColor(...GREEN);
+    doc.rect(15, 34, pageWidth - 30, 1.2, "F");
+
+    // Título
+    let y = 50;
+    doc.setFontSize(24);
+    doc.setTextColor(...DARK);
+    doc.setFont("Helvetica", "bold");
+    doc.text("SIMULAÇÃO DE CRÉDITO", pageWidth / 2, y, { align: "center" });
+    y += 9;
+
+    // Nome + CPF
+    doc.setFontSize(12);
+    doc.setTextColor(...GRAY);
+    doc.setFont("Helvetica", "normal");
+    doc.text(`${clienteNome}${clienteCpf ? `  •  CPF: ${clienteCpf}` : ""}`, pageWidth / 2, y, { align: "center" });
+    y += 10;
+
+    // Badge do tipo de financiamento
+    const badgeText = `${tipoFinanciamentoLabel.toUpperCase()}  —  ${tipoImovelLabel.toUpperCase()}`;
+    doc.setFontSize(10);
+    doc.setFont("Helvetica", "bold");
+    const badgeW = doc.getTextWidth(badgeText) + 12;
+    const badgeX = (pageWidth - badgeW) / 2;
+    doc.setFillColor(...GREEN);
+    doc.roundedRect(badgeX, y - 5, badgeW, 8, 4, 4, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.text(badgeText, pageWidth / 2, y, { align: "center" });
+    y += 14;
+
+    // Cards de destaque (3 valores principais)
+    const cards = [
+      { label: "VALOR DO IMÓVEL", value: fmtBRL(valorImovel) },
+      { label: "ENTRADA", value: fmtBRL(valorEntrada) },
+      { label: "PARCELA INICIAL", value: fmtBRL(valorParcelaInicial) },
+    ];
+    const gap = 5;
+    const cardW = (pageWidth - 30 - 2 * gap) / 3;
+    const cardH = 22;
+    cards.forEach((c, i) => {
+      const cx = 15 + i * (cardW + gap);
+      doc.setFillColor(...LIGHT);
+      doc.roundedRect(cx, y, cardW, cardH, 2.5, 2.5, "F");
+      doc.setFillColor(...GREEN);
+      doc.roundedRect(cx, y, cardW, 2, 1, 1, "F");
+      doc.setFontSize(7);
+      doc.setTextColor(...GRAY);
+      doc.setFont("Helvetica", "normal");
+      doc.text(c.label, cx + cardW / 2, y + 9, { align: "center" });
+      doc.setFontSize(12);
+      doc.setTextColor(...DARK);
+      doc.setFont("Helvetica", "bold");
+      doc.text(c.value, cx + cardW / 2, y + 16.5, { align: "center" });
+    });
+    y += cardH + 12;
+
+    // Tabela: Dados do Cliente
+    const clienteData = [
+      ["Renda Mensal", fmtBRL(clienteRenda)],
+      ["Data de Nascimento", clienteDataNascimento ? new Date(clienteDataNascimento).toLocaleDateString("pt-BR") : "—"],
+      ["Possui Dependentes", clienteDependentes ? "Sim" : "Não"],
+      ["FGTS (+3 anos)", clienteTemaFgts ? `Sim  •  ${fmtBRL(clienteValorFgts)}` : "Não"],
     ];
 
     (doc as any).autoTable({
-      head: [simulacaoData[0]],
-      body: simulacaoData.slice(1),
-      startY: yPosition,
-      margin: 15,
-      theme: "grid",
-      headStyles: {
-        fillColor: [34, 197, 94],
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-        fontSize: 10,
-      },
-      bodyStyles: {
-        fontSize: 9,
-        textColor: [24, 24, 27],
-      },
-      alternateRowStyles: {
-        fillColor: [249, 250, 251],
-      },
-      columnStyles: {
-        0: { cellWidth: 60 },
-        1: { cellWidth: "auto" },
-      },
+      head: [["DADOS DO CLIENTE", ""]],
+      body: clienteData,
+      startY: y,
+      margin: { left: 15, right: 15 },
+      theme: "plain",
+      headStyles: { fillColor: DARK, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 9, cellPadding: 2.5 },
+      bodyStyles: { fontSize: 9, textColor: DARK, cellPadding: 2.5 },
+      alternateRowStyles: { fillColor: LIGHT },
+      columnStyles: { 0: { cellWidth: 65, textColor: GRAY, fontStyle: "bold" }, 1: { cellWidth: "auto" } },
     });
+    y = (doc as any).lastAutoTable.finalY + 6;
 
-    yPosition = (doc as any).lastAutoTable.finalY + 10;
-
-    // Observações
-    if (observacoes) {
-      doc.setFontSize(12);
-      doc.setTextColor(24, 24, 27);
-      doc.text("Observações", 15, yPosition);
-      yPosition += 7;
-
-      doc.setFontSize(9);
-      doc.setTextColor(63, 63, 70); // zinc-700
-      const splitText = doc.splitTextToSize(observacoes, pageWidth - 30);
-      doc.text(splitText, 15, yPosition);
-      yPosition += splitText.length * 5 + 5;
-    }
-
-    // Rodapé - aviso importante
-    const footerY = pageHeight - 30;
-    doc.setDrawColor(229, 231, 235);
-    doc.line(15, footerY - 5, pageWidth - 15, footerY - 5);
-
-    doc.setFontSize(8);
-    doc.setTextColor(119, 132, 149); // zinc-500
-    const footerText =
-      "Esta simulação possui caráter exclusivamente informativo e não constitui proposta definitiva de financiamento. Os valores apresentados podem sofrer alterações conforme análise de crédito, políticas da instituição financeira e documentação apresentada.";
-    const footerLines = doc.splitTextToSize(footerText, pageWidth - 30);
-    doc.text(footerLines, 15, footerY);
-
-    // ========== PÁGINA 2: ETAPAS DO PROCESSO ==========
-    doc.addPage();
-    let yPos = 20;
-
-    // Título
-    doc.setFontSize(20);
-    doc.setTextColor(24, 24, 27);
-    doc.setFont("Helvetica", "bold");
-    doc.text("ETAPAS PROCESSO DE FINANCIAMENTO", pageWidth / 2, yPos, { align: "center" });
-    yPos += 8;
-
-    // Subtítulo
-    doc.setFontSize(11);
-    doc.setTextColor(100, 116, 139);
-    doc.setFont("Helvetica", "normal");
-    doc.text("Financiar um imóvel com a Emobe é sinônimo de transparência e agilidade", pageWidth / 2, yPos, { align: "center" });
-    yPos += 20;
-
-    // Dados das etapas
-    const etapas: Array<{ num: string; titulo: string; desc: string; cor: [number, number, number] }> = [
-      { num: "1", titulo: "APROVAÇÃO DE CRÉDITO", desc: "Nesta fase, o banco analisa sua documentação e capacidade de pagamento para aprovar o crédito do financiamento.", cor: [34, 139, 34] },
-      { num: "2", titulo: "ENGENHARIA", desc: "Nesta fase, o banco analisa sua documentação e capacidade de pagamento para aprovar o crédito do financiamento.", cor: [144, 238, 144] },
-      { num: "3", titulo: "CONTRATO JUNTO AO BANCO", desc: "Com o laudo aprovado, o contrato é emitido pela Caixa. Essa é a etapa em que o financiamento é formalizado.", cor: [152, 251, 152] },
-      { num: "4", titulo: "ITBI", desc: "O ITBI é o imposto de transmissão pago à Prefeitura antes do registro do contrato. É uma etapa obrigatória.", cor: [95, 158, 160] },
-      { num: "5", titulo: "REGISTRO", desc: "Depois do pagamento do ITBI, o contrato é levado ao cartório para registro, tornando o imóvel oficialmente em seu nome", cor: [176, 196, 222] },
-      { num: "6", titulo: "ENTREGA DAS CHAVES", desc: "Com tudo registrado e liberado pela Caixa, é hora de receber as chaves e realizar o sonho da casa própria!", cor: [100, 116, 139] },
+    // Tabela: Detalhes da Simulação
+    const simulacaoData = [
+      ["Banco", bancoLabel],
+      ["Valor da Parcela Final", fmtBRL(valorParcelaFinal)],
+      ["Prazo", `${prazo || "—"} ${prazoPeriodo}`],
+      ["Sistema de Amortização", sistemaAmortizacaoLabel],
+      ["Taxa de Juros", `${taxaJuros} % ${taxaPeriodoLabel}`],
     ];
 
-    // Desenhar círculos com números das etapas no topo (visual circular)
-    const centerX = pageWidth / 2;
-    const centerY = yPos + 15;
-    const radius = 25;
+    (doc as any).autoTable({
+      head: [["DETALHES DA SIMULAÇÃO", ""]],
+      body: simulacaoData,
+      startY: y,
+      margin: { left: 15, right: 15 },
+      theme: "plain",
+      headStyles: { fillColor: DARK, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 9, cellPadding: 2.5 },
+      bodyStyles: { fontSize: 9, textColor: DARK, cellPadding: 2.5 },
+      alternateRowStyles: { fillColor: LIGHT },
+      columnStyles: { 0: { cellWidth: 65, textColor: GRAY, fontStyle: "bold" }, 1: { cellWidth: "auto" } },
+    });
+    y = (doc as any).lastAutoTable.finalY + 8;
 
-    // Círculo central (placeholder)
-    doc.setDrawColor(229, 231, 235);
-    doc.circle(centerX, centerY, 8);
-
-    // Desenhar os 6 círculos ao redor
-    for (let i = 0; i < 6; i++) {
-      const angle = (i * Math.PI * 2) / 6 - Math.PI / 2;
-      const x = centerX + radius * Math.cos(angle);
-      const y = centerY + radius * Math.sin(angle);
-
-      // Círculo colorido
-      doc.setFillColor(etapas[i].cor[0], etapas[i].cor[1], etapas[i].cor[2]);
-      doc.circle(x, y, 5, "F");
-
-      // Número
-      doc.setFontSize(12);
+    // Caixa de observações (estilo marca — fundo escuro arredondado)
+    if (observacoes) {
+      doc.setFontSize(9);
+      const obsLines = doc.splitTextToSize(observacoes, pageWidth - 46);
+      const boxH = obsLines.length * 5 + 10;
+      doc.setFillColor(...DARK);
+      doc.roundedRect(15, y, pageWidth - 30, boxH, 3, 3, "F");
       doc.setTextColor(255, 255, 255);
-      doc.setFont("Helvetica", "bold");
-      doc.text(etapas[i].num, x, y + 1.5, { align: "center" });
+      doc.setFont("Helvetica", "normal");
+      doc.text(obsLines, 23, y + 8);
     }
 
-    yPos += 50;
+    // Rodapé — aviso legal
+    const footerY = pageHeight - 24;
+    doc.setDrawColor(...LIGHT);
+    doc.setLineWidth(0.4);
+    doc.line(15, footerY - 4, pageWidth - 15, footerY - 4);
+    doc.setFontSize(7);
+    doc.setTextColor(...GRAY);
+    doc.setFont("Helvetica", "normal");
+    const footerText =
+      "Esta simulação possui caráter exclusivamente informativo e não constitui proposta definitiva de financiamento. Os valores apresentados podem sofrer alterações conforme análise de crédito, políticas da instituição financeira e documentação apresentada.";
+    doc.text(doc.splitTextToSize(footerText, pageWidth - 30), 15, footerY);
 
-    // Renderizar etapas em 2 colunas abaixo
-    const colWidth = (pageWidth - 30) / 2;
+    // ══════════════ PÁGINA 2 — ETAPAS DO PROCESSO ══════════════
+    doc.addPage();
+
+    // Faixa de cabeçalho verde
+    doc.setFillColor(...GREEN);
+    doc.rect(0, 0, pageWidth, 4, "F");
+
+    let yp = 26;
+    doc.setFontSize(19);
+    doc.setTextColor(...DARK);
+    doc.setFont("Helvetica", "bold");
+    doc.text("ETAPAS DO PROCESSO DE FINANCIAMENTO", pageWidth / 2, yp, { align: "center" });
+    yp += 8;
+    doc.setFontSize(10.5);
+    doc.setTextColor(...GRAY);
+    doc.setFont("Helvetica", "normal");
+    doc.text("Financiar um imóvel com a Emobe é sinônimo de transparência e agilidade", pageWidth / 2, yp, { align: "center" });
+    yp += 16;
+
+    const etapas: Array<{ num: string; titulo: string; desc: string; cor: [number, number, number] }> = [
+      { num: "1", titulo: "APROVAÇÃO DE CRÉDITO", desc: "Nesta fase, o banco analisa sua documentação e capacidade de pagamento para aprovar o crédito do financiamento.", cor: [27, 94, 32] },
+      { num: "2", titulo: "ENGENHARIA", desc: "O banco realiza a avaliação de engenharia do imóvel, verificando suas condições e o valor de mercado.", cor: [76, 175, 80] },
+      { num: "3", titulo: "CONTRATO JUNTO AO BANCO", desc: "Com o laudo aprovado, o contrato é emitido pela Caixa. Essa é a etapa em que o financiamento é formalizado.", cor: [156, 204, 101] },
+      { num: "4", titulo: "ITBI", desc: "O ITBI é o imposto de transmissão pago à Prefeitura antes do registro do contrato. É uma etapa obrigatória.", cor: [79, 143, 149] },
+      { num: "5", titulo: "REGISTRO", desc: "Depois do pagamento do ITBI, o contrato é levado ao cartório para registro, tornando o imóvel oficialmente em seu nome.", cor: [120, 144, 176] },
+      { num: "6", titulo: "ENTREGA DAS CHAVES", desc: "Com tudo registrado e liberado pela Caixa, é hora de receber as chaves e realizar o sonho da casa própria!", cor: [63, 81, 122] },
+    ];
+
+    // Diagrama circular central
+    const centerX = pageWidth / 2;
+    const centerY = yp + 22;
+    const orbit = 26;
+    doc.setFillColor(...LIGHT);
+    doc.circle(centerX, centerY, 11, "F");
+    doc.setFillColor(255, 255, 255);
+    doc.circle(centerX, centerY, 7, "F");
+    for (let i = 0; i < 6; i++) {
+      const angle = (i * Math.PI * 2) / 6 - Math.PI / 2;
+      const x = centerX + orbit * Math.cos(angle);
+      const yy = centerY + orbit * Math.sin(angle);
+      doc.setFillColor(etapas[i].cor[0], etapas[i].cor[1], etapas[i].cor[2]);
+      doc.circle(x, yy, 7, "F");
+      doc.setFontSize(13);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("Helvetica", "bold");
+      doc.text(etapas[i].num, x, yy + 2, { align: "center" });
+    }
+    yp = centerY + orbit + 22;
+
+    // Cards das etapas em 2 colunas
+    const colW = (pageWidth - 30 - 6) / 2;
     const colX1 = 15;
-    const colX2 = colX1 + colWidth + 5;
-
+    const colX2 = colX1 + colW + 6;
+    const rowH = 34;
     for (let i = 0; i < etapas.length; i++) {
       const etapa = etapas[i];
-      const isRightCol = i % 2 === 1;
-      const xPos = isRightCol ? colX2 : colX1;
+      const col = i % 2;
+      const rowIdx = Math.floor(i / 2);
+      const xPos = col === 0 ? colX1 : colX2;
+      const yPos = yp + rowIdx * (rowH + 6);
 
-      if (i % 2 === 0 && i > 0) {
-        yPos += 50;
-      }
-
-      // Cabeçalho da etapa com número e título
+      // Card
+      doc.setFillColor(...LIGHT);
+      doc.roundedRect(xPos, yPos, colW, rowH, 2.5, 2.5, "F");
+      // Barra lateral colorida
       doc.setFillColor(etapa.cor[0], etapa.cor[1], etapa.cor[2]);
-      doc.rect(xPos, yPos, colWidth - 5, 7, "F");
-
+      doc.roundedRect(xPos, yPos, 3, rowH, 1.5, 1.5, "F");
+      // Círculo com número
+      doc.setFillColor(etapa.cor[0], etapa.cor[1], etapa.cor[2]);
+      doc.circle(xPos + 11, yPos + 10, 5, "F");
       doc.setFontSize(11);
       doc.setTextColor(255, 255, 255);
       doc.setFont("Helvetica", "bold");
-      doc.text(etapa.num, xPos + 3, yPos + 5);
-      doc.text(etapa.titulo, xPos + 10, yPos + 5);
-
+      doc.text(etapa.num, xPos + 11, yPos + 11.5, { align: "center" });
+      // Título
+      doc.setFontSize(9.5);
+      doc.setTextColor(...DARK);
+      doc.setFont("Helvetica", "bold");
+      doc.text(etapa.titulo, xPos + 19, yPos + 11);
       // Descrição
-      doc.setFont("Helvetica","normal");
+      doc.setFont("Helvetica", "normal");
       doc.setFontSize(7.5);
-      doc.setTextColor(63, 63, 70);
-      const descLines = doc.splitTextToSize(etapa.desc, colWidth - 10);
-      doc.text(descLines, xPos + 3, yPos + 11);
+      doc.setTextColor(...GRAY);
+      const descLines = doc.splitTextToSize(etapa.desc, colW - 12);
+      doc.text(descLines, xPos + 8, yPos + 19);
     }
 
-    // ========== PÁGINA 3: INFORMAÇÕES FINAIS ==========
+    // ══════════════ PÁGINA 3 — MARCA / CONTATO ══════════════
     doc.addPage();
-    yPos = 40;
 
-    // Logo e nome da empresa (simulado com texto)
-    doc.setFontSize(28);
-    doc.setTextColor(34, 139, 34);
-    doc.text("EMOBE", pageWidth / 2, yPos, { align: "center" });
-    yPos += 12;
+    // Logo centralizada
+    const logoW = 90;
+    const logoH = logoW / LOGO_RATIO;
+    doc.addImage(LOGO_BASE64, "PNG", (pageWidth - logoW) / 2, 45, logoW, logoH);
 
-    doc.setFontSize(14);
-    doc.setTextColor(24, 24, 27);
-    doc.text("CRECI 4682J", pageWidth / 2, yPos, { align: "center" });
-    yPos += 8;
+    let y3 = 45 + logoH + 16;
+    doc.setFontSize(13);
+    doc.setTextColor(...DARK);
+    doc.setFont("Helvetica", "bold");
+    doc.text("O imóvel dos seus sonhos está aqui", pageWidth / 2, y3, { align: "center" });
+    y3 += 20;
 
-    doc.setFontSize(12);
-    doc.setTextColor(100, 116, 139);
-    doc.text("EMPREENDIMENTOS IMOBILIÁRIOS", pageWidth / 2, yPos, { align: "center" });
-    yPos += 12;
+    // Divisória verde
+    doc.setFillColor(...GREEN);
+    doc.rect(pageWidth / 2 - 20, y3, 40, 1, "F");
+    y3 += 16;
 
+    // Próximos passos
     doc.setFontSize(11);
-    doc.setTextColor(63, 63, 70);
-    doc.text("O imóvel dos seus sonhos está aqui", pageWidth / 2, yPos, { align: "center" });
-    yPos += 30;
-
-    // Informações finais
-    doc.setFontSize(10);
-    doc.setTextColor(24, 24, 27);
-    doc.setFont("Helvetica","bold");
-    doc.text("PRÓXIMOS PASSOS:", 15, yPos);
-    yPos += 8;
-
-    doc.setFont("Helvetica","normal");
-    doc.setFontSize(9);
+    doc.setTextColor(...DARK);
+    doc.setFont("Helvetica", "bold");
+    doc.text("PRÓXIMOS PASSOS", 20, y3);
+    y3 += 9;
     const proximosPassos = [
-      "1. Entre em contato conosco para iniciar o processo de financiamento",
-      "2. Apresente a documentação necessária para análise de crédito",
-      "3. Aguarde a aprovação do banco e liberação do crédito",
-      "4. Acompanhe todas as etapas do processo através do nosso portal",
-      "5. Realize o sonho de ter a casa própria!",
+      "Entre em contato conosco para iniciar o processo de financiamento",
+      "Apresente a documentação necessária para análise de crédito",
+      "Aguarde a aprovação do banco e liberação do crédito",
+      "Acompanhe todas as etapas do processo através do nosso portal",
+      "Realize o sonho de ter a casa própria!",
     ];
-
-    doc.setTextColor(63, 63, 70);
-    proximosPassos.forEach((passo) => {
-      doc.text(passo, 15, yPos);
-      yPos += 7;
+    proximosPassos.forEach((passo, i) => {
+      doc.setFillColor(...GREEN);
+      doc.circle(23, y3 - 1.2, 3, "F");
+      doc.setFontSize(8);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("Helvetica", "bold");
+      doc.text(String(i + 1), 23, y3, { align: "center" });
+      doc.setFontSize(9.5);
+      doc.setTextColor(...DARK);
+      doc.setFont("Helvetica", "normal");
+      doc.text(passo, 30, y3, { baseline: "middle" });
+      y3 += 10;
     });
 
-    yPos += 10;
+    y3 += 8;
 
-    // Contato
+    // Caixa de contato
+    const contatoH = 34;
+    doc.setFillColor(...DARK);
+    doc.roundedRect(20, y3, pageWidth - 40, contatoH, 3, 3, "F");
     doc.setFontSize(10);
-    doc.setTextColor(24, 24, 27);
-    doc.setFont("Helvetica","bold");
-    doc.text("CONTATO:", 15, yPos);
-    yPos += 7;
-
-    doc.setFont("Helvetica","normal");
-    doc.setFontSize(9);
-    doc.setTextColor(63, 63, 70);
-    doc.text("Estamos à disposição para tirar suas dúvidas e orientá-lo durante todo o processo.", 15, yPos);
-    yPos += 5;
-    doc.text("Visite nosso site: www.emobe.com.br", 15, yPos);
-    yPos += 5;
-    doc.text("Email: contato@emobe.com.br", 15, yPos);
-    yPos += 5;
-    doc.text("WhatsApp: (11) 9999-9999", 15, yPos);
+    doc.setTextColor(...GREEN);
+    doc.setFont("Helvetica", "bold");
+    doc.text("FALE CONOSCO", 28, y3 + 9);
+    doc.setFontSize(8.5);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("Helvetica", "normal");
+    doc.text("Site: www.emobe.com.br", 28, y3 + 17);
+    doc.text("E-mail: contato@emobe.com.br", 28, y3 + 23);
+    doc.text("WhatsApp: (11) 9999-9999", 28, y3 + 29);
+    doc.setTextColor(...GRAY);
+    doc.text("CRECI 4682J", pageWidth - 28, y3 + 29, { align: "right" });
 
     // Gerar PDF
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
-
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="simulacao-${clienteNome.replace(/\s+/g, "-")}.pdf"`,
+        "Content-Disposition": `attachment; filename="simulacao-${String(clienteNome).replace(/\s+/g, "-")}.pdf"`,
       },
     });
   } catch (error) {
