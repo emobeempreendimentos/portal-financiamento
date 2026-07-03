@@ -24,6 +24,7 @@ interface FormSimulacao {
   banco: string;
   valorImovel: string;
   valorEntrada: string;
+  subsidio: string;
   valorParcelaInicial: string;
   valorParcelaFinal: string;
   prazo: string;
@@ -48,6 +49,7 @@ const emptyForm = (): FormSimulacao => ({
   banco: "caixa",
   valorImovel: "",
   valorEntrada: "",
+  subsidio: "",
   valorParcelaInicial: "",
   valorParcelaFinal: "",
   prazo: "",
@@ -133,6 +135,7 @@ export default function SimulacaoPage() {
           banco: form.banco,
           valorImovel: parseCurrency(form.valorImovel),
           valorEntrada: parseCurrency(form.valorEntrada),
+          subsidio: parseCurrency(form.subsidio),
           valorParcelaInicial: parseCurrency(form.valorParcelaInicial),
           valorParcelaFinal: parseCurrency(form.valorParcelaFinal),
           prazo: parseInt(form.prazo) || 0,
@@ -175,6 +178,7 @@ export default function SimulacaoPage() {
           banco: form.banco,
           valorImovel: parseCurrency(form.valorImovel),
           valorEntrada: parseCurrency(form.valorEntrada),
+          subsidio: parseCurrency(form.subsidio),
           valorParcelaInicial: parseCurrency(form.valorParcelaInicial),
           valorParcelaFinal: parseCurrency(form.valorParcelaFinal),
           prazo: parseInt(form.prazo) || 0,
@@ -405,6 +409,19 @@ export default function SimulacaoPage() {
                 className="pl-9"
                 value={form.valorEntrada}
                 onChange={(e) => handleCurrencyChange("valorEntrada", e.target.value)}
+                placeholder="0,00"
+                inputMode="numeric"
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Subsídio</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none">R$</span>
+              <Input
+                className="pl-9"
+                value={form.subsidio}
+                onChange={(e) => handleCurrencyChange("subsidio", e.target.value)}
                 placeholder="0,00"
                 inputMode="numeric"
               />

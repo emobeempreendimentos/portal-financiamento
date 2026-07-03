@@ -241,6 +241,7 @@ export interface Simulacao {
   tipoImovel: "novo" | "usado" | "lote_construcao" | "lote";
   valorImovel: number;
   valorEntrada: number;
+  subsidio?: number | null;
   valorParcelaInicial: number;
   valorParcelaFinal: number;
   prazo: number;

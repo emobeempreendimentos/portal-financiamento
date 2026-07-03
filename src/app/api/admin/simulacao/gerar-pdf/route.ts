@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       banco,
       valorImovel,
       valorEntrada,
+      subsidio,
       valorParcelaInicial,
       valorParcelaFinal,
       prazo,
@@ -153,6 +154,7 @@ export async function POST(req: NextRequest) {
     // Tabela: Detalhes da Simulação
     const simulacaoData = [
       ["Banco", bancoLabel],
+      ["Subsídio", fmtBRL(subsidio)],
       ["Valor da Parcela Final", fmtBRL(valorParcelaFinal)],
       ["Prazo", `${prazo || "—"} ${prazoPeriodo}`],
       ["Sistema de Amortização", sistemaAmortizacaoLabel],
