@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { LOGO_BASE64 } from "@/lib/logo-base64";
+import { DIAGRAMA_BASE64 } from "@/lib/diagrama-base64";
 
 // ── Paleta da marca EMOBE ──
 const GREEN: [number, number, number] = [132, 188, 73]; // verde EMOBE
@@ -223,26 +224,11 @@ export async function POST(req: NextRequest) {
       { num: "6", titulo: "ENTREGA DAS CHAVES", desc: "Com tudo registrado e liberado pela Caixa, é hora de receber as chaves e realizar o sonho da casa própria!", cor: [63, 81, 122] },
     ];
 
-    // Diagrama circular central
-    const centerX = pageWidth / 2;
-    const centerY = yp + 22;
-    const orbit = 26;
-    doc.setFillColor(...LIGHT);
-    doc.circle(centerX, centerY, 11, "F");
-    doc.setFillColor(255, 255, 255);
-    doc.circle(centerX, centerY, 7, "F");
-    for (let i = 0; i < 6; i++) {
-      const angle = (i * Math.PI * 2) / 6 - Math.PI / 2;
-      const x = centerX + orbit * Math.cos(angle);
-      const yy = centerY + orbit * Math.sin(angle);
-      doc.setFillColor(etapas[i].cor[0], etapas[i].cor[1], etapas[i].cor[2]);
-      doc.circle(x, yy, 7, "F");
-      doc.setFontSize(13);
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("Helvetica", "bold");
-      doc.text(etapas[i].num, x, yy + 2, { align: "center" });
-    }
-    yp = centerY + orbit + 22;
+    // Diagrama hexagonal (imagem real)
+    const diagW = 78;
+    const diagH = diagW / 1.023;
+    doc.addImage(DIAGRAMA_BASE64, "PNG", (pageWidth - diagW) / 2, yp, diagW, diagH);
+    yp += diagH + 12;
 
     // Cards das etapas em 2 colunas
     const colW = (pageWidth - 30 - 6) / 2;
