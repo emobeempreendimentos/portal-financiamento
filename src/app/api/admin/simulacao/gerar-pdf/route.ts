@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
       clienteValorFgts,
       tipoFinanciamento,
       tipoImovel,
+      banco,
       valorImovel,
       valorEntrada,
       valorParcelaInicial,
@@ -106,6 +107,13 @@ export async function POST(req: NextRequest) {
     };
     const tipoImovelLabel = tipoImovelMap[tipoImovel] || tipoImovel;
 
+    const bancoMap: Record<string, string> = {
+      caixa: "Caixa Econômica Federal",
+      banco_brasil: "Banco do Brasil",
+      itau: "Banco Itaú",
+    };
+    const bancoLabel = bancoMap[banco] || banco;
+
     const sistemaAmortizacaoLabel = sistemaAmortizacao === "price" ? "Price (Parcelas Fixas)" : "SAC (Parcelas Decrescentes)";
     const taxaPeriodoLabel = taxaPeriodo === "ano" ? "ao ano" : "ao mês";
 
@@ -113,6 +121,7 @@ export async function POST(req: NextRequest) {
       ["Campo", "Valor"],
       ["Tipo de Financiamento", tipoFinanciamentoLabel],
       ["Tipo de Imóvel", tipoImovelLabel],
+      ["Banco", bancoLabel],
       ["Valor do Imóvel", `R$ ${valorImovel?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`],
       ["Valor da Entrada", `R$ ${valorEntrada?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`],
       ["Valor da Parcela Inicial", `R$ ${valorParcelaInicial?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}`],

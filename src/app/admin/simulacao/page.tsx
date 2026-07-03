@@ -21,6 +21,7 @@ interface FormSimulacao {
   // Simulação
   tipoFinanciamento: "mcmv" | "sbpe";
   tipoImovel: "novo" | "usado" | "lote_construcao" | "lote";
+  banco: string;
   valorImovel: string;
   valorEntrada: string;
   valorParcelaInicial: string;
@@ -44,6 +45,7 @@ const emptyForm = (): FormSimulacao => ({
   clienteValorFgts: "",
   tipoFinanciamento: "sbpe",
   tipoImovel: "novo",
+  banco: "caixa",
   valorImovel: "",
   valorEntrada: "",
   valorParcelaInicial: "",
@@ -94,10 +96,16 @@ export default function SimulacaoPage() {
   const handleCpfChange = (value: string) => {
     const digits = value.replace(/\D/g, "");
     if (digits.length <= 11) {
-      const formatted = digits
-        .padEnd(11, "0")
-        .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
-        .replace(/(\d{3})\.(\d{3})\.(\d{3})-?$/, "$1.$2.$3");
+      let formatted = digits;
+      if (digits.length > 3) {
+        formatted = `${digits.slice(0, 3)}.${digits.slice(3)}`;
+      }
+      if (digits.length > 6) {
+        formatted = `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+      }
+      if (digits.length > 9) {
+        formatted = `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+      }
       setForm((p) => ({ ...p, clienteCpf: formatted }));
     }
   };
@@ -122,6 +130,7 @@ export default function SimulacaoPage() {
           clienteValorFgts: form.clienteTemaFgts ? parseCurrency(form.clienteValorFgts) : null,
           tipoFinanciamento: form.tipoFinanciamento,
           tipoImovel: form.tipoImovel,
+          banco: form.banco,
           valorImovel: parseCurrency(form.valorImovel),
           valorEntrada: parseCurrency(form.valorEntrada),
           valorParcelaInicial: parseCurrency(form.valorParcelaInicial),
@@ -163,6 +172,7 @@ export default function SimulacaoPage() {
           clienteValorFgts: form.clienteTemaFgts ? parseCurrency(form.clienteValorFgts) : null,
           tipoFinanciamento: form.tipoFinanciamento,
           tipoImovel: form.tipoImovel,
+          banco: form.banco,
           valorImovel: parseCurrency(form.valorImovel),
           valorEntrada: parseCurrency(form.valorEntrada),
           valorParcelaInicial: parseCurrency(form.valorParcelaInicial),
@@ -360,6 +370,18 @@ export default function SimulacaoPage() {
               <option value="usado">Imóvel Usado</option>
               <option value="lote_construcao">Lote + Construção</option>
               <option value="lote">Lote</option>
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Banco</Label>
+            <select
+              value={form.banco}
+              onChange={(e) => setForm((p) => ({ ...p, banco: e.target.value }))}
+              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="caixa">Caixa Econômica Federal</option>
+              <option value="banco_brasil">Banco do Brasil</option>
+              <option value="itau">Banco Itaú</option>
             </select>
           </div>
           <div className="space-y-1.5">
