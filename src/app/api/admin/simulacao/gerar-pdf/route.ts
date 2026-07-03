@@ -98,12 +98,13 @@ export async function POST(req: NextRequest) {
     yPosition += 7;
 
     const tipoFinanciamentoLabel = tipoFinanciamento === "mcmv" ? "Plano Minha Casa Minha Vida" : "SBPE";
-    const tipoImovelLabel = {
+    const tipoImovelMap: Record<string, string> = {
       novo: "Imóvel Novo",
       usado: "Imóvel Usado",
       lote_construcao: "Lote + Construção",
       lote: "Lote",
-    }[tipoImovel] || tipoImovel;
+    };
+    const tipoImovelLabel = tipoImovelMap[tipoImovel] || tipoImovel;
 
     const sistemaAmortizacaoLabel = sistemaAmortizacao === "price" ? "Price (Parcelas Fixas)" : "SAC (Parcelas Decrescentes)";
     const taxaPeriodoLabel = taxaPeriodo === "ano" ? "ao ano" : "ao mês";
