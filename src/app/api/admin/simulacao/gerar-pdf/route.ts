@@ -236,7 +236,7 @@ export async function POST(req: NextRequest) {
       doc.text(etapa.titulo, xPos + 10, yPos + 6);
 
       // Descrição
-      doc.setFont(undefined, "normal");
+      doc.setFont("Helvetica","normal");
       doc.setFontSize(8);
       doc.setTextColor(63, 63, 70);
       const descLines = doc.splitTextToSize(etapa.desc, colWidth - 10);
@@ -271,11 +271,11 @@ export async function POST(req: NextRequest) {
     // Informações finais
     doc.setFontSize(10);
     doc.setTextColor(24, 24, 27);
-    doc.setFont(undefined, "bold");
+    doc.setFont("Helvetica","bold");
     doc.text("PRÓXIMOS PASSOS:", 15, yPos);
     yPos += 8;
 
-    doc.setFont(undefined, "normal");
+    doc.setFont("Helvetica","normal");
     doc.setFontSize(9);
     const proximosPassos = [
       "1. Entre em contato conosco para iniciar o processo de financiamento",
@@ -296,11 +296,11 @@ export async function POST(req: NextRequest) {
     // Contato
     doc.setFontSize(10);
     doc.setTextColor(24, 24, 27);
-    doc.setFont(undefined, "bold");
+    doc.setFont("Helvetica","bold");
     doc.text("CONTATO:", 15, yPos);
     yPos += 7;
 
-    doc.setFont(undefined, "normal");
+    doc.setFont("Helvetica","normal");
     doc.setFontSize(9);
     doc.setTextColor(63, 63, 70);
     doc.text("Estamos à disposição para tirar suas dúvidas e orientá-lo durante todo o processo.", 15, yPos);
