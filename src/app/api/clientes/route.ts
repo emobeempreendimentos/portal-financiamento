@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
         nome,
         email,
         senha: senhaHash,
+        senhaVisivel: senha,
         telefone,
         cpf,
         conjuge,

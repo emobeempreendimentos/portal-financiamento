@@ -31,6 +31,7 @@ function corAtividade(dias: number) {
 }
 
 interface ClienteDetalhado extends User {
+  senhaVisivel?: string | null;
   financiamento: (Financiamento & {
     etapas: Etapa[];
     historico: Historico[];
@@ -47,6 +48,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [form, setForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", conjugeCpf: "", conjugeEmail: "", conjugeTelefone: "", banco: "" });
   const [novaSenha, setNovaSenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
+  const [showSenhaSalva, setShowSenhaSalva] = useState(false);
   const [savingSenha, setSavingSenha] = useState(false);
   const [pendencias, setPendencias] = useState<Pendencia[]>([]);
   const [motivoCancelamento, setMotivoCancelamento] = useState("");
@@ -120,6 +122,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
         body: JSON.stringify({ ...form, senha: novaSenha }),
       });
       if (!res.ok) throw new Error();
+      setCliente((prev) => (prev ? { ...prev, senhaVisivel: novaSenha } : prev));
       setNovaSenha("");
       addToast({ title: "Senha alterada com sucesso!", variant: "success" });
     } catch {
@@ -489,6 +492,35 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           <KeyRound className="h-4 w-4 text-zinc-400" />
           <h2 className="font-semibold text-zinc-900 dark:text-white">Alterar Senha do Cliente</h2>
         </div>
+
+        {/* Última senha cadastrada */}
+        <div className="mb-4 rounded-xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40 p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-0.5">Última senha cadastrada</p>
+              {cliente?.senhaVisivel ? (
+                <p className="text-sm font-mono text-zinc-900 dark:text-white truncate">
+                  {showSenhaSalva ? cliente.senhaVisivel : "•".repeat(cliente.senhaVisivel.length)}
+                </p>
+              ) : (
+                <p className="text-sm text-zinc-400 dark:text-zinc-600 italic">
+                  Nenhuma senha registrada. Defina uma nova senha abaixo.
+                </p>
+              )}
+            </div>
+            {cliente?.senhaVisivel && (
+              <button
+                type="button"
+                onClick={() => setShowSenhaSalva((v) => !v)}
+                className="shrink-0 p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                title={showSenhaSalva ? "Ocultar senha" : "Ver senha"}
+              >
+                {showSenhaSalva ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="flex gap-3 items-end">
           <div className="flex-1 space-y-1.5">
             <Label htmlFor="nova-senha">Nova Senha</Label>

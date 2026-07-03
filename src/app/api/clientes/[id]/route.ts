@@ -33,8 +33,10 @@ export async function GET(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { senha: _senha, ...userSemSenha } = user;
-    return NextResponse.json({ success: true, data: userSemSenha });
+    const { senha: _senha, senhaVisivel, ...userSemSenha } = user;
+    // Somente admin pode ver a senha legível do cliente
+    const data = session.role === "admin" ? { ...userSemSenha, senhaVisivel } : userSemSenha;
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Erro interno";
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
@@ -58,6 +60,7 @@ export async function PUT(
       const data: Record<string, unknown> = { nome, email, telefone, cpf, conjuge, conjugeCpf, conjugeEmail, conjugeTelefone, banco };
       if (senha) {
         data.senha = await bcrypt.hash(senha, 12);
+        data.senhaVisivel = senha;
       }
 
       const updated = await prisma.user.update({
