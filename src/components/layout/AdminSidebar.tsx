@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, UserPlus, Building2, ChevronRight, Landmark, User } from "lucide-react";
+import { LayoutDashboard, Users, UserPlus, Building2, ChevronRight, Landmark, User, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navGroups = [
@@ -13,6 +13,12 @@ const navGroups = [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
       { href: "/admin/clientes", label: "Clientes", icon: Users, exact: false },
       { href: "/admin/clientes/novo", label: "Novo Cliente", icon: UserPlus, exact: true },
+    ],
+  },
+  {
+    label: "Ferramentas",
+    items: [
+      { href: "/admin/simulacao", label: "Simulação", icon: Calculator, exact: false },
     ],
   },
   {

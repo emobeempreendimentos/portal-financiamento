@@ -226,6 +226,35 @@ export interface JWTPayload {
   nome: string;
 }
 
+export interface Simulacao {
+  id: string;
+  // Cliente
+  clienteNome: string;
+  clienteCpf: string;
+  clienteRenda: number;
+  clienteDataNascimento: string;
+  clienteDependentes: boolean;
+  clienteTemaFgts: boolean;
+  clienteValorFgts?: number | null;
+  // Simulação
+  tipoFinanciamento: "mcmv" | "sbpe";
+  tipoImovel: "novo" | "usado" | "lote_construcao" | "lote";
+  valorImovel: number;
+  valorEntrada: number;
+  valorParcelaInicial: number;
+  valorParcelaFinal: number;
+  prazo: number;
+  prazoPeriodo: "anos" | "meses";
+  taxaJuros: number;
+  taxaPeriodo: "ano" | "mes";
+  sistemaAmortizacao: "price" | "sac";
+  // Observações
+  observacoes: string;
+  // Metadados
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
