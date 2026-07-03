@@ -318,7 +318,7 @@ export async function POST(req: NextRequest) {
     y3 += 8;
 
     // Caixa de contato
-    const contatoH = 34;
+    const contatoH = 40;
     doc.setFillColor(...DARK);
     doc.roundedRect(20, y3, pageWidth - 40, contatoH, 3, 3, "F");
     doc.setFontSize(10);
@@ -328,11 +328,12 @@ export async function POST(req: NextRequest) {
     doc.setFontSize(8.5);
     doc.setTextColor(255, 255, 255);
     doc.setFont("Helvetica", "normal");
-    doc.text("Site: www.emobe.com.br", 28, y3 + 17);
-    doc.text("E-mail: contato@emobe.com.br", 28, y3 + 23);
-    doc.text("WhatsApp: (11) 9999-9999", 28, y3 + 29);
+    doc.text("Site: www.emobe.com.br", 28, y3 + 15);
+    doc.text("E-mail: contato@emobe.com.br", 28, y3 + 21);
+    doc.text("WhatsApp: (37) 99925.1577", 28, y3 + 27);
+    doc.text("WhatsApp: (37) 99813.1577", 28, y3 + 33);
     doc.setTextColor(...GRAY);
-    doc.text("CRECI 4682J", pageWidth - 28, y3 + 29, { align: "right" });
+    doc.text("CRECI 4682J", pageWidth - 28, y3 + 33, { align: "right" });
 
     // Gerar PDF
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
