@@ -33,11 +33,23 @@ export async function POST(req: NextRequest) {
     const pageHeight = doc.internal.pageSize.getHeight();
     let yPosition = 15;
 
-    // Cabeçalho
+    // Logo e cabeçalho
+    // Desenho da logo (retângulos representando o ícone de casas)
+    doc.setFillColor(34, 197, 94); // green-500
+    doc.rect(15, yPosition - 2, 5, 6, "F"); // Primeira casa
+    doc.rect(21, yPosition - 2, 5, 6, "F"); // Segunda casa (menor)
+
     doc.setFontSize(14);
     doc.setTextColor(34, 197, 94); // green-500
-    doc.text("EMOBE Empreendimentos Imobiliários", 15, yPosition);
-    yPosition += 8;
+    doc.setFont("Helvetica", "bold");
+    doc.text("EMOBE", 30, yPosition + 2);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139); // zinc-500
+    doc.setFont("Helvetica", "normal");
+    doc.text("EMPREENDIMENTOS IMOBILIÁRIOS", 30, yPosition + 7);
+
+    yPosition += 15;
 
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139); // zinc-500
@@ -191,14 +203,16 @@ export async function POST(req: NextRequest) {
     // Título
     doc.setFontSize(20);
     doc.setTextColor(24, 24, 27);
+    doc.setFont("Helvetica", "bold");
     doc.text("ETAPAS PROCESSO DE FINANCIAMENTO", pageWidth / 2, yPos, { align: "center" });
     yPos += 8;
 
     // Subtítulo
     doc.setFontSize(11);
     doc.setTextColor(100, 116, 139);
-    doc.text("Financiar um imóvel com a Emobe é sinônimo e transparência e agilidade", pageWidth / 2, yPos, { align: "center" });
-    yPos += 15;
+    doc.setFont("Helvetica", "normal");
+    doc.text("Financiar um imóvel com a Emobe é sinônimo de transparência e agilidade", pageWidth / 2, yPos, { align: "center" });
+    yPos += 20;
 
     // Dados das etapas
     const etapas: Array<{ num: string; titulo: string; desc: string; cor: [number, number, number] }> = [
@@ -210,7 +224,35 @@ export async function POST(req: NextRequest) {
       { num: "6", titulo: "ENTREGA DAS CHAVES", desc: "Com tudo registrado e liberado pela Caixa, é hora de receber as chaves e realizar o sonho da casa própria!", cor: [100, 116, 139] },
     ];
 
-    // Renderizar etapas em 2 colunas
+    // Desenhar círculos com números das etapas no topo (visual circular)
+    const centerX = pageWidth / 2;
+    const centerY = yPos + 15;
+    const radius = 25;
+
+    // Círculo central (placeholder)
+    doc.setDrawColor(229, 231, 235);
+    doc.circle(centerX, centerY, 8);
+
+    // Desenhar os 6 círculos ao redor
+    for (let i = 0; i < 6; i++) {
+      const angle = (i * Math.PI * 2) / 6 - Math.PI / 2;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+
+      // Círculo colorido
+      doc.setFillColor(etapas[i].cor[0], etapas[i].cor[1], etapas[i].cor[2]);
+      doc.circle(x, y, 5, "F");
+
+      // Número
+      doc.setFontSize(12);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("Helvetica", "bold");
+      doc.text(etapas[i].num, x, y + 1.5, { align: "center" });
+    }
+
+    yPos += 50;
+
+    // Renderizar etapas em 2 colunas abaixo
     const colWidth = (pageWidth - 30) / 2;
     const colX1 = 15;
     const colX2 = colX1 + colWidth + 5;
@@ -221,26 +263,25 @@ export async function POST(req: NextRequest) {
       const xPos = isRightCol ? colX2 : colX1;
 
       if (i % 2 === 0 && i > 0) {
-        yPos += 55;
+        yPos += 50;
       }
 
       // Cabeçalho da etapa com número e título
       doc.setFillColor(etapa.cor[0], etapa.cor[1], etapa.cor[2]);
-      doc.rect(xPos, yPos, colWidth - 5, 8, "F");
+      doc.rect(xPos, yPos, colWidth - 5, 7, "F");
 
-      doc.setFontSize(12);
+      doc.setFontSize(11);
       doc.setTextColor(255, 255, 255);
-      doc.text(etapa.num, xPos + 3, yPos + 6);
-      doc.setFontSize(10);
       doc.setFont("Helvetica", "bold");
-      doc.text(etapa.titulo, xPos + 10, yPos + 6);
+      doc.text(etapa.num, xPos + 3, yPos + 5);
+      doc.text(etapa.titulo, xPos + 10, yPos + 5);
 
       // Descrição
       doc.setFont("Helvetica","normal");
-      doc.setFontSize(8);
+      doc.setFontSize(7.5);
       doc.setTextColor(63, 63, 70);
       const descLines = doc.splitTextToSize(etapa.desc, colWidth - 10);
-      doc.text(descLines, xPos + 3, yPos + 14);
+      doc.text(descLines, xPos + 3, yPos + 11);
     }
 
     // ========== PÁGINA 3: INFORMAÇÕES FINAIS ==========
