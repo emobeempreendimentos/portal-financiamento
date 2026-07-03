@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
       doc.setTextColor(255, 255, 255);
       doc.text(etapa.num, xPos + 3, yPos + 6);
       doc.setFontSize(10);
-      doc.setFont(undefined, "bold");
+      doc.setFont("Helvetica", "bold");
       doc.text(etapa.titulo, xPos + 10, yPos + 6);
 
       // Descrição
