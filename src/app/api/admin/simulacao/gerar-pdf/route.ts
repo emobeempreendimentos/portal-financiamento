@@ -184,10 +184,132 @@ export async function POST(req: NextRequest) {
     const footerLines = doc.splitTextToSize(footerText, pageWidth - 30);
     doc.text(footerLines, 15, footerY);
 
-    // Data e número da página
-    doc.setFontSize(7);
-    doc.setTextColor(161, 161, 170); // zinc-400
-    doc.text(`Página ${doc.internal.pages.length - 1}`, pageWidth - 20, pageHeight - 5, { align: "right" });
+    // ========== PÁGINA 2: ETAPAS DO PROCESSO ==========
+    doc.addPage();
+    let yPos = 20;
+
+    // Título
+    doc.setFontSize(20);
+    doc.setTextColor(24, 24, 27);
+    doc.text("ETAPAS PROCESSO DE FINANCIAMENTO", pageWidth / 2, yPos, { align: "center" });
+    yPos += 8;
+
+    // Subtítulo
+    doc.setFontSize(11);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Financiar um imóvel com a Emobe é sinônimo e transparência e agilidade", pageWidth / 2, yPos, { align: "center" });
+    yPos += 15;
+
+    // Dados das etapas
+    const etapas = [
+      { num: "1", titulo: "APROVAÇÃO DE CRÉDITO", desc: "Nesta fase, o banco analisa sua documentação e capacidade de pagamento para aprovar o crédito do financiamento.", cor: [34, 139, 34] },
+      { num: "2", titulo: "ENGENHARIA", desc: "Nesta fase, o banco analisa sua documentação e capacidade de pagamento para aprovar o crédito do financiamento.", cor: [144, 238, 144] },
+      { num: "3", titulo: "CONTRATO JUNTO AO BANCO", desc: "Com o laudo aprovado, o contrato é emitido pela Caixa. Essa é a etapa em que o financiamento é formalizado.", cor: [152, 251, 152] },
+      { num: "4", titulo: "ITBI", desc: "O ITBI é o imposto de transmissão pago à Prefeitura antes do registro do contrato. É uma etapa obrigatória.", cor: [95, 158, 160] },
+      { num: "5", titulo: "REGISTRO", desc: "Depois do pagamento do ITBI, o contrato é levado ao cartório para registro, tornando o imóvel oficialmente em seu nome", cor: [176, 196, 222] },
+      { num: "6", titulo: "ENTREGA DAS CHAVES", desc: "Com tudo registrado e liberado pela Caixa, é hora de receber as chaves e realizar o sonho da casa própria!", cor: [100, 116, 139] },
+    ];
+
+    // Renderizar etapas em 2 colunas
+    const colWidth = (pageWidth - 30) / 2;
+    const colX1 = 15;
+    const colX2 = colX1 + colWidth + 5;
+
+    for (let i = 0; i < etapas.length; i++) {
+      const etapa = etapas[i];
+      const isRightCol = i % 2 === 1;
+      const xPos = isRightCol ? colX2 : colX1;
+
+      if (i % 2 === 0 && i > 0) {
+        yPos += 55;
+      }
+
+      // Cabeçalho da etapa com número e título
+      doc.setFillColor(...etapa.cor);
+      doc.rect(xPos, yPos, colWidth - 5, 8, "F");
+
+      doc.setFontSize(12);
+      doc.setTextColor(255, 255, 255);
+      doc.text(etapa.num, xPos + 3, yPos + 6);
+      doc.setFontSize(10);
+      doc.setFont(undefined, "bold");
+      doc.text(etapa.titulo, xPos + 10, yPos + 6);
+
+      // Descrição
+      doc.setFont(undefined, "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(63, 63, 70);
+      const descLines = doc.splitTextToSize(etapa.desc, colWidth - 10);
+      doc.text(descLines, xPos + 3, yPos + 14);
+    }
+
+    // ========== PÁGINA 3: INFORMAÇÕES FINAIS ==========
+    doc.addPage();
+    yPos = 40;
+
+    // Logo e nome da empresa (simulado com texto)
+    doc.setFontSize(28);
+    doc.setTextColor(34, 139, 34);
+    doc.text("EMOBE", pageWidth / 2, yPos, { align: "center" });
+    yPos += 12;
+
+    doc.setFontSize(14);
+    doc.setTextColor(24, 24, 27);
+    doc.text("CRECI 4682J", pageWidth / 2, yPos, { align: "center" });
+    yPos += 8;
+
+    doc.setFontSize(12);
+    doc.setTextColor(100, 116, 139);
+    doc.text("EMPREENDIMENTOS IMOBILIÁRIOS", pageWidth / 2, yPos, { align: "center" });
+    yPos += 12;
+
+    doc.setFontSize(11);
+    doc.setTextColor(63, 63, 70);
+    doc.text("O imóvel dos seus sonhos está aqui", pageWidth / 2, yPos, { align: "center" });
+    yPos += 30;
+
+    // Informações finais
+    doc.setFontSize(10);
+    doc.setTextColor(24, 24, 27);
+    doc.setFont(undefined, "bold");
+    doc.text("PRÓXIMOS PASSOS:", 15, yPos);
+    yPos += 8;
+
+    doc.setFont(undefined, "normal");
+    doc.setFontSize(9);
+    const proximosPassos = [
+      "1. Entre em contato conosco para iniciar o processo de financiamento",
+      "2. Apresente a documentação necessária para análise de crédito",
+      "3. Aguarde a aprovação do banco e liberação do crédito",
+      "4. Acompanhe todas as etapas do processo através do nosso portal",
+      "5. Realize o sonho de ter a casa própria!",
+    ];
+
+    doc.setTextColor(63, 63, 70);
+    proximosPassos.forEach((passo) => {
+      doc.text(passo, 15, yPos);
+      yPos += 7;
+    });
+
+    yPos += 10;
+
+    // Contato
+    doc.setFontSize(10);
+    doc.setTextColor(24, 24, 27);
+    doc.setFont(undefined, "bold");
+    doc.text("CONTATO:", 15, yPos);
+    yPos += 7;
+
+    doc.setFont(undefined, "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(63, 63, 70);
+    doc.text("Estamos à disposição para tirar suas dúvidas e orientá-lo durante todo o processo.", 15, yPos);
+    yPos += 5;
+    doc.text("Visite nosso site: www.emobe.com.br", 15, yPos);
+    yPos += 5;
+    doc.text("Email: contato@emobe.com.br", 15, yPos);
+    yPos += 5;
+    doc.text("WhatsApp: (11) 9999-9999", 15, yPos);
 
     // Gerar PDF
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
