@@ -297,55 +297,6 @@ export default function SimulacaoPage() {
         </div>
       </div>
 
-      {/* Simulações recentes */}
-      {recentes.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <History className="h-4 w-4 text-zinc-400" />
-            <h2 className="font-semibold text-zinc-900 dark:text-white">Simulações Recentes</h2>
-            <span className="text-xs text-zinc-400">({recentes.length}/10)</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {recentes.map((s) => (
-              <div
-                key={s.id}
-                className={`group flex items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-colors ${
-                  currentId === s.id
-                    ? "border-green-300 dark:border-green-800 bg-green-50/60 dark:bg-green-900/15"
-                    : "border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
-                }`}
-              >
-                <button onClick={() => carregarSimulacao(s)} className="flex-1 flex items-center gap-3 min-w-0 text-left">
-                  <div className="h-9 w-9 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0">
-                    <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{s.clienteNome}</p>
-                    <p className="text-xs text-zinc-400 truncate">
-                      {TIPO_FIN_LABEL[s.tipoFinanciamento] || s.tipoFinanciamento}
-                      {s.valorImovel ? ` · R$ ${numToCurrency(s.valorImovel)}` : ""}
-                      {" · "}
-                      {new Date(s.createdAt).toLocaleDateString("pt-BR")}
-                    </p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => excluirSimulacao(s.id, s.clienteNome)}
-                  className="shrink-0 p-1.5 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100"
-                  title="Excluir"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
-
       {/* Aviso de simulação salva/travada */}
       {!editing && (
         <div className="flex items-center gap-2 rounded-xl border border-green-100 dark:border-green-900/30 bg-green-50 dark:bg-green-900/15 px-4 py-2.5 text-sm text-green-700 dark:text-green-400">
@@ -717,6 +668,55 @@ export default function SimulacaoPage() {
           )}
         </Button>
       </div>
+
+      {/* Simulações recentes */}
+      {recentes.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <History className="h-4 w-4 text-zinc-400" />
+            <h2 className="font-semibold text-zinc-900 dark:text-white">Simulações Recentes</h2>
+            <span className="text-xs text-zinc-400">({recentes.length}/10)</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {recentes.map((s) => (
+              <div
+                key={s.id}
+                className={`group flex items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-colors ${
+                  currentId === s.id
+                    ? "border-green-300 dark:border-green-800 bg-green-50/60 dark:bg-green-900/15"
+                    : "border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                }`}
+              >
+                <button onClick={() => carregarSimulacao(s)} className="flex-1 flex items-center gap-3 min-w-0 text-left">
+                  <div className="h-9 w-9 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0">
+                    <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{s.clienteNome}</p>
+                    <p className="text-xs text-zinc-400 truncate">
+                      {TIPO_FIN_LABEL[s.tipoFinanciamento] || s.tipoFinanciamento}
+                      {s.valorImovel ? ` · R$ ${numToCurrency(s.valorImovel)}` : ""}
+                      {" · "}
+                      {new Date(s.createdAt).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => excluirSimulacao(s.id, s.clienteNome)}
+                  className="shrink-0 p-1.5 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100"
+                  title="Excluir"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
