@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, Clock, CheckCircle2, Timer, AlertTriangle } from "lucide-react";
+import { Users, Clock, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { AdminStats } from "@/types";
 
 interface StatsCardsProps {
   stats: AdminStats;
   onPendenciasClick?: () => void;
-  onCardClick?: (tipo: "todos" | "aprovacao" | "concluidos") => void;
+  onCardClick?: (tipo: "todos" | "aprovacao" | "concluidos" | "cancelados") => void;
 }
 
 export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCardsProps) {
@@ -43,14 +43,14 @@ export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCards
       onClick: () => onCardClick?.("concluidos"),
     },
     {
-      label: "Tempo Médio",
-      value: stats.tempoMedioDias,
-      icon: Timer,
-      color: "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
-      suffix: " dias",
+      label: "Processos Cancelados",
+      value: stats.cancelados,
+      icon: XCircle,
+      color: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+      suffix: "",
       alert: false,
-      clickable: false,
-      onClick: undefined,
+      clickable: true,
+      onClick: () => onCardClick?.("cancelados"),
     },
     {
       label: "Pendências Abertas",

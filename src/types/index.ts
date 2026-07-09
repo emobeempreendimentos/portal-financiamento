@@ -86,7 +86,7 @@ export interface AdminStats {
   totalClientes: number;
   emAprovacao: number;
   concluidos: number;
-  tempoMedioDias: number;
+  cancelados: number;
   pendenciasAbertas: number;
 }
 

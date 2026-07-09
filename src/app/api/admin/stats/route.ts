@@ -27,26 +27,11 @@ export async function GET() {
 
     const concluidos = financiamentos.filter((f) => f.statusGeral === "concluido").length;
 
-    // Tempo médio usando concluidoEm (campo direto, mais confiável)
-    const concluídosComData = financiamentos.filter(
-      (f) => f.statusGeral === "concluido" && f.concluidoEm
-    );
-    const tempoMedioDias =
-      concluídosComData.length > 0
-        ? Math.round(
-            concluídosComData.reduce((acc, f) => {
-              const dias = Math.floor(
-                (new Date(f.concluidoEm!).getTime() - new Date(f.createdAt).getTime()) /
-                  (1000 * 60 * 60 * 24)
-              );
-              return acc + Math.max(dias, 0);
-            }, 0) / concluídosComData.length
-          )
-        : -1; // -1 = sem dados suficientes
+    const cancelados = financiamentos.filter((f) => f.statusGeral === "cancelado").length;
 
     return NextResponse.json({
       success: true,
-      data: { totalClientes, emAprovacao, concluidos, tempoMedioDias, pendenciasAbertas },
+      data: { totalClientes, emAprovacao, concluidos, cancelados, pendenciasAbertas },
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Erro interno";

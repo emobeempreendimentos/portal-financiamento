@@ -73,8 +73,8 @@ export default function AdminPage() {
     }
   }, []);
 
-  const handleCardClick = useCallback(async (tipo: "todos" | "aprovacao" | "concluidos") => {
-    const titulos = { todos: "Total de Clientes", aprovacao: "Em Aprovação", concluidos: "Concluídos" };
+  const handleCardClick = useCallback(async (tipo: "todos" | "aprovacao" | "concluidos" | "cancelados") => {
+    const titulos = { todos: "Total de Clientes", aprovacao: "Em Aprovação", concluidos: "Concluídos", cancelados: "Processos Cancelados" };
     setClientesModal({ open: true, titulo: titulos[tipo], lista: [], loading: true });
 
     try {
@@ -91,6 +91,11 @@ export default function AdminPage() {
         const res = await fetch("/api/admin/cancelados");
         const json = await res.json();
         const lista = (json.data || []).filter((f: { statusGeral: string; user: ClienteComFinanciamento }) => f.statusGeral === "concluido").map((f: { user: ClienteComFinanciamento; statusGeral: string }) => ({ ...f.user, financiamento: f }));
+        setClientesModal((p) => ({ ...p, lista, loading: false }));
+      } else if (tipo === "cancelados") {
+        const res = await fetch("/api/admin/cancelados");
+        const json = await res.json();
+        const lista = (json.data || []).filter((f: { statusGeral: string; user: ClienteComFinanciamento }) => f.statusGeral === "cancelado").map((f: { user: ClienteComFinanciamento; statusGeral: string }) => ({ ...f.user, financiamento: f }));
         setClientesModal((p) => ({ ...p, lista, loading: false }));
       }
     } catch {
