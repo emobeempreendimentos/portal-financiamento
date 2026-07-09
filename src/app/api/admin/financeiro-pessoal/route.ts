@@ -61,6 +61,22 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// DELETE — zera TODOS os lançamentos pessoais (protegido por senha)
+export async function DELETE(request: NextRequest) {
+  try {
+    await requireAdmin();
+    const body = await request.json().catch(() => ({}));
+    if (body.senha !== "Raggawake123*") {
+      return NextResponse.json({ success: false, error: "Senha incorreta" }, { status: 401 });
+    }
+    const result = await prisma.lancamentoPessoal.deleteMany({});
+    return NextResponse.json({ success: true, removidos: result.count });
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Erro interno";
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     await requireAdmin();

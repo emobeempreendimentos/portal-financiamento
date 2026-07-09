@@ -27,6 +27,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useToast } from "@/components/ui/toast";
+import { ZerarContaButton } from "@/components/admin/ZerarContaButton";
 import { LancamentoFinanceiro, ResumoFinanceiro, GraficoMes } from "@/types";
 
 // ─── Categorias ─────────────────────────────────────────────────────────────
@@ -199,6 +200,7 @@ export default function FinanceiroPage() {
             <FileBarChart2 className="h-4 w-4 text-zinc-500" />
             Relatório
           </Link>
+          <ZerarContaButton endpoint="/api/admin/financeiro" escopo="da empresa" onCleared={carregar} />
           <button onClick={abrirNovo}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm">
             <Plus className="h-4 w-4" />Novo Lançamento
