@@ -8,6 +8,32 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Simulacao {
+  id                    String   @id @default(cuid())
+  clienteNome           String
+  clienteCpf            String?
+  clienteRenda          Float?
+  clienteDataNascimento String?
+  clienteDependentes    Boolean  @default(false)
+  clienteTemaFgts       Boolean  @default(false)
+  clienteValorFgts      Float?
+  tipoFinanciamento     String
+  tipoImovel            String
+  banco                 String?
+  valorImovel           Float?
+  valorEntrada          Float?
+  subsidio              Float?
+  valorParcelaInicial   Float?
+  valorParcelaFinal     Float?
+  prazo                 Int?
+  prazoPeriodo          String?
+  taxaJuros             Float?
+  taxaPeriodo           String?
+  sistemaAmortizacao    String?
+  observacoes           String?
+  createdAt             DateTime @default(now())
+}
+
 model User {
   id            String         @id @default(cuid())
   nome          String

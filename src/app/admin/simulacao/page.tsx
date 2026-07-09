@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Save, FileDown, Loader2, ArrowLeft, DollarSign, Pencil, Lock } from "lucide-react";
+import { Save, FileDown, Loader2, ArrowLeft, DollarSign, Pencil, Lock, History, Trash2, Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,20 +60,52 @@ const emptyForm = (): FormSimulacao => ({
   observacoes: "TRANSFERÊNCIA DO IMÓVEL: A transferência do imóvel são as despesas que você gasta para transferir o imóvel para o seu nome.",
 });
 
-const formatCurrency = (value: string) => {
-  const digits = value.replace(/\D/g, "");
-  if (!digits) return "";
-  return (parseInt(digits, 10) / 100).toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
-
 const parseCurrency = (value: string): number | null => {
   if (!value.trim()) return null;
   const num = Number(value.replace(/\./g, "").replace(",", "."));
   return isNaN(num) ? null : num;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface SimulacaoRow extends Record<string, any> {
+  id: string;
+  clienteNome: string;
+  tipoFinanciamento: string;
+  tipoImovel: string;
+  valorImovel: number | null;
+  createdAt: string;
+}
+
+const numToCurrency = (n: number | null | undefined) =>
+  n == null ? "" : Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function simToForm(s: SimulacaoRow): FormSimulacao {
+  return {
+    clienteNome: s.clienteNome || "",
+    clienteCpf: s.clienteCpf || "",
+    clienteRenda: numToCurrency(s.clienteRenda),
+    clienteDataNascimento: s.clienteDataNascimento || "",
+    clienteDependentes: !!s.clienteDependentes,
+    clienteTemaFgts: !!s.clienteTemaFgts,
+    clienteValorFgts: numToCurrency(s.clienteValorFgts),
+    tipoFinanciamento: (s.tipoFinanciamento as FormSimulacao["tipoFinanciamento"]) || "sbpe",
+    tipoImovel: (s.tipoImovel as FormSimulacao["tipoImovel"]) || "novo",
+    banco: s.banco || "caixa",
+    valorImovel: numToCurrency(s.valorImovel),
+    valorEntrada: numToCurrency(s.valorEntrada),
+    subsidio: numToCurrency(s.subsidio),
+    valorParcelaInicial: numToCurrency(s.valorParcelaInicial),
+    valorParcelaFinal: numToCurrency(s.valorParcelaFinal),
+    prazo: s.prazo != null ? String(s.prazo) : "",
+    prazoPeriodo: (s.prazoPeriodo as FormSimulacao["prazoPeriodo"]) || "anos",
+    taxaJuros: s.taxaJuros != null ? String(s.taxaJuros) : "",
+    taxaPeriodo: (s.taxaPeriodo as FormSimulacao["taxaPeriodo"]) || "ano",
+    sistemaAmortizacao: (s.sistemaAmortizacao as FormSimulacao["sistemaAmortizacao"]) || "price",
+    observacoes: s.observacoes || "",
+  };
+}
+
+const TIPO_FIN_LABEL: Record<string, string> = { mcmv: "Minha Casa Minha Vida", sbpe: "SBPE" };
 
 export default function SimulacaoPage() {
   const router = useRouter();
@@ -82,6 +114,73 @@ export default function SimulacaoPage() {
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [editing, setEditing] = useState(true);
+  const [recentes, setRecentes] = useState<SimulacaoRow[]>([]);
+  const [currentId, setCurrentId] = useState<string | null>(null);
+
+  const carregarRecentes = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/simulacao");
+      const json = await res.json();
+      if (json.success) setRecentes(json.data || []);
+    } catch {
+      /* silencioso */
+    }
+  }, []);
+
+  useEffect(() => {
+    carregarRecentes();
+  }, [carregarRecentes]);
+
+  const buildPayload = () => ({
+    clienteNome: form.clienteNome,
+    clienteCpf: form.clienteCpf,
+    clienteRenda: parseCurrency(form.clienteRenda),
+    clienteDataNascimento: form.clienteDataNascimento,
+    clienteDependentes: form.clienteDependentes,
+    clienteTemaFgts: form.clienteTemaFgts,
+    clienteValorFgts: form.clienteTemaFgts ? parseCurrency(form.clienteValorFgts) : null,
+    tipoFinanciamento: form.tipoFinanciamento,
+    tipoImovel: form.tipoImovel,
+    banco: form.banco,
+    valorImovel: parseCurrency(form.valorImovel),
+    valorEntrada: parseCurrency(form.valorEntrada),
+    subsidio: parseCurrency(form.subsidio),
+    valorParcelaInicial: parseCurrency(form.valorParcelaInicial),
+    valorParcelaFinal: parseCurrency(form.valorParcelaFinal),
+    prazo: parseInt(form.prazo) || 0,
+    prazoPeriodo: form.prazoPeriodo,
+    taxaJuros: parseFloat(form.taxaJuros) || 0,
+    taxaPeriodo: form.taxaPeriodo,
+    sistemaAmortizacao: form.sistemaAmortizacao,
+    observacoes: form.observacoes,
+  });
+
+  function carregarSimulacao(s: SimulacaoRow) {
+    setForm(simToForm(s));
+    setCurrentId(s.id);
+    setEditing(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    addToast({ title: `Simulação de ${s.clienteNome} carregada`, variant: "success" });
+  }
+
+  function novaSimulacao() {
+    setForm(emptyForm());
+    setCurrentId(null);
+    setEditing(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function excluirSimulacao(id: string, nome: string) {
+    try {
+      const res = await fetch(`/api/admin/simulacao?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setRecentes((p) => p.filter((s) => s.id !== id));
+      if (currentId === id) setCurrentId(null);
+      addToast({ title: `Simulação de ${nome} excluída`, variant: "success" });
+    } catch {
+      addToast({ title: "Erro ao excluir", variant: "error" });
+    }
+  }
 
   const handleCurrencyChange = (field: keyof FormSimulacao, value: string) => {
     const digits = value.replace(/\D/g, "");
@@ -123,32 +222,13 @@ export default function SimulacaoPage() {
       const res = await fetch("/api/admin/simulacao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clienteNome: form.clienteNome,
-          clienteCpf: form.clienteCpf,
-          clienteRenda: parseCurrency(form.clienteRenda),
-          clienteDataNascimento: form.clienteDataNascimento,
-          clienteDependentes: form.clienteDependentes,
-          clienteTemaFgts: form.clienteTemaFgts,
-          clienteValorFgts: form.clienteTemaFgts ? parseCurrency(form.clienteValorFgts) : null,
-          tipoFinanciamento: form.tipoFinanciamento,
-          tipoImovel: form.tipoImovel,
-          banco: form.banco,
-          valorImovel: parseCurrency(form.valorImovel),
-          valorEntrada: parseCurrency(form.valorEntrada),
-          subsidio: parseCurrency(form.subsidio),
-          valorParcelaInicial: parseCurrency(form.valorParcelaInicial),
-          valorParcelaFinal: parseCurrency(form.valorParcelaFinal),
-          prazo: parseInt(form.prazo) || 0,
-          prazoPeriodo: form.prazoPeriodo,
-          taxaJuros: parseFloat(form.taxaJuros) || 0,
-          taxaPeriodo: form.taxaPeriodo,
-          sistemaAmortizacao: form.sistemaAmortizacao,
-          observacoes: form.observacoes,
-        }),
+        body: JSON.stringify({ ...buildPayload(), id: currentId }),
       });
-      if (!res.ok) throw new Error();
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error();
+      if (json.data?.id) setCurrentId(json.data.id);
       setEditing(false);
+      await carregarRecentes();
       addToast({ title: "Simulação salva!", variant: "success" });
     } catch {
       addToast({ title: "Erro ao salvar", variant: "error" });
@@ -167,29 +247,7 @@ export default function SimulacaoPage() {
       const res = await fetch("/api/admin/simulacao/gerar-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clienteNome: form.clienteNome,
-          clienteCpf: form.clienteCpf,
-          clienteRenda: parseCurrency(form.clienteRenda),
-          clienteDataNascimento: form.clienteDataNascimento,
-          clienteDependentes: form.clienteDependentes,
-          clienteTemaFgts: form.clienteTemaFgts,
-          clienteValorFgts: form.clienteTemaFgts ? parseCurrency(form.clienteValorFgts) : null,
-          tipoFinanciamento: form.tipoFinanciamento,
-          tipoImovel: form.tipoImovel,
-          banco: form.banco,
-          valorImovel: parseCurrency(form.valorImovel),
-          valorEntrada: parseCurrency(form.valorEntrada),
-          subsidio: parseCurrency(form.subsidio),
-          valorParcelaInicial: parseCurrency(form.valorParcelaInicial),
-          valorParcelaFinal: parseCurrency(form.valorParcelaFinal),
-          prazo: parseInt(form.prazo) || 0,
-          prazoPeriodo: form.prazoPeriodo,
-          taxaJuros: parseFloat(form.taxaJuros) || 0,
-          taxaPeriodo: form.taxaPeriodo,
-          sistemaAmortizacao: form.sistemaAmortizacao,
-          observacoes: form.observacoes,
-        }),
+        body: JSON.stringify(buildPayload()),
       });
       if (!res.ok) throw new Error();
       const blob = await res.blob();
@@ -217,17 +275,76 @@ export default function SimulacaoPage() {
           <ArrowLeft className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
         </button>
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Simulação de Financiamento</h1>
-        {!editing && (
+        <div className="ml-auto flex items-center gap-2">
           <button
-            onClick={() => setEditing(true)}
-            className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            title="Editar simulação"
+            onClick={novaSimulacao}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            title="Nova simulação"
           >
-            <Pencil className="h-3.5 w-3.5" />
-            Editar
+            <Plus className="h-3.5 w-3.5" />
+            Nova
           </button>
-        )}
+          {!editing && (
+            <button
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+              title="Editar simulação"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Editar
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Simulações recentes */}
+      {recentes.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <History className="h-4 w-4 text-zinc-400" />
+            <h2 className="font-semibold text-zinc-900 dark:text-white">Simulações Recentes</h2>
+            <span className="text-xs text-zinc-400">({recentes.length}/10)</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {recentes.map((s) => (
+              <div
+                key={s.id}
+                className={`group flex items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-colors ${
+                  currentId === s.id
+                    ? "border-green-300 dark:border-green-800 bg-green-50/60 dark:bg-green-900/15"
+                    : "border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                }`}
+              >
+                <button onClick={() => carregarSimulacao(s)} className="flex-1 flex items-center gap-3 min-w-0 text-left">
+                  <div className="h-9 w-9 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0">
+                    <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{s.clienteNome}</p>
+                    <p className="text-xs text-zinc-400 truncate">
+                      {TIPO_FIN_LABEL[s.tipoFinanciamento] || s.tipoFinanciamento}
+                      {s.valorImovel ? ` · R$ ${numToCurrency(s.valorImovel)}` : ""}
+                      {" · "}
+                      {new Date(s.createdAt).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => excluirSimulacao(s.id, s.clienteNome)}
+                  className="shrink-0 p-1.5 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100"
+                  title="Excluir"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Aviso de simulação salva/travada */}
       {!editing && (
