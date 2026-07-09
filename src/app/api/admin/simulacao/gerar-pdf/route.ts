@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
       ["RENDA MENSAL", fmtBRL(clienteRenda)],
       ["DATA DE NASCIMENTO", clienteDataNascimento ? new Date(clienteDataNascimento).toLocaleDateString("pt-BR") : "—"],
       ["POSSUI DEPENDENTES", clienteDependentes ? "Sim" : "Não"],
-      ["FGTS (+3 ANOS)", clienteTemaFgts ? `Sim  •  ${clienteValorFgts != null ? fmtBRL(clienteValorFgts) : "Não informado"}` : "Não"],
+      ["FGTS (+3 ANOS)", clienteTemaFgts ? `Sim  •  ${clienteValorFgts != null ? fmtBRL(clienteValorFgts) : "Valor não informado"}` : "Não"],
     ];
     const simRows: Array<[string, string]> = [
       ["BANCO", bancoLabel],
