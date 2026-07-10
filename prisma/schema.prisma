@@ -8,6 +8,19 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model DocumentoImportante {
+  id          String   @id @default(cuid())
+  titulo      String
+  descricao   String?
+  categoria   String   @default("outro")
+  nomeArquivo String
+  tamanho     Int
+  mimeType    String
+  conteudo    Bytes
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+}
+
 model Simulacao {
   id                    String   @id @default(cuid())
   clienteNome           String
