@@ -53,7 +53,7 @@ const emptyForm = (): FormSimulacao => ({
   valorParcelaInicial: "",
   valorParcelaFinal: "",
   prazo: "",
-  prazoPeriodo: "anos",
+  prazoPeriodo: "meses",
   taxaJuros: "",
   taxaPeriodo: "ano",
   sistemaAmortizacao: "price",
@@ -97,7 +97,7 @@ function simToForm(s: SimulacaoRow): FormSimulacao {
     valorParcelaInicial: numToCurrency(s.valorParcelaInicial),
     valorParcelaFinal: numToCurrency(s.valorParcelaFinal),
     prazo: s.prazo != null ? String(s.prazo) : "",
-    prazoPeriodo: (s.prazoPeriodo as FormSimulacao["prazoPeriodo"]) || "anos",
+    prazoPeriodo: (s.prazoPeriodo as FormSimulacao["prazoPeriodo"]) || "meses",
     taxaJuros: s.taxaJuros != null ? String(s.taxaJuros) : "",
     taxaPeriodo: (s.taxaPeriodo as FormSimulacao["taxaPeriodo"]) || "ano",
     sistemaAmortizacao: (s.sistemaAmortizacao as FormSimulacao["sistemaAmortizacao"]) || "price",
@@ -544,23 +544,16 @@ export default function SimulacaoPage() {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>Prazo</Label>
-            <div className="flex gap-2">
+            <Label>Prazo (meses)</Label>
+            <div className="relative">
               <Input
-                className="flex-1"
                 type="number"
                 value={form.prazo}
                 onChange={(e) => setForm((p) => ({ ...p, prazo: e.target.value }))}
                 placeholder="360"
+                className="pr-16"
               />
-              <select
-                value={form.prazoPeriodo}
-                onChange={(e) => setForm((p) => ({ ...p, prazoPeriodo: e.target.value as any }))}
-                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                <option value="anos">Anos</option>
-                <option value="meses">Meses</option>
-              </select>
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400 pointer-events-none select-none">meses</span>
             </div>
           </div>
           <div className="space-y-1.5">
