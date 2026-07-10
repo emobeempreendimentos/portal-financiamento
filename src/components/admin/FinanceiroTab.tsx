@@ -46,6 +46,8 @@ interface FormVenda {
   // Dados bancários do vendedor
   pixChave: string; pixTipo: string;
   contaBanco: string; contaAgencia: string; contaNumero: string; contaTipo: string; contaTitular: string;
+  // Observação do relatório de pagamento
+  relatorioObservacoes: string;
 }
 interface HistoricoItem { id: string; descricao: string; usuario: string; createdAt: string }
 interface FormContaPagamento {
@@ -104,6 +106,7 @@ function emptyVenda(): FormVenda {
     sinalValor: "", sinalData: "", sinalFormaPagamento: "pix", sinalStatus: "pendente",
     escrituraValorRestante: "", escrituraDataPrevista: "", escrituraDataQuitacao: "", escrituraStatus: "pendente",
     pixChave: "", pixTipo: "cpf", contaBanco: "", contaAgencia: "", contaNumero: "", contaTipo: "corrente", contaTitular: "",
+    relatorioObservacoes: "",
   };
 }
 function emptyComissao(): FormComissao {
@@ -138,6 +141,7 @@ function toFormVenda(data: any): FormVenda {
     contaBanco: data.contaBanco ?? "", contaAgencia: data.contaAgencia ?? "",
     contaNumero: data.contaNumero ?? "", contaTipo: data.contaTipo ?? "corrente",
     contaTitular: data.contaTitular ?? "",
+    relatorioObservacoes: data.relatorioObservacoes ?? "",
   };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -455,6 +459,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           contaBanco: d(venda.contaBanco), contaAgencia: d(venda.contaAgencia),
           contaNumero: d(venda.contaNumero), contaTipo: d(venda.contaTipo),
           contaTitular: d(venda.contaTitular),
+          relatorioObservacoes: d(venda.relatorioObservacoes),
           contasPagamento: contas.map((cp) => ({
             tipo: cp.tipo,
             descricao: cp.descricao || null,
@@ -950,6 +955,20 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
                 <p className="text-xs text-zinc-400 text-center py-3 italic">Nenhuma conta da imobiliária adicionada</p>
               )}
             </div>
+          </div>
+
+          {/* Observação do relatório */}
+          <div className="border-t border-zinc-100 dark:border-zinc-800 pt-5">
+            <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Observação</p>
+            <textarea
+              disabled={!editingTab}
+              value={venda.relatorioObservacoes}
+              onChange={(e) => setV("relatorioObservacoes", e.target.value)}
+              rows={4}
+              placeholder="Dados do imóvel, endereço, matrícula ou qualquer informação adicional para o comprador…"
+              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+            />
+            <p className="text-xs text-zinc-400 mt-1.5">Este texto aparece no relatório impresso entregue ao comprador.</p>
           </div>
 
           {/* Total */}

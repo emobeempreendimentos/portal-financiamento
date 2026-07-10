@@ -58,6 +58,8 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
       contratoDataAssinatura, contratoStatus, valorLiberadoBanco, dataLiberacaoBanco,
       // Dados bancários do vendedor
       pixChave, pixTipo, contaBanco, contaAgencia, contaNumero, contaTipo, contaTitular,
+      // Observação do relatório de pagamento
+      relatorioObservacoes,
       // Contas de pagamento (relatório)
       contasPagamento,
       // Comissão
@@ -100,6 +102,7 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
       contaNumero: contaNumero ?? null,
       contaTipo: contaTipo ?? null,
       contaTitular: contaTitular ?? null,
+      relatorioObservacoes: relatorioObservacoes ?? null,
     };
 
     const existing = await prisma.financeiroVenda.findUnique({

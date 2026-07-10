@@ -172,6 +172,9 @@ model FinanceiroVenda {
   contaTipo        String?
   contaTitular     String?
 
+  // Observação do relatório de pagamento (dados do imóvel, etc.)
+  relatorioObservacoes String?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

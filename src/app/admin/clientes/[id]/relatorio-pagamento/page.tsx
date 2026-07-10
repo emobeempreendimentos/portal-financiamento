@@ -35,6 +35,7 @@ interface ContaPagamento {
 
 interface FinanceiroData {
   valorImovel?: number | null;
+  relatorioObservacoes?: string | null;
   contasPagamento?: ContaPagamento[];
 }
 
@@ -162,6 +163,16 @@ export default function RelatorioPagamentoPage({ params }: { params: Promise<{ i
           <div className="mt-8 rounded-lg bg-green-50 border border-green-100 px-6 py-4 flex items-center justify-between">
             <span className="text-sm font-semibold text-green-800">Total geral de pagamentos</span>
             <span className="text-lg font-bold text-green-700">{R(totalGeral)}</span>
+          </div>
+        )}
+
+        {/* Observação */}
+        {financeiro?.relatorioObservacoes && (
+          <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 px-6 py-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Observação</p>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {financeiro.relatorioObservacoes}
+            </p>
           </div>
         )}
 
