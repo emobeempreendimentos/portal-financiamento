@@ -59,6 +59,7 @@ interface FormContaPagamento {
   numero: string;
   contaTipo: string;
   titular: string;
+  documento: string;
   valor: string;
 }
 
@@ -77,6 +78,22 @@ const brl = (v: unknown): string => {
 const d = (s: string): string | null => (s.trim() === "" ? null : s);
 const fmt = (v: number | null) =>
   v != null ? v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—";
+
+/** Aplica máscara de CPF (até 11 dígitos) ou CNPJ (12-14 dígitos). */
+const maskDocumento = (value: string): string => {
+  const dg = value.replace(/\D/g, "").slice(0, 14);
+  if (dg.length <= 11) {
+    return dg
+      .replace(/^(\d{3})(\d)/, "$1.$2")
+      .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+  }
+  return dg
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4")
+    .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
+};
 
 function emptyVenda(): FormVenda {
   return {
@@ -97,7 +114,7 @@ function emptyComissao(): FormComissao {
   };
 }
 function emptyContaPagamento(tipo: "vendedor" | "imobiliaria"): FormContaPagamento {
-  return { tipo, descricao: "", formaPagamento: "pix", pixChave: "", pixTipo: "cpf", banco: "", agencia: "", numero: "", contaTipo: "corrente", titular: "", valor: "" };
+  return { tipo, descricao: "", formaPagamento: "pix", pixChave: "", pixTipo: "cpf", banco: "", agencia: "", numero: "", contaTipo: "corrente", titular: "", documento: "", valor: "" };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toFormVenda(data: any): FormVenda {
@@ -272,6 +289,9 @@ function ContaEntryForm({ cp, onChange, onDelete, editingTab = true }: {
         <F label="Titular">
           <Input disabled={!editingTab} value={cp.titular} onChange={(e) => onChange({ titular: e.target.value })} placeholder="Nome completo ou razão social" />
         </F>
+        <F label="CPF / CNPJ">
+          <Input disabled={!editingTab} value={cp.documento} onChange={(e) => onChange({ documento: maskDocumento(e.target.value) })} placeholder="000.000.000-00" />
+        </F>
         <F label="Valor">
           <CurrencyInput disabled={!editingTab} value={cp.valor} onChange={(v) => onChange({ valor: v })} />
         </F>
@@ -362,6 +382,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           numero: cp.numero ?? "",
           contaTipo: cp.contaTipo ?? "corrente",
           titular: cp.titular ?? "",
+          documento: cp.documento ?? "",
           valor: brl(cp.valor),
         }));
         setVenda(vendaData);
@@ -445,6 +466,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
             numero:    (cp.formaPagamento === "ted" || cp.formaPagamento === "doc") ? (cp.numero   || null) : null,
             contaTipo: (cp.formaPagamento === "ted" || cp.formaPagamento === "doc") ? (cp.contaTipo|| null) : null,
             titular:   cp.titular || null,
+            documento: cp.documento || null,
             valor:     n(cp.valor),
           })),
           comissao: {
@@ -850,8 +872,8 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
         </div>
       </CollapsibleCard>
 
-      {/* ── RELATÓRIO DE PAGAMENTO AO COMPRADOR ── */}
-      <CollapsibleCard title="Relatório de Pagamento ao Comprador" icon={CreditCard}
+      {/* ── RELATÓRIO DE PAGAMENTO ── */}
+      <CollapsibleCard title="Relatório de Pagamento" icon={CreditCard}
         defaultOpen={contas.length > 0}
         summary={contas.length > 0 ? `${contas.length} conta${contas.length > 1 ? "s" : ""} cadastrada${contas.length > 1 ? "s" : ""}` : undefined}>
         <div className="space-y-5">

@@ -136,6 +136,7 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
           numero:        cp.numero        ?? null,
           contaTipo:     cp.contaTipo     ?? null,
           titular:       cp.titular       ?? null,
+          documento:     cp.documento     ?? null,
           valor:         cp.valor != null ? Number(cp.valor) : null,
           ordem:         idx,
         })),

@@ -28,6 +28,7 @@ interface ContaPagamento {
   numero?: string | null;
   contaTipo?: string | null;
   titular?: string | null;
+  documento?: string | null;
   valor?: number | null;
   ordem: number;
 }
@@ -206,6 +207,15 @@ function ContaBlock({ cp }: { cp: ContaPagamento }) {
           <div className="flex gap-2 text-sm">
             <span className="text-gray-400 w-20 shrink-0">Titular</span>
             <span className="text-gray-700 font-medium">{cp.titular}</span>
+          </div>
+        )}
+
+        {cp.documento && (
+          <div className="flex gap-2 text-sm">
+            <span className="text-gray-400 w-20 shrink-0">
+              {cp.documento.replace(/\D/g, "").length > 11 ? "CNPJ" : "CPF"}
+            </span>
+            <span className="text-gray-700 font-medium">{cp.documento}</span>
           </div>
         )}
 
