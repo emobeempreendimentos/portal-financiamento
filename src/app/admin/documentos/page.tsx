@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText, Upload, Trash2, Download, Eye, X, Loader2,
-  Search, Plus, FolderOpen, FileType2,
+  Search, Plus, FolderOpen, FileType2, Pencil,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 
@@ -50,6 +50,8 @@ export default function DocumentosPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [arquivoAtual, setArquivoAtual] = useState<string | null>(null);
   const [form, setForm] = useState(FORM_VAZIO);
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [busca, setBusca] = useState("");
@@ -79,7 +81,17 @@ export default function DocumentosPage() {
   }, [carregar, busca]);
 
   function abrirModal() {
+    setEditandoId(null);
+    setArquivoAtual(null);
     setForm(FORM_VAZIO);
+    setArquivo(null);
+    setModalOpen(true);
+  }
+
+  function abrirEdicao(doc: DocumentoImportante) {
+    setEditandoId(doc.id);
+    setArquivoAtual(doc.nomeArquivo);
+    setForm({ titulo: doc.titulo, descricao: doc.descricao || "", categoria: doc.categoria });
     setArquivo(null);
     setModalOpen(true);
   }
@@ -101,23 +113,26 @@ export default function DocumentosPage() {
       addToast({ title: "Informe um título", variant: "error" });
       return;
     }
-    if (!arquivo) {
+    if (!editandoId && !arquivo) {
       addToast({ title: "Selecione um arquivo", variant: "error" });
       return;
     }
     setEnviando(true);
     try {
       const fd = new FormData();
-      fd.append("file", arquivo);
+      if (arquivo) fd.append("file", arquivo);
       fd.append("titulo", form.titulo);
       fd.append("descricao", form.descricao);
       fd.append("categoria", form.categoria);
 
-      const res = await fetch("/api/admin/documentos", { method: "POST", body: fd });
+      const res = await fetch(
+        editandoId ? `/api/admin/documentos/${editandoId}` : "/api/admin/documentos",
+        { method: editandoId ? "PUT" : "POST", body: fd }
+      );
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error);
 
-      addToast({ title: "Documento cadastrado!", variant: "success" });
+      addToast({ title: editandoId ? "Documento atualizado!" : "Documento cadastrado!", variant: "success" });
       setModalOpen(false);
       carregar();
     } catch (e) {
@@ -216,13 +231,22 @@ export default function DocumentosPage() {
                   <p className="font-semibold text-zinc-900 dark:text-white text-sm truncate">{doc.titulo}</p>
                   <p className="text-xs text-zinc-400 truncate">{doc.nomeArquivo}</p>
                 </div>
-                <button
-                  onClick={() => excluir(doc.id, doc.titulo)}
-                  className="shrink-0 p-1.5 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100"
-                  title="Excluir"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <button
+                    onClick={() => abrirEdicao(doc)}
+                    className="p-1.5 rounded-lg text-zinc-300 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors sm:opacity-0 group-hover:opacity-100"
+                    title="Editar"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => excluir(doc.id, doc.titulo)}
+                    className="p-1.5 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors sm:opacity-0 group-hover:opacity-100"
+                    title="Excluir"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
 
               {doc.descricao && (
@@ -273,7 +297,7 @@ export default function DocumentosPage() {
               className="w-full max-w-lg rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-xl"
             >
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-semibold text-zinc-900 dark:text-white">Novo Documento</h2>
+                <h2 className="font-semibold text-zinc-900 dark:text-white">{editandoId ? "Editar Documento" : "Novo Documento"}</h2>
                 <button onClick={() => setModalOpen(false)} disabled={enviando}
                   className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                   <X className="h-4 w-4" />
@@ -304,6 +328,12 @@ export default function DocumentosPage() {
                       <FileText className="h-7 w-7 text-green-600 dark:text-green-400 mx-auto mb-2" />
                       <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{arquivo.name}</p>
                       <p className="text-xs text-zinc-400 mt-0.5">{fmtTamanho(arquivo.size)} · clique para trocar</p>
+                    </>
+                  ) : editandoId && arquivoAtual ? (
+                    <>
+                      <FileText className="h-7 w-7 text-zinc-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 truncate">{arquivoAtual}</p>
+                      <p className="text-xs text-zinc-400 mt-0.5">Arquivo atual · clique para substituir</p>
                     </>
                   ) : (
                     <>
@@ -354,7 +384,11 @@ export default function DocumentosPage() {
                 </button>
                 <button onClick={enviar} disabled={enviando}
                   className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition-colors disabled:opacity-60">
-                  {enviando ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</> : <><Upload className="h-4 w-4" /> Cadastrar</>}
+                  {enviando
+                    ? <><Loader2 className="h-4 w-4 animate-spin" /> {editandoId ? "Salvando..." : "Enviando..."}</>
+                    : editandoId
+                      ? <><Pencil className="h-4 w-4" /> Salvar</>
+                      : <><Upload className="h-4 w-4" /> Cadastrar</>}
                 </button>
               </div>
             </motion.div>
