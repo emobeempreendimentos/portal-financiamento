@@ -8,6 +8,24 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Recibo {
+  id               String   @id @default(cuid())
+  numero           Int      @default(0)
+  recebedorNome    String
+  recebedorTipoDoc String?
+  recebedorDoc     String?
+  pagadorNome      String
+  pagadorTipoDoc   String?
+  pagadorDoc       String?
+  valor            Float    @default(0)
+  referente        String?
+  imovelMatricula  String?
+  formaPagamento   String?
+  cidade           String?
+  data             String?
+  createdAt        DateTime @default(now())
+}
+
 model DocumentoImportante {
   id          String   @id @default(cuid())
   titulo      String

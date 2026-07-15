@@ -71,13 +71,21 @@ export async function POST(req: NextRequest) {
       valor,
       referente,
       imovelMatricula,
+      formaPagamento,
       cidade,
       data,
+      numero,
     } = body;
 
     const valorNum = Number(valor) || 0;
     const recLabel = (recebedorTipoDoc === "cnpj" ? "CNPJ" : "CPF");
     const pagLabel = (pagadorTipoDoc === "cnpj" ? "CNPJ" : "CPF");
+    const formaMap: Record<string, string> = {
+      dinheiro: "Dinheiro", pix: "PIX", transferencia: "Transferência bancária",
+      cheque: "Cheque", cartao: "Cartão", outro: "Outro",
+    };
+    const formaLabel = formaPagamento ? (formaMap[formaPagamento] || formaPagamento) : "";
+    const numeroFmt = numero ? `Nº ${String(numero).padStart(4, "0")}` : "";
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -105,7 +113,15 @@ export async function POST(req: NextRequest) {
     doc.setTextColor(190, 190, 198);
     doc.text("DE PAGAMENTO", M, 33);
 
+    if (numeroFmt) {
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(...GREEN);
+      doc.text(numeroFmt, pageWidth - M, 24, { align: "right" });
+    }
+    doc.setFont("Helvetica", "normal");
     doc.setFontSize(9);
+    doc.setTextColor(190, 190, 198);
     doc.text(dataFmt, pageWidth - M, 33, { align: "right" });
 
     // ── Card do valor ──
@@ -122,6 +138,16 @@ export async function POST(req: NextRequest) {
     doc.setFontSize(20);
     doc.setTextColor(...DARK);
     doc.text(fmtBRL(valorNum), M + 10, y + 19);
+    if (formaLabel) {
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...GRAY);
+      doc.text("FORMA DE PAGAMENTO", pageWidth - M - 10, y + 9, { align: "right" });
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(...DARK);
+      doc.text(formaLabel, pageWidth - M - 10, y + 18, { align: "right" });
+    }
     y += 26 + 12;
 
     // ── Partes (duas colunas) ──
