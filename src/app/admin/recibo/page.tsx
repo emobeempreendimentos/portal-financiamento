@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, FileDown, Loader2, ReceiptText, User, Home, History, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, FileDown, Loader2, ReceiptText, User, Home, History, Trash2, Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -416,6 +416,13 @@ export default function ReciboPage() {
                     {" · "}
                     {new Date(r.createdAt).toLocaleDateString("pt-BR")}
                   </p>
+                </button>
+                <button
+                  onClick={() => carregarRecibo(r)}
+                  className="shrink-0 p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  title="Editar"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => reimprimir(r)}
