@@ -68,7 +68,6 @@ export async function POST(req: NextRequest) {
       pagadorDoc,
       valor,
       referente,
-      imovelEndereco,
       imovelMatricula,
       cidade,
       data,
@@ -156,11 +155,7 @@ export async function POST(req: NextRequest) {
 
     let corpo = `Declaro, para os devidos fins, que recebi de ${pagadorNome}${pagadorDoc ? ` (CPF/CNPJ ${pagadorDoc})` : ""} a importância de ${fmtBRL(valorNum)} (${extenso(valorNum)})`;
     if (referente) corpo += `, referente a ${referente}`;
-    if (imovelEndereco || imovelMatricula) {
-      corpo += `, relativo ao imóvel`;
-      if (imovelEndereco) corpo += ` situado à ${imovelEndereco}`;
-      if (imovelMatricula) corpo += `${imovelEndereco ? "," : ""} matrícula nº ${imovelMatricula}`;
-    }
+    if (imovelMatricula) corpo += `, relativo ao imóvel de matrícula nº ${imovelMatricula}`;
     corpo += ".";
 
     const linhas = doc.splitTextToSize(corpo, contentW);

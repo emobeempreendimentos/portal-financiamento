@@ -16,7 +16,6 @@ interface FormRecibo {
   pagadorDoc: string;
   valor: string;
   referente: string;
-  imovelEndereco: string;
   imovelMatricula: string;
   cidade: string;
   data: string;
@@ -31,7 +30,6 @@ const emptyForm = (): FormRecibo => ({
   pagadorDoc: "",
   valor: "",
   referente: "",
-  imovelEndereco: "",
   imovelMatricula: "",
   cidade: "",
   data: hoje(),
@@ -93,7 +91,6 @@ export default function ReciboPage() {
           pagadorDoc: form.pagadorDoc,
           valor: parseCurrency(form.valor),
           referente: form.referente,
-          imovelEndereco: form.imovelEndereco,
           imovelMatricula: form.imovelMatricula,
           cidade: form.cidade,
           data: form.data,
@@ -184,10 +181,6 @@ export default function ReciboPage() {
           <div className="space-y-1.5 sm:col-span-2">
             <Label>Referente a</Label>
             <Input value={form.referente} onChange={(e) => set("referente", e.target.value)} placeholder="Ex: sinal de compra e venda, comissão, entrada…" />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>Endereço do imóvel (opcional)</Label>
-            <Input value={form.imovelEndereco} onChange={(e) => set("imovelEndereco", e.target.value)} placeholder="Rua, nº, bairro, cidade" />
           </div>
           <div className="space-y-1.5">
             <Label>Matrícula do imóvel (opcional)</Label>
