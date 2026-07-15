@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import jsPDF from "jspdf";
-import { LOGO_BASE64 } from "@/lib/logo-base64";
 
 const GREEN: [number, number, number] = [132, 188, 73];
 const DARK: [number, number, number] = [24, 24, 27];
-const GRAY: [number, number, number] = [90, 90, 96];
-const LOGO_RATIO = 3.089;
+const CARD: [number, number, number] = [246, 247, 248];
+const GRAY: [number, number, number] = [113, 113, 122];
 
 const fmtBRL = (v: number) =>
   `R$ ${Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -80,51 +79,83 @@ export async function POST(req: NextRequest) {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const M = 22;
+    const M = 20;
     const contentW = pageWidth - M * 2;
 
-    // Moldura sutil
-    doc.setDrawColor(...GREEN);
-    doc.setLineWidth(1);
-    doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+    const dataFmt = data
+      ? new Date(data + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
+      : new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
-    // Logo centralizada
-    const logoW = 62;
-    doc.addImage(LOGO_BASE64, "PNG", (pageWidth - logoW) / 2, 22, logoW, logoW / LOGO_RATIO);
-
-    let y = 22 + logoW / LOGO_RATIO + 14;
-
-    // Título
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(...DARK);
-    doc.text("RECIBO", pageWidth / 2, y, { align: "center" });
-
-    // Valor em destaque (caixa)
-    doc.setFontSize(14);
-    const valorTxt = fmtBRL(valorNum);
-    const boxW = 60;
+    // ── Cabeçalho moderno (faixa escura) ──
+    doc.setFillColor(...DARK);
+    doc.rect(0, 0, pageWidth, 42, "F");
     doc.setFillColor(...GREEN);
-    doc.roundedRect(pageWidth - M - boxW, y - 8, boxW, 12, 3, 3, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.text(valorTxt, pageWidth - M - boxW / 2, y, { align: "center" });
+    doc.rect(0, 42, pageWidth, 1.6, "F");
 
-    y += 16;
-    doc.setDrawColor(...GREEN);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(26);
+    doc.setTextColor(255, 255, 255);
+    doc.text("RECIBO", M, 26);
+
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(190, 190, 198);
+    doc.text("DE PAGAMENTO", M, 33);
+
+    doc.setFontSize(9);
+    doc.text(dataFmt, pageWidth - M, 33, { align: "right" });
+
+    // ── Card do valor ──
+    let y = 58;
+    doc.setFillColor(...CARD);
+    doc.roundedRect(M, y, contentW, 26, 4, 4, "F");
+    doc.setFillColor(...GREEN);
+    doc.roundedRect(M, y, 3, 26, 1.5, 1.5, "F");
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(...GRAY);
+    doc.text("VALOR RECEBIDO", M + 10, y + 9);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(...DARK);
+    doc.text(fmtBRL(valorNum), M + 10, y + 19);
+    y += 26 + 12;
+
+    // ── Partes (duas colunas) ──
+    const colW = (contentW - 6) / 2;
+    const drawParte = (x: number, rotulo: string, nome: string, docn: string) => {
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(...GREEN);
+      doc.text(rotulo, x, y);
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(...DARK);
+      doc.text(nome || "—", x, y + 7);
+      if (docn) {
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(...GRAY);
+        doc.text(`CPF/CNPJ: ${docn}`, x, y + 12.5);
+      }
+    };
+    drawParte(M, "RECEBI DE (PAGADOR)", pagadorNome, pagadorDoc);
+    drawParte(M + colW + 6, "RECEBEDOR (DECLARANTE)", recebedorNome, recebedorDoc);
+    y += 22;
+
+    // Divisória
+    doc.setDrawColor(...CARD);
     doc.setLineWidth(0.6);
     doc.line(M, y, pageWidth - M, y);
     y += 14;
 
-    // Corpo do recibo
+    // ── Corpo ──
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(11.5);
     doc.setTextColor(...DARK);
 
-    const docPagador = pagadorDoc ? `, inscrito(a) no CPF/CNPJ sob o nº ${pagadorDoc},` : "";
-    let corpo = `Eu, ${recebedorNome}${recebedorDoc ? `, inscrito(a) no CPF/CNPJ sob o nº ${recebedorDoc},` : ","} DECLARO para os devidos fins que recebi de ${pagadorNome}${docPagador} a importância de ${valorTxt} (${extenso(valorNum)})`;
-
+    let corpo = `Declaro, para os devidos fins, que recebi de ${pagadorNome}${pagadorDoc ? ` (CPF/CNPJ ${pagadorDoc})` : ""} a importância de ${fmtBRL(valorNum)} (${extenso(valorNum)})`;
     if (referente) corpo += `, referente a ${referente}`;
-
     if (imovelEndereco || imovelMatricula) {
       corpo += `, relativo ao imóvel`;
       if (imovelEndereco) corpo += ` situado à ${imovelEndereco}`;
@@ -133,48 +164,47 @@ export async function POST(req: NextRequest) {
     corpo += ".";
 
     const linhas = doc.splitTextToSize(corpo, contentW);
-    doc.text(linhas, M, y, { lineHeightFactor: 1.6 });
-    y += linhas.length * 7.2 + 10;
+    doc.text(linhas, M, y, { lineHeightFactor: 1.7 });
+    y += linhas.length * 7.6 + 8;
 
+    doc.setTextColor(...GRAY);
+    doc.setFontSize(10.5);
     doc.text(
       doc.splitTextToSize(
         "Para maior clareza e como prova de quitação, firmo o presente recibo, dando plena e total quitação do valor acima descrito.",
         contentW
       ),
-      M, y, { lineHeightFactor: 1.6 }
+      M, y, { lineHeightFactor: 1.7 }
     );
-    y += 22;
+    y += 24;
 
     // Local e data
-    const dataFmt = data
-      ? new Date(data + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
-      : new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(...DARK);
     doc.text(`${cidade ? cidade + ", " : ""}${dataFmt}.`, pageWidth - M, y, { align: "right" });
-    y += 30;
 
-    // Assinatura
-    const sigW = 90;
+    // ── Assinatura (fixada mais abaixo) ──
+    const sigY = Math.max(y + 40, pageHeight - 55);
+    const sigW = 100;
     const sigX = (pageWidth - sigW) / 2;
     doc.setDrawColor(...DARK);
     doc.setLineWidth(0.4);
-    doc.line(sigX, y, sigX + sigW, y);
-    y += 6;
+    doc.line(sigX, sigY, sigX + sigW, sigY);
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(11);
-    doc.text(recebedorNome, pageWidth / 2, y, { align: "center" });
+    doc.setTextColor(...DARK);
+    doc.text(recebedorNome || "", pageWidth / 2, sigY + 6, { align: "center" });
     if (recebedorDoc) {
-      y += 5.5;
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(...GRAY);
-      doc.text(`CPF/CNPJ: ${recebedorDoc}`, pageWidth / 2, y, { align: "center" });
+      doc.text(`CPF/CNPJ: ${recebedorDoc}`, pageWidth / 2, sigY + 11.5, { align: "center" });
     }
 
-    // Rodapé
-    doc.setFontSize(8);
-    doc.setTextColor(...GRAY);
-    doc.setFont("Helvetica", "normal");
-    doc.text("EMOBE Empreendimentos Imobiliários  •  CRECI 4682J", pageWidth / 2, pageHeight - 16, { align: "center" });
+    // Faixa inferior de acento
+    doc.setFillColor(...GREEN);
+    doc.rect(0, pageHeight - 6, pageWidth, 6, "F");
 
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
     return new NextResponse(pdfBuffer, {
