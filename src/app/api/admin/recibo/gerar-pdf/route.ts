@@ -63,8 +63,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       recebedorNome,
+      recebedorTipoDoc,
       recebedorDoc,
       pagadorNome,
+      pagadorTipoDoc,
       pagadorDoc,
       valor,
       referente,
@@ -74,6 +76,8 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const valorNum = Number(valor) || 0;
+    const recLabel = (recebedorTipoDoc === "cnpj" ? "CNPJ" : "CPF");
+    const pagLabel = (pagadorTipoDoc === "cnpj" ? "CNPJ" : "CPF");
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -122,7 +126,7 @@ export async function POST(req: NextRequest) {
 
     // ── Partes (duas colunas) ──
     const colW = (contentW - 6) / 2;
-    const drawParte = (x: number, rotulo: string, nome: string, docn: string) => {
+    const drawParte = (x: number, rotulo: string, nome: string, docn: string, docLabel: string) => {
       doc.setFont("Helvetica", "bold");
       doc.setFontSize(7.5);
       doc.setTextColor(...GREEN);
@@ -135,11 +139,11 @@ export async function POST(req: NextRequest) {
         doc.setFont("Helvetica", "normal");
         doc.setFontSize(8.5);
         doc.setTextColor(...GRAY);
-        doc.text(`CPF/CNPJ: ${docn}`, x, y + 12.5);
+        doc.text(`${docLabel}: ${docn}`, x, y + 12.5);
       }
     };
-    drawParte(M, "RECEBI DE (PAGADOR)", pagadorNome, pagadorDoc);
-    drawParte(M + colW + 6, "RECEBEDOR (DECLARANTE)", recebedorNome, recebedorDoc);
+    drawParte(M, "RECEBI DE (PAGADOR)", pagadorNome, pagadorDoc, pagLabel);
+    drawParte(M + colW + 6, "RECEBEDOR (DECLARANTE)", recebedorNome, recebedorDoc, recLabel);
     y += 22;
 
     // Divisória
@@ -153,7 +157,7 @@ export async function POST(req: NextRequest) {
     doc.setFontSize(11.5);
     doc.setTextColor(...DARK);
 
-    let corpo = `Declaro, para os devidos fins, que recebi de ${pagadorNome}${pagadorDoc ? ` (CPF/CNPJ ${pagadorDoc})` : ""} a importância de ${fmtBRL(valorNum)} (${extenso(valorNum)})`;
+    let corpo = `Declaro, para os devidos fins, que recebi de ${pagadorNome}${pagadorDoc ? ` (${pagLabel} ${pagadorDoc})` : ""} a importância de ${fmtBRL(valorNum)} (${extenso(valorNum)})`;
     if (referente) corpo += `, referente a ${referente}`;
     if (imovelMatricula) corpo += `, relativo ao imóvel de matrícula nº ${imovelMatricula}`;
     corpo += ".";
@@ -194,7 +198,7 @@ export async function POST(req: NextRequest) {
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(...GRAY);
-      doc.text(`CPF/CNPJ: ${recebedorDoc}`, pageWidth / 2, sigY + 11.5, { align: "center" });
+      doc.text(`${recLabel}: ${recebedorDoc}`, pageWidth / 2, sigY + 11.5, { align: "center" });
     }
 
     // Faixa inferior de acento

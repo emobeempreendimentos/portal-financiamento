@@ -11,8 +11,10 @@ import { useRouter } from "next/navigation";
 
 interface FormRecibo {
   recebedorNome: string;
+  recebedorTipoDoc: "cpf" | "cnpj";
   recebedorDoc: string;
   pagadorNome: string;
+  pagadorTipoDoc: "cpf" | "cnpj";
   pagadorDoc: string;
   valor: string;
   referente: string;
@@ -25,8 +27,10 @@ const hoje = () => new Date().toISOString().slice(0, 10);
 
 const emptyForm = (): FormRecibo => ({
   recebedorNome: "",
+  recebedorTipoDoc: "cpf",
   recebedorDoc: "",
   pagadorNome: "",
+  pagadorTipoDoc: "cpf",
   pagadorDoc: "",
   valor: "",
   referente: "",
@@ -41,19 +45,19 @@ const parseCurrency = (value: string): number | null => {
   return isNaN(num) ? null : num;
 };
 
-const maskDoc = (value: string): string => {
-  const dg = value.replace(/\D/g, "").slice(0, 14);
-  if (dg.length <= 11) {
-    return dg
-      .replace(/^(\d{3})(\d)/, "$1.$2")
-      .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
-      .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+const maskDoc = (value: string, tipo: "cpf" | "cnpj"): string => {
+  const dg = value.replace(/\D/g, "");
+  if (tipo === "cnpj") {
+    return dg.slice(0, 14)
+      .replace(/^(\d{2})(\d)/, "$1.$2")
+      .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4")
+      .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
   }
-  return dg
-    .replace(/^(\d{2})(\d)/, "$1.$2")
-    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
-    .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4")
-    .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
+  return dg.slice(0, 11)
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
 };
 
 export default function ReciboPage() {
@@ -86,8 +90,10 @@ export default function ReciboPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           recebedorNome: form.recebedorNome,
+          recebedorTipoDoc: form.recebedorTipoDoc,
           recebedorDoc: form.recebedorDoc,
           pagadorNome: form.pagadorNome,
+          pagadorTipoDoc: form.pagadorTipoDoc,
           pagadorDoc: form.pagadorDoc,
           valor: parseCurrency(form.valor),
           referente: form.referente,
@@ -134,8 +140,26 @@ export default function ReciboPage() {
             <Input value={form.recebedorNome} onChange={(e) => set("recebedorNome", e.target.value)} placeholder="Nome de quem recebeu" />
           </div>
           <div className="space-y-1.5">
-            <Label>CPF / CNPJ</Label>
-            <Input value={form.recebedorDoc} onChange={(e) => set("recebedorDoc", maskDoc(e.target.value))} placeholder="000.000.000-00" />
+            <Label>Documento</Label>
+            <div className="flex gap-2">
+              <select
+                value={form.recebedorTipoDoc}
+                onChange={(e) => {
+                  const tipo = e.target.value as "cpf" | "cnpj";
+                  setForm((p) => ({ ...p, recebedorTipoDoc: tipo, recebedorDoc: maskDoc(p.recebedorDoc, tipo) }));
+                }}
+                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="cpf">CPF</option>
+                <option value="cnpj">CNPJ</option>
+              </select>
+              <Input
+                className="flex-1"
+                value={form.recebedorDoc}
+                onChange={(e) => set("recebedorDoc", maskDoc(e.target.value, form.recebedorTipoDoc))}
+                placeholder={form.recebedorTipoDoc === "cnpj" ? "00.000.000/0000-00" : "000.000.000-00"}
+              />
+            </div>
           </div>
         </div>
       </motion.div>
@@ -153,8 +177,26 @@ export default function ReciboPage() {
             <Input value={form.pagadorNome} onChange={(e) => set("pagadorNome", e.target.value)} placeholder="Nome de quem pagou" />
           </div>
           <div className="space-y-1.5">
-            <Label>CPF / CNPJ</Label>
-            <Input value={form.pagadorDoc} onChange={(e) => set("pagadorDoc", maskDoc(e.target.value))} placeholder="000.000.000-00" />
+            <Label>Documento</Label>
+            <div className="flex gap-2">
+              <select
+                value={form.pagadorTipoDoc}
+                onChange={(e) => {
+                  const tipo = e.target.value as "cpf" | "cnpj";
+                  setForm((p) => ({ ...p, pagadorTipoDoc: tipo, pagadorDoc: maskDoc(p.pagadorDoc, tipo) }));
+                }}
+                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="cpf">CPF</option>
+                <option value="cnpj">CNPJ</option>
+              </select>
+              <Input
+                className="flex-1"
+                value={form.pagadorDoc}
+                onChange={(e) => set("pagadorDoc", maskDoc(e.target.value, form.pagadorTipoDoc))}
+                placeholder={form.pagadorTipoDoc === "cnpj" ? "00.000.000/0000-00" : "000.000.000-00"}
+              />
+            </div>
           </div>
         </div>
       </motion.div>
