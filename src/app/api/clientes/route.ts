@@ -55,12 +55,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Campos opcionais em branco viram null (evita colisão no índice único do CPF)
+    const opt = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+    const cpfNorm = opt(cpf);
+
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json(
         { success: false, error: "Email já cadastrado" },
         { status: 409 }
       );
+    }
+
+    if (cpfNorm) {
+      const cpfExistente = await prisma.user.findUnique({ where: { cpf: cpfNorm }, select: { nome: true } });
+      if (cpfExistente) {
+        return NextResponse.json(
+          { success: false, error: `CPF já cadastrado para o cliente ${cpfExistente.nome}` },
+          { status: 409 }
+        );
+      }
     }
 
     const senhaHash = await bcrypt.hash(senha, 12);
@@ -71,10 +85,10 @@ export async function POST(request: NextRequest) {
         email,
         senha: senhaHash,
         senhaVisivel: senha,
-        telefone,
-        cpf,
-        conjuge,
-        banco,
+        telefone: opt(telefone),
+        cpf: cpfNorm,
+        conjuge: opt(conjuge),
+        banco: opt(banco),
         role: "cliente",
         financiamento: {
           create: {

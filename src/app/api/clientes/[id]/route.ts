@@ -57,7 +57,32 @@ export async function PUT(
     // Admin can edit all fields; client can only edit email and telefone
     if (session.role === "admin") {
       const { nome, email, telefone, cpf, conjuge, conjugeCpf, conjugeEmail, conjugeTelefone, banco, senha } = body;
-      const data: Record<string, unknown> = { nome, email, telefone, cpf, conjuge, conjugeCpf, conjugeEmail, conjugeTelefone, banco };
+
+      // Campos opcionais em branco viram null (evita colisão no índice único do CPF)
+      const opt = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+      const cpfNorm = opt(cpf);
+
+      if (cpfNorm) {
+        const cpfExistente = await prisma.user.findUnique({ where: { cpf: cpfNorm }, select: { id: true, nome: true } });
+        if (cpfExistente && cpfExistente.id !== id) {
+          return NextResponse.json(
+            { success: false, error: `CPF já cadastrado para o cliente ${cpfExistente.nome}` },
+            { status: 409 }
+          );
+        }
+      }
+
+      const data: Record<string, unknown> = {
+        nome,
+        email,
+        telefone: opt(telefone),
+        cpf: cpfNorm,
+        conjuge: opt(conjuge),
+        conjugeCpf: opt(conjugeCpf),
+        conjugeEmail: opt(conjugeEmail),
+        conjugeTelefone: opt(conjugeTelefone),
+        banco: opt(banco),
+      };
       if (senha) {
         data.senha = await bcrypt.hash(senha, 12);
         data.senhaVisivel = senha;
