@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { FileBarChart } from "lucide-react";
 import { StatsCards } from "@/components/admin/StatsCards";
+import { TarefasPendentesCard } from "@/components/admin/TarefasPendentesCard";
 import { PendenciasModal } from "@/components/admin/PendenciasModal";
 import { ClientesModal } from "@/components/admin/ClientesModal";
 import { CanceladosPanel } from "@/components/admin/CanceladosPanel";
@@ -147,6 +148,8 @@ export default function AdminPage() {
           <StatsCards stats={stats} onPendenciasClick={handlePendenciasClick} onCardClick={handleCardClick} />
         </motion.div>
       )}
+
+      <TarefasPendentesCard />
 
       <PendenciasModal
         open={modalOpen}

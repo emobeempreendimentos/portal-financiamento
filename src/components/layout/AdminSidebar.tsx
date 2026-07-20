@@ -2,11 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, UserPlus, Building2, ChevronRight, Landmark, User, Calculator, FileText, ReceiptText } from "lucide-react";
+import { LayoutDashboard, Users, UserPlus, Building2, ChevronRight, Landmark, User, Calculator, FileText, ReceiptText, ListTodo } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TAREFAS_CHANGED_EVENT } from "@/lib/tarefas";
 
-const navGroups = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  exact: boolean;
+  badge?: "tarefas";
+}
+
+const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Navegação",
     items: [
@@ -18,6 +28,7 @@ const navGroups = [
   {
     label: "Ferramentas",
     items: [
+      { href: "/admin/tarefas", label: "Lista de Tarefas", icon: ListTodo, exact: false, badge: "tarefas" },
       { href: "/admin/simulacao", label: "Simulação", icon: Calculator, exact: false },
       { href: "/admin/recibo", label: "Gerador de Recibo", icon: ReceiptText, exact: false },
       { href: "/admin/documentos", label: "Documentos", icon: FileText, exact: false },
@@ -39,6 +50,21 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const [tarefasPendentes, setTarefasPendentes] = useState(0);
+
+  const carregarContador = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/tarefas/resumo");
+      const json = await res.json();
+      if (json.success) setTarefasPendentes(json.data.abertas ?? 0);
+    } catch { /* silencioso */ }
+  }, []);
+
+  useEffect(() => {
+    carregarContador();
+    window.addEventListener(TAREFAS_CHANGED_EVENT, carregarContador);
+    return () => window.removeEventListener(TAREFAS_CHANGED_EVENT, carregarContador);
+  }, [carregarContador]);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
@@ -93,6 +119,11 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
                       >
                         <item.icon className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : "")} />
                         <span>{item.label}</span>
+                        {item.badge === "tarefas" && tarefasPendentes > 0 && (
+                          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
+                            {tarefasPendentes > 99 ? "99+" : tarefasPendentes}
+                          </span>
+                        )}
                       </motion.div>
                     </Link>
                   );

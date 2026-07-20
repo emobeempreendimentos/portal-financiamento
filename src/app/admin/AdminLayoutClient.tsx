@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { TarefaNotificacoes } from "@/components/admin/TarefaNotificacoes";
 import { useToast } from "@/components/ui/toast";
 import { User } from "@/types";
 
@@ -46,6 +47,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <TarefaNotificacoes />
       <Header
         user={user}
         darkMode={darkMode}
