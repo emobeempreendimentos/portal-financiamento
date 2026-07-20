@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 // GET /api/documentos/[id]/download — serve o arquivo do banco
+// Documentos do financiamento são privados: apenas admin pode baixá-los.
 export async function GET(
   _: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireAuth();
+    await requireAdmin();
     const { id } = await params;
 
     const doc = await prisma.documento.findUnique({

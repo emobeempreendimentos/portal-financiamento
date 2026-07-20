@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, getSession } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 // GET /api/documentos?financiamentoId=... (sem conteudo binário)
+// Documentos do financiamento são privados: apenas admin pode listá-los.
 export async function GET(request: NextRequest) {
   try {
-    await requireAuth();
+    await requireAdmin();
     const financiamentoId = request.nextUrl.searchParams.get("financiamentoId");
     if (!financiamentoId) {
       return NextResponse.json({ success: false, error: "financiamentoId obrigatório" }, { status: 400 });
@@ -26,11 +27,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/documentos — salva arquivo no banco (bytea)
+// POST /api/documentos — salva arquivo no banco (bytea). Apenas admin.
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session) return NextResponse.json({ success: false, error: "Não autenticado" }, { status: 401 });
+    const session = await requireAdmin();
 
     const formData = await request.formData();
     const file = formData.get("file") as File;

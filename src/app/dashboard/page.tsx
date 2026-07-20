@@ -7,7 +7,6 @@ import { ClientInfo } from "@/components/dashboard/ClientInfo";
 import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { CelebrationOverlay } from "@/components/dashboard/CelebrationOverlay";
 import { SatisfactionSurvey } from "@/components/dashboard/SatisfactionSurvey";
-import { DocumentosPanel } from "@/components/admin/DocumentosPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { calcularProgresso, daysBetween, daysSince, cn } from "@/lib/utils";
@@ -529,13 +528,6 @@ export default function DashboardPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <InteracoesPanel historico={historico} />
         </motion.div>
-
-        {/* ── DOCUMENTOS ── */}
-        {data.financiamento && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <DocumentosPanel financiamentoId={data.financiamento.id} isAdmin={false} />
-          </motion.div>
-        )}
 
         {/* ── WHATSAPP ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
