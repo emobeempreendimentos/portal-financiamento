@@ -2,18 +2,74 @@ import { NextRequest, NextResponse } from "next/server";
 import jsPDF from "jspdf";
 import { LOGO_BASE64 } from "@/lib/logo-base64";
 
-const GREEN: [number, number, number] = [132, 188, 73];
 const DARK: [number, number, number] = [24, 24, 27];
 const GRAY: [number, number, number] = [113, 113, 122];
-const CARD: [number, number, number] = [246, 247, 248];
+const LINE: [number, number, number] = [205, 205, 210];
 const LOGO_RATIO = 3.089; // 766 / 248
 
-const TIPO_LABEL: Record<string, string> = {
-  proposta: "PROPOSTA",
+const TIPO_TITULO: Record<string, string> = {
+  proposta: "PROPOSTA COMERCIAL",
   orcamento: "ORÇAMENTO",
   comunicado: "COMUNICADO",
   outro: "DOCUMENTO",
 };
+
+/**
+ * Renderiza uma linha de texto no estilo "carta formal":
+ * - Linhas iniciadas com "-" ou "•" viram marcador com recuo
+ * - Padrão "Rótulo: valor" recebe o rótulo em negrito automaticamente
+ * - Demais linhas quebram normalmente em texto corrido
+ * Retorna o novo y após a linha (já considerando quebras internas).
+ */
+function renderLinha(
+  doc: jsPDF,
+  linhaBruta: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const bullet = /^[-•]\s+(.*)$/.exec(linhaBruta);
+  if (bullet) {
+    doc.setFont("Times", "normal");
+    doc.text("•", x, y);
+    const wrapped: string[] = doc.splitTextToSize(bullet[1], maxWidth - 6);
+    wrapped.forEach((ln, i) => doc.text(ln, x + 6, y + i * lineHeight));
+    return y + wrapped.length * lineHeight;
+  }
+
+  const label = /^([^:\n]{2,45}):\s?(.*)$/.exec(linhaBruta);
+  if (label && label[1].trim()) {
+    const rotulo = `${label[1].trim()}:`;
+    const resto = label[2] || "";
+
+    doc.setFont("Times", "bold");
+    const rotuloW = doc.getTextWidth(`${rotulo} `);
+
+    if (!resto) {
+      doc.text(rotulo, x, y);
+      return y + lineHeight;
+    }
+
+    if (rotuloW < maxWidth * 0.6 && doc.getTextWidth(resto) <= maxWidth - rotuloW) {
+      doc.text(rotulo, x, y);
+      doc.setFont("Times", "normal");
+      doc.text(resto, x + rotuloW, y);
+      return y + lineHeight;
+    }
+
+    doc.text(rotulo, x, y);
+    doc.setFont("Times", "normal");
+    const wrapped: string[] = doc.splitTextToSize(resto, maxWidth);
+    wrapped.forEach((ln, i) => doc.text(ln, x, y + lineHeight + i * lineHeight));
+    return y + lineHeight * (1 + wrapped.length);
+  }
+
+  doc.setFont("Times", "normal");
+  const wrapped: string[] = doc.splitTextToSize(linhaBruta, maxWidth);
+  wrapped.forEach((ln, i) => doc.text(ln, x, y + i * lineHeight));
+  return y + wrapped.length * lineHeight;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,119 +80,104 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Título e conteúdo são obrigatórios" }, { status: 400 });
     }
 
-    const tipoLabel =
+    const tituloTipo =
       tipo === "outro" && tipoOutro?.trim()
         ? String(tipoOutro).trim().toUpperCase()
-        : TIPO_LABEL[tipo] || TIPO_LABEL.outro;
+        : TIPO_TITULO[tipo] || TIPO_TITULO.outro;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const M = 20;
+    const M = 25;
     const contentW = pageWidth - M * 2;
+    const lineHeight = 6.4;
 
-    const dataFmt = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
-
-    // ── Cabeçalho moderno (faixa escura) ──
-    const headerH = 42;
-    doc.setFillColor(...DARK);
-    doc.rect(0, 0, pageWidth, headerH, "F");
-    doc.setFillColor(...GREEN);
-    doc.rect(0, headerH, pageWidth, 1.6, "F");
-
-    // Chip branco com a logo
-    const logoW = 42;
+    // ── Cabeçalho: logo centralizada ──
+    const logoW = 34;
     const logoH = logoW / LOGO_RATIO;
-    const chipPad = 5;
-    const chipW = logoW + chipPad * 2;
-    const chipH = logoH + chipPad * 2;
-    const chipY = (headerH - chipH) / 2;
-    doc.setFillColor(255, 255, 255);
-    doc.roundedRect(M, chipY, chipW, chipH, 3, 3, "F");
-    doc.addImage(LOGO_BASE64, "PNG", M + chipPad, chipY + chipPad, logoW, logoH);
+    doc.addImage(LOGO_BASE64, "PNG", (pageWidth - logoW) / 2, 20, logoW, logoH);
 
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(...GREEN);
-    // Reduz a fonte se o nome personalizado for muito longo para não invadir a logo
-    const espacoDisponivel = pageWidth - M - (M + chipW + 6);
-    let tipoFontSize = 9;
-    while (tipoFontSize > 6 && doc.getTextWidth(tipoLabel) > espacoDisponivel) {
-      tipoFontSize -= 0.5;
-      doc.setFontSize(tipoFontSize);
-    }
-    doc.text(tipoLabel, pageWidth - M, 17, { align: "right" });
+    let y = 20 + logoH + 16;
 
-    doc.setFont("Helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(190, 190, 198);
-    doc.text(dataFmt, pageWidth - M, 24, { align: "right" });
-
-    let y = headerH + 18;
-
-    // ── Título ──
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(19);
+    // ── Título (tipo do documento) ──
+    doc.setFont("Times", "bold");
+    doc.setFontSize(18);
     doc.setTextColor(...DARK);
-    const tituloLinhas = doc.splitTextToSize(String(titulo).trim(), contentW);
+    doc.text(tituloTipo, pageWidth / 2, y, { align: "center" });
+    y += 16;
+
+    // ── Subtítulo (título informado) ──
+    doc.setFont("Times", "bold");
+    doc.setFontSize(12.5);
+    const tituloLinhas: string[] = doc.splitTextToSize(String(titulo).trim(), contentW);
     doc.text(tituloLinhas, M, y);
-    y += tituloLinhas.length * 8 + 4;
+    y += tituloLinhas.length * 6.8 + 8;
 
     // ── Destinatário ──
     if (destinatario?.trim()) {
-      doc.setFillColor(...CARD);
-      doc.roundedRect(M, y, contentW, 14, 3, 3, "F");
-      doc.setFillColor(...GREEN);
-      doc.roundedRect(M, y, 3, 14, 1.5, 1.5, "F");
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(...GRAY);
-      doc.text("PARA", M + 10, y + 6);
-      doc.setFont("Helvetica", "bold");
-      doc.setFontSize(10.5);
-      doc.setTextColor(...DARK);
-      doc.text(String(destinatario).trim(), M + 10, y + 11);
-      y += 14 + 10;
-    } else {
-      y += 4;
+      y = renderLinha(doc, `Destinatário: ${String(destinatario).trim()}`, M, y, contentW, lineHeight);
+      y += 8;
     }
 
-    // Divisória
-    doc.setDrawColor(...CARD);
-    doc.setLineWidth(0.6);
-    doc.line(M, y, pageWidth - M, y);
-    y += 12;
-
-    // ── Corpo (preserva parágrafos) ──
-    doc.setFont("Helvetica", "normal");
+    // ── Corpo (texto corrido, rótulos e marcadores) ──
     doc.setFontSize(11);
-    doc.setTextColor(60, 60, 66);
-
-    const paragrafos = String(corpo).split(/\n{2,}/);
-    for (const paragrafo of paragrafos) {
-      const linhas = doc.splitTextToSize(paragrafo.replace(/\n/g, " "), contentW);
-      for (const linha of linhas) {
-        if (y > pageHeight - 25) {
-          doc.addPage();
-          y = 25;
-        }
-        doc.text(linha, M, y);
-        y += 6.2;
+    doc.setTextColor(50, 50, 56);
+    const linhas = String(corpo).split("\n");
+    for (const linhaRaw of linhas) {
+      const linha = linhaRaw.trimEnd();
+      if (!linha.trim()) {
+        y += 4.5;
+        continue;
       }
-      y += 4.5;
+      if (y > pageHeight - 30) {
+        doc.addPage();
+        y = 28;
+      }
+      doc.setTextColor(50, 50, 56);
+      y = renderLinha(doc, linha, M, y, contentW, lineHeight);
+      y += 2.5;
     }
 
-    // ── Rodapé em todas as páginas ──
-    const totalPaginas = doc.internal.pages.length - 1;
-    for (let p = 1; p <= totalPaginas; p++) {
-      doc.setPage(p);
-      doc.setFillColor(...GREEN);
-      doc.rect(0, pageHeight - 6, pageWidth, 6, "F");
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(7.5);
-      doc.setTextColor(...GRAY);
-      doc.text(`${p} / ${totalPaginas}`, pageWidth - M, pageHeight - 12, { align: "right" });
+    // Numeração discreta, apenas se houver mais de uma página de conteúdo
+    const paginasConteudo = doc.internal.pages.length - 1;
+    if (paginasConteudo > 1) {
+      for (let p = 1; p <= paginasConteudo; p++) {
+        doc.setPage(p);
+        doc.setFont("Times", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(...GRAY);
+        doc.text(`${p} / ${paginasConteudo}`, pageWidth - M, pageHeight - 14, { align: "right" });
+      }
+      doc.setPage(paginasConteudo);
     }
+
+    // ── Página de encerramento (assinatura / contato) ──
+    doc.addPage();
+    let y2 = 45;
+    doc.setDrawColor(...LINE);
+    doc.setLineWidth(0.4);
+    doc.line(M, y2, pageWidth - M, y2);
+    y2 += 12;
+
+    doc.setFont("Times", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(...DARK);
+    doc.text("EMOBE Empreendimentos Imobiliários", pageWidth / 2, y2, { align: "center" });
+    y2 += 8;
+
+    doc.setFont("Times", "normal");
+    doc.setFontSize(10.5);
+    doc.text("CRECI 4682J", pageWidth / 2, y2, { align: "center" });
+    y2 += 20;
+
+    doc.setFontSize(8.5);
+    doc.setTextColor(...GRAY);
+    doc.text(
+      "EMOBE Empreendimentos Imobiliários · +55 (37) 99925-1577 · contato@emobe.com.br",
+      pageWidth / 2,
+      y2,
+      { align: "center" }
+    );
 
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
     return new NextResponse(pdfBuffer, {
