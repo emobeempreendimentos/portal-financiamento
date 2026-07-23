@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, UserPlus, Building2, ChevronRight, Landmark, User, Calculator, FileText, ReceiptText, ListTodo } from "lucide-react";
+import { LayoutDashboard, Users, UserPlus, Building2, ChevronRight, Landmark, User, Calculator, FileText, ReceiptText, ListTodo, FileSignature } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TAREFAS_CHANGED_EVENT } from "@/lib/tarefas";
 
@@ -31,6 +31,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { href: "/admin/tarefas", label: "Lista de Tarefas", icon: ListTodo, exact: false, badge: "tarefas" },
       { href: "/admin/simulacao", label: "Simulação", icon: Calculator, exact: false },
       { href: "/admin/recibo", label: "Gerador de Recibo", icon: ReceiptText, exact: false },
+      { href: "/admin/termos", label: "Termos para Envio", icon: FileSignature, exact: false },
       { href: "/admin/documentos", label: "Documentos", icon: FileText, exact: false },
     ],
   },
