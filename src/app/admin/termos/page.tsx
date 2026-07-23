@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, FileDown, Printer, History, Trash2, Plus,
-  Bold, Italic, Underline, List, ListOrdered,
+  Bold, Italic, Underline, List, ListOrdered, ALargeSmall,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
@@ -39,6 +39,8 @@ function tituloDocumento(tipo: string, tipoOutro: string): string {
   if (tipo === "outro" && tipoOutro.trim()) return tipoOutro.trim().toUpperCase();
   return TITULO_TIPO[tipo] || TITULO_TIPO.outro;
 }
+
+const TAMANHOS_FONTE = [14, 16, 18, 20, 24, 28];
 
 function tipoBadgeLabel(t: TermoRow): string {
   if (t.tipo === "outro" && t.tipoOutro?.trim()) return t.tipoOutro.trim();
@@ -78,6 +80,26 @@ export default function TermosPage() {
     editorRef.current?.focus();
     document.execCommand(cmd, false);
     if (editorRef.current) setCorpoHtml(editorRef.current.innerHTML);
+  }
+  // Aplica um tamanho de fonte (px) ao trecho selecionado, envolvendo-o num <span>.
+  function aplicarTamanho(px: number) {
+    const el = editorRef.current;
+    if (!el) return;
+    el.focus();
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+      addToast({ title: "Selecione o texto para aplicar o tamanho", variant: "error" });
+      return;
+    }
+    // Truque clássico: marca a seleção com um tamanho sentinela e converte para span com o px exato.
+    document.execCommand("fontSize", false, "7");
+    el.querySelectorAll('font[size="7"]').forEach((f) => {
+      const span = document.createElement("span");
+      span.style.fontSize = `${px}px`;
+      span.innerHTML = (f as HTMLElement).innerHTML;
+      f.replaceWith(span);
+    });
+    setCorpoHtml(el.innerHTML);
   }
 
   // ── Persistência ──
@@ -272,6 +294,19 @@ export default function TermosPage() {
                   <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-700 mx-1" />
                   <button type="button" onClick={() => exec("insertUnorderedList")} title="Lista com marcadores" className={tbBtn}><List className="h-3.5 w-3.5" /></button>
                   <button type="button" onClick={() => exec("insertOrderedList")} title="Lista numerada" className={tbBtn}><ListOrdered className="h-3.5 w-3.5" /></button>
+                  <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-700 mx-1" />
+                  <div className="flex items-center gap-1 pl-1">
+                    <ALargeSmall className="h-3.5 w-3.5 text-zinc-400" />
+                    <select
+                      value=""
+                      onChange={(e) => { if (e.target.value) aplicarTamanho(Number(e.target.value)); e.target.value = ""; }}
+                      title="Tamanho da fonte (selecione o texto)"
+                      className="bg-transparent text-xs font-medium text-zinc-600 dark:text-zinc-300 focus:outline-none cursor-pointer"
+                    >
+                      <option value="">Tamanho</option>
+                      {TAMANHOS_FONTE.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
                 </div>
                 <div
                   ref={editorRef}
