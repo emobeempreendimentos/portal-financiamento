@@ -37,6 +37,8 @@ const TIPOS = [
   { value: "outro", label: "Outro" },
 ];
 
+const TAMANHOS = [11, 12, 14, 16, 18, 20, 24];
+
 const emptyForm = (): FormTermo => ({ titulo: "", tipo: "proposta", tipoOutro: "", destinatario: "", corpo: "" });
 
 function termoToForm(t: TermoRow): FormTermo {
@@ -65,23 +67,26 @@ export default function TermosPage() {
 
   const set = (k: keyof FormTermo, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
-  // Envolve o trecho selecionado no textarea com o marcador (**, __ ou ++).
+  // Envolve o trecho selecionado no textarea com marcadores de abertura/fechamento.
   // Sem seleção, insere um texto de exemplo já selecionado, pronto para digitar por cima.
-  function aplicarMarcador(marcador: string) {
+  function envolver(abre: string, fecha: string) {
     const el = corpoRef.current;
     if (!el) return;
     const { selectionStart, selectionEnd, value } = el;
     const selecionado = value.slice(selectionStart, selectionEnd) || "texto";
     const antes = value.slice(0, selectionStart);
     const depois = value.slice(selectionEnd);
-    const novoValor = `${antes}${marcador}${selecionado}${marcador}${depois}`;
+    const novoValor = `${antes}${abre}${selecionado}${fecha}${depois}`;
     setForm((p) => ({ ...p, corpo: novoValor }));
     requestAnimationFrame(() => {
       el.focus();
-      const novoInicio = selectionStart + marcador.length;
+      const novoInicio = selectionStart + abre.length;
       el.setSelectionRange(novoInicio, novoInicio + selecionado.length);
     });
   }
+
+  const aplicarMarcador = (marcador: string) => envolver(marcador, marcador);
+  const aplicarTamanho = (pt: number) => envolver(`[[${pt}]]`, "[[/]]");
 
   const carregarRecentes = useCallback(async () => {
     try {
@@ -247,33 +252,41 @@ export default function TermosPage() {
         </div>
 
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <Label>Conteúdo</Label>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => aplicarMarcador("**")}
-                title="Negrito (selecione o texto)"
-                className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                <Bold className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => aplicarMarcador("__")}
-                title="Sublinhado (selecione o texto)"
-                className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                <Underline className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => aplicarMarcador("++")}
-                title="Aumentar fonte (selecione o texto)"
-                className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                <ALargeSmall className="h-4 w-4" />
-              </button>
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-0.5 rounded-lg border border-zinc-200 dark:border-zinc-700 p-0.5">
+                <button
+                  type="button"
+                  onClick={() => aplicarMarcador("**")}
+                  title="Negrito (selecione o texto)"
+                  className="p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                >
+                  <Bold className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => aplicarMarcador("__")}
+                  title="Sublinhado (selecione o texto)"
+                  className="p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                >
+                  <Underline className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="flex items-center gap-1 rounded-lg border border-zinc-200 dark:border-zinc-700 pl-2 pr-1 py-0.5">
+                <ALargeSmall className="h-3.5 w-3.5 text-zinc-400" />
+                <select
+                  value=""
+                  onChange={(e) => { if (e.target.value) aplicarTamanho(Number(e.target.value)); e.target.value = ""; }}
+                  title="Tamanho da fonte (selecione o texto)"
+                  className="bg-transparent text-xs font-medium text-zinc-600 dark:text-zinc-300 focus:outline-none cursor-pointer py-1"
+                >
+                  <option value="">Tamanho</option>
+                  {TAMANHOS.map((t) => (
+                    <option key={t} value={t}>{t} pt{t === 11 ? " (padrão)" : ""}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
           <textarea
@@ -285,7 +298,7 @@ export default function TermosPage() {
             className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-green-500 resize-y font-mono"
           />
           <p className="text-xs text-zinc-400">
-            Use uma linha em branco para separar parágrafos. Selecione um trecho e clique em <strong>B</strong>, <strong>S</strong> ou <strong>A+</strong> para formatar.
+            Selecione um trecho e use <strong>Negrito</strong>, <strong>Sublinhado</strong> ou <strong>Tamanho</strong> para formatar. Linha em branco separa parágrafos.
           </p>
         </div>
       </motion.div>

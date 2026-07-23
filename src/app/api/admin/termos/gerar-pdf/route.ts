@@ -7,7 +7,9 @@ const GRAY: [number, number, number] = [113, 113, 122];
 const BODY: [number, number, number] = [50, 50, 56];
 const LINE: [number, number, number] = [205, 205, 210];
 const LOGO_RATIO = 3.089; // 766 / 248
-const FONT_BIG_DELTA = 3; // pt adicionados quando o trecho está marcado como "fonte maior"
+const FONT_BIG_DELTA = 3; // compat: ++texto++ antigo = base + 3pt
+const TAMANHO_MIN = 8;
+const TAMANHO_MAX = 40;
 
 const TIPO_TITULO: Record<string, string> = {
   proposta: "PROPOSTA COMERCIAL",
@@ -17,32 +19,48 @@ const TIPO_TITULO: Record<string, string> = {
 };
 
 /* ── Marcação de texto rico ──
- * **negrito**  __sublinhado__  ++fonte maior++  — combináveis entre si.
+ * **negrito**  __sublinhado__  [[N]]tamanho N pt[[/]]  — combináveis entre si.
+ * ++...++ mantido por compatibilidade (base + 3pt).
  */
 interface Trecho {
   texto: string;
   bold: boolean;
   underline: boolean;
-  big: boolean;
+  size: number | null; // tamanho absoluto em pt; null = tamanho base
 }
 
-function parseTrechos(linha: string): Trecho[] {
+function parseTrechos(linha: string, baseFontSize: number): Trecho[] {
   const trechos: Trecho[] = [];
   let bold = false;
   let underline = false;
-  let big = false;
+  let size: number | null = null;
   let buffer = "";
   let i = 0;
 
   const flush = () => {
-    if (buffer) trechos.push({ texto: buffer, bold, underline, big });
+    if (buffer) trechos.push({ texto: buffer, bold, underline, size });
     buffer = "";
   };
 
   while (i < linha.length) {
     if (linha.startsWith("**", i)) { flush(); bold = !bold; i += 2; continue; }
     if (linha.startsWith("__", i)) { flush(); underline = !underline; i += 2; continue; }
-    if (linha.startsWith("++", i)) { flush(); big = !big; i += 2; continue; }
+    // [[/]] fecha o tamanho; [[N]] abre um tamanho absoluto
+    if (linha.startsWith("[[/]]", i)) { flush(); size = null; i += 5; continue; }
+    const m = /^\[\[(\d{1,2})\]\]/.exec(linha.slice(i, i + 6));
+    if (m) {
+      flush();
+      size = Math.max(TAMANHO_MIN, Math.min(TAMANHO_MAX, parseInt(m[1], 10)));
+      i += m[0].length;
+      continue;
+    }
+    // ++...++ legado
+    if (linha.startsWith("++", i)) {
+      flush();
+      size = size == null ? baseFontSize + FONT_BIG_DELTA : null;
+      i += 2;
+      continue;
+    }
     buffer += linha[i];
     i++;
   }
@@ -54,9 +72,9 @@ interface Palavra extends Trecho {
   isSpace: boolean;
 }
 
-function tokenizar(linha: string): Palavra[] {
+function tokenizar(linha: string, baseFontSize: number): Palavra[] {
   const palavras: Palavra[] = [];
-  parseTrechos(linha).forEach((t) => {
+  parseTrechos(linha, baseFontSize).forEach((t) => {
     const partes = t.texto.split(/(\s+)/).filter((p) => p !== "");
     partes.forEach((p) => palavras.push({ ...t, texto: p, isSpace: /^\s+$/.test(p) }));
   });
@@ -76,10 +94,10 @@ function renderRico(
   baseFontSize: number,
   baseLineHeight: number
 ): number {
-  const palavras = tokenizar(linha);
+  const palavras = tokenizar(linha, baseFontSize);
   let y = yInicial;
 
-  const tamanhoDe = (p: Palavra) => (p.big ? baseFontSize + FONT_BIG_DELTA : baseFontSize);
+  const tamanhoDe = (p: Palavra) => p.size ?? baseFontSize;
   const medir = (p: Palavra) => {
     doc.setFont("Times", p.bold ? "bold" : "normal");
     doc.setFontSize(tamanhoDe(p));
@@ -96,7 +114,7 @@ function renderRico(
       doc.setFontSize(tamanhoDe(p));
       doc.text(p.texto, cx, y);
       if (p.underline && p.texto.length > 0) {
-        const uy = y + (p.big ? 1.6 : 1.1);
+        const uy = y + (tamanhoDe(p) > baseFontSize ? 1.6 : 1.1);
         doc.setDrawColor(...BODY);
         doc.setLineWidth(0.25);
         doc.line(cx, uy, cx + w, uy);
@@ -125,7 +143,7 @@ function renderRico(
 
 /** Aplica negrito automático ao rótulo de linhas no padrão "Rótulo: valor". */
 function autoRotulo(linha: string): string {
-  const m = /^([^:\n*_+]{2,45}):\s?(.*)$/.exec(linha);
+  const m = /^([^:\n*_+[\]]{2,45}):\s?(.*)$/.exec(linha);
   if (m && m[1].trim()) {
     return `**${m[1].trim()}:**${m[2] ? " " + m[2] : ""}`;
   }
