@@ -4,9 +4,11 @@ import { requireAdmin } from "@/lib/auth";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toData(body: any) {
+  const tipo = body.tipo || "proposta";
   return {
     titulo: String(body.titulo || "").trim(),
-    tipo: body.tipo || "proposta",
+    tipo,
+    tipoOutro: tipo === "outro" ? (body.tipoOutro?.trim() || null) : null,
     destinatario: body.destinatario?.trim() || null,
     corpo: String(body.corpo || "").trim(),
   };

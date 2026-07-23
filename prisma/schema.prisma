@@ -29,6 +29,7 @@ model TermoEnvio {
   id           String   @id @default(cuid())
   titulo       String
   tipo         String   @default("proposta") // proposta | orcamento | comunicado | outro
+  tipoOutro    String?  // nome personalizado quando tipo = "outro"
   destinatario String?
   corpo        String
   createdAt    DateTime @default(now())

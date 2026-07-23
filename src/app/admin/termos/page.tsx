@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 interface FormTermo {
   titulo: string;
   tipo: "proposta" | "orcamento" | "comunicado" | "outro";
+  tipoOutro: string;
   destinatario: string;
   corpo: string;
 }
@@ -22,6 +23,7 @@ interface TermoRow {
   id: string;
   titulo: string;
   tipo: string;
+  tipoOutro?: string | null;
   destinatario?: string | null;
   corpo: string;
   createdAt: string;
@@ -34,15 +36,21 @@ const TIPOS = [
   { value: "outro", label: "Outro" },
 ];
 
-const emptyForm = (): FormTermo => ({ titulo: "", tipo: "proposta", destinatario: "", corpo: "" });
+const emptyForm = (): FormTermo => ({ titulo: "", tipo: "proposta", tipoOutro: "", destinatario: "", corpo: "" });
 
 function termoToForm(t: TermoRow): FormTermo {
   return {
     titulo: t.titulo || "",
     tipo: (t.tipo as FormTermo["tipo"]) || "proposta",
+    tipoOutro: t.tipoOutro || "",
     destinatario: t.destinatario || "",
     corpo: t.corpo || "",
   };
+}
+
+function tipoBadgeLabel(t: TermoRow): string {
+  if (t.tipo === "outro" && t.tipoOutro?.trim()) return t.tipoOutro.trim();
+  return TIPOS.find((x) => x.value === t.tipo)?.label ?? t.tipo;
 }
 
 export default function TermosPage() {
@@ -86,9 +94,19 @@ export default function TermosPage() {
       addToast({ title: "Preencha o título e o conteúdo do termo", variant: "error" });
       return;
     }
+    if (form.tipo === "outro" && !form.tipoOutro.trim()) {
+      addToast({ title: "Informe o nome do tipo de documento", variant: "error" });
+      return;
+    }
     setGenerating(true);
     try {
-      const payload = { titulo: form.titulo, tipo: form.tipo, destinatario: form.destinatario, corpo: form.corpo };
+      const payload = {
+        titulo: form.titulo,
+        tipo: form.tipo,
+        tipoOutro: form.tipoOutro,
+        destinatario: form.destinatario,
+        corpo: form.corpo,
+      };
 
       const res = await fetch(
         currentId ? `/api/admin/termos/${currentId}` : "/api/admin/termos",
@@ -123,7 +141,7 @@ export default function TermosPage() {
 
   async function reimprimir(t: TermoRow) {
     try {
-      await baixarPDF({ titulo: t.titulo, tipo: t.tipo, destinatario: t.destinatario, corpo: t.corpo }, t.titulo);
+      await baixarPDF({ titulo: t.titulo, tipo: t.tipo, tipoOutro: t.tipoOutro, destinatario: t.destinatario, corpo: t.corpo }, t.titulo);
     } catch {
       addToast({ title: "Erro ao gerar PDF", variant: "error" });
     }
@@ -192,6 +210,17 @@ export default function TermosPage() {
           </div>
         </div>
 
+        {form.tipo === "outro" && (
+          <div className="space-y-1.5 mb-4">
+            <Label>Nome do tipo de documento</Label>
+            <Input
+              value={form.tipoOutro}
+              onChange={(e) => set("tipoOutro", e.target.value)}
+              placeholder="Ex: Termo de Confidencialidade"
+            />
+          </div>
+        )}
+
         <div className="space-y-1.5 mb-4">
           <Label>Destinatário (opcional)</Label>
           <Input value={form.destinatario} onChange={(e) => set("destinatario", e.target.value)} placeholder="Nome do cliente ou empresa" />
@@ -235,8 +264,8 @@ export default function TermosPage() {
                     : "border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
                 }`}
               >
-                <span className="shrink-0 h-9 px-2.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center text-[10px] font-bold uppercase">
-                  {TIPOS.find((x) => x.value === t.tipo)?.label ?? t.tipo}
+                <span className="shrink-0 h-9 px-2.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center text-[10px] font-bold uppercase text-center">
+                  {tipoBadgeLabel(t)}
                 </span>
                 <button onClick={() => carregarTermo(t)} className="flex-1 min-w-0 text-left">
                   <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{t.titulo}</p>

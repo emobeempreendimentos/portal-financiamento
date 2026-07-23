@@ -18,13 +18,16 @@ const TIPO_LABEL: Record<string, string> = {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { titulo, tipo, destinatario, corpo } = body;
+    const { titulo, tipo, tipoOutro, destinatario, corpo } = body;
 
     if (!titulo?.trim() || !corpo?.trim()) {
       return NextResponse.json({ error: "Título e conteúdo são obrigatórios" }, { status: 400 });
     }
 
-    const tipoLabel = TIPO_LABEL[tipo] || TIPO_LABEL.outro;
+    const tipoLabel =
+      tipo === "outro" && tipoOutro?.trim()
+        ? String(tipoOutro).trim().toUpperCase()
+        : TIPO_LABEL[tipo] || TIPO_LABEL.outro;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -55,6 +58,13 @@ export async function POST(req: NextRequest) {
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(...GREEN);
+    // Reduz a fonte se o nome personalizado for muito longo para não invadir a logo
+    const espacoDisponivel = pageWidth - M - (M + chipW + 6);
+    let tipoFontSize = 9;
+    while (tipoFontSize > 6 && doc.getTextWidth(tipoLabel) > espacoDisponivel) {
+      tipoFontSize -= 0.5;
+      doc.setFontSize(tipoFontSize);
+    }
     doc.text(tipoLabel, pageWidth - M, 17, { align: "right" });
 
     doc.setFont("Helvetica", "normal");
