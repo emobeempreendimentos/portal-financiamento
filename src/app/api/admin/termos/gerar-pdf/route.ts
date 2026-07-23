@@ -4,8 +4,10 @@ import { LOGO_BASE64 } from "@/lib/logo-base64";
 
 const DARK: [number, number, number] = [24, 24, 27];
 const GRAY: [number, number, number] = [113, 113, 122];
+const BODY: [number, number, number] = [50, 50, 56];
 const LINE: [number, number, number] = [205, 205, 210];
 const LOGO_RATIO = 3.089; // 766 / 248
+const FONT_BIG_DELTA = 4; // pt adicionados quando o trecho está marcado como "fonte maior"
 
 const TIPO_TITULO: Record<string, string> = {
   proposta: "PROPOSTA COMERCIAL",
@@ -14,61 +16,140 @@ const TIPO_TITULO: Record<string, string> = {
   outro: "DOCUMENTO",
 };
 
-/**
- * Renderiza uma linha de texto no estilo "carta formal":
- * - Linhas iniciadas com "-" ou "•" viram marcador com recuo
- * - Padrão "Rótulo: valor" recebe o rótulo em negrito automaticamente
- * - Demais linhas quebram normalmente em texto corrido
- * Retorna o novo y após a linha (já considerando quebras internas).
+/* ── Marcação de texto rico ──
+ * **negrito**  __sublinhado__  ++fonte maior++  — combináveis entre si.
  */
-function renderLinha(
+interface Trecho {
+  texto: string;
+  bold: boolean;
+  underline: boolean;
+  big: boolean;
+}
+
+function parseTrechos(linha: string): Trecho[] {
+  const trechos: Trecho[] = [];
+  let bold = false;
+  let underline = false;
+  let big = false;
+  let buffer = "";
+  let i = 0;
+
+  const flush = () => {
+    if (buffer) trechos.push({ texto: buffer, bold, underline, big });
+    buffer = "";
+  };
+
+  while (i < linha.length) {
+    if (linha.startsWith("**", i)) { flush(); bold = !bold; i += 2; continue; }
+    if (linha.startsWith("__", i)) { flush(); underline = !underline; i += 2; continue; }
+    if (linha.startsWith("++", i)) { flush(); big = !big; i += 2; continue; }
+    buffer += linha[i];
+    i++;
+  }
+  flush();
+  return trechos;
+}
+
+interface Palavra extends Trecho {
+  isSpace: boolean;
+}
+
+function tokenizar(linha: string): Palavra[] {
+  const palavras: Palavra[] = [];
+  parseTrechos(linha).forEach((t) => {
+    const partes = t.texto.split(/(\s+)/).filter((p) => p !== "");
+    partes.forEach((p) => palavras.push({ ...t, texto: p, isSpace: /^\s+$/.test(p) }));
+  });
+  return palavras;
+}
+
+/**
+ * Renderiza uma linha com suporte a negrito/sublinhado/fonte maior combináveis,
+ * quebrando automaticamente dentro de maxWidth. Retorna o y após a última linha desenhada.
+ */
+function renderRico(
+  doc: jsPDF,
+  linha: string,
+  x: number,
+  yInicial: number,
+  maxWidth: number,
+  baseFontSize: number,
+  baseLineHeight: number
+): number {
+  const palavras = tokenizar(linha);
+  let y = yInicial;
+
+  const tamanhoDe = (p: Palavra) => (p.big ? baseFontSize + FONT_BIG_DELTA : baseFontSize);
+  const medir = (p: Palavra) => {
+    doc.setFont("Times", p.bold ? "bold" : "normal");
+    doc.setFontSize(tamanhoDe(p));
+    return doc.getTextWidth(p.texto);
+  };
+
+  let atual: { p: Palavra; w: number }[] = [];
+  let maiorTamanho = baseFontSize;
+
+  const desenharLinha = () => {
+    let cx = x;
+    for (const { p, w } of atual) {
+      doc.setFont("Times", p.bold ? "bold" : "normal");
+      doc.setFontSize(tamanhoDe(p));
+      doc.text(p.texto, cx, y);
+      if (p.underline && p.texto.length > 0) {
+        const uy = y + (p.big ? 1.6 : 1.1);
+        doc.setDrawColor(...BODY);
+        doc.setLineWidth(0.25);
+        doc.line(cx, uy, cx + w, uy);
+      }
+      cx += w;
+    }
+    y += baseLineHeight * (maiorTamanho / baseFontSize);
+    atual = [];
+    maiorTamanho = baseFontSize;
+  };
+
+  for (const p of palavras) {
+    const w = medir(p);
+    const usada = atual.reduce((acc, cur) => acc + cur.w, 0);
+    if (!p.isSpace && atual.length > 0 && usada + w > maxWidth) {
+      desenharLinha();
+    }
+    if (p.isSpace && atual.length === 0) continue; // ignora espaço no início da linha
+    atual.push({ p, w });
+    maiorTamanho = Math.max(maiorTamanho, tamanhoDe(p));
+  }
+  if (atual.length > 0) desenharLinha();
+
+  return y;
+}
+
+/** Aplica negrito automático ao rótulo de linhas no padrão "Rótulo: valor". */
+function autoRotulo(linha: string): string {
+  const m = /^([^:\n*_+]{2,45}):\s?(.*)$/.exec(linha);
+  if (m && m[1].trim()) {
+    return `**${m[1].trim()}:**${m[2] ? " " + m[2] : ""}`;
+  }
+  return linha;
+}
+
+/** Processa uma linha bruta do corpo (marcador, rótulo automático) e desenha. */
+function renderLinhaCorpo(
   doc: jsPDF,
   linhaBruta: string,
   x: number,
   y: number,
   maxWidth: number,
+  baseFontSize: number,
   lineHeight: number
 ): number {
   const bullet = /^[-•]\s+(.*)$/.exec(linhaBruta);
   if (bullet) {
     doc.setFont("Times", "normal");
+    doc.setFontSize(baseFontSize);
     doc.text("•", x, y);
-    const wrapped: string[] = doc.splitTextToSize(bullet[1], maxWidth - 6);
-    wrapped.forEach((ln, i) => doc.text(ln, x + 6, y + i * lineHeight));
-    return y + wrapped.length * lineHeight;
+    return renderRico(doc, bullet[1], x + 6, y, maxWidth - 6, baseFontSize, lineHeight);
   }
-
-  const label = /^([^:\n]{2,45}):\s?(.*)$/.exec(linhaBruta);
-  if (label && label[1].trim()) {
-    const rotulo = `${label[1].trim()}:`;
-    const resto = label[2] || "";
-
-    doc.setFont("Times", "bold");
-    const rotuloW = doc.getTextWidth(`${rotulo} `);
-
-    if (!resto) {
-      doc.text(rotulo, x, y);
-      return y + lineHeight;
-    }
-
-    if (rotuloW < maxWidth * 0.6 && doc.getTextWidth(resto) <= maxWidth - rotuloW) {
-      doc.text(rotulo, x, y);
-      doc.setFont("Times", "normal");
-      doc.text(resto, x + rotuloW, y);
-      return y + lineHeight;
-    }
-
-    doc.text(rotulo, x, y);
-    doc.setFont("Times", "normal");
-    const wrapped: string[] = doc.splitTextToSize(resto, maxWidth);
-    wrapped.forEach((ln, i) => doc.text(ln, x, y + lineHeight + i * lineHeight));
-    return y + lineHeight * (1 + wrapped.length);
-  }
-
-  doc.setFont("Times", "normal");
-  const wrapped: string[] = doc.splitTextToSize(linhaBruta, maxWidth);
-  wrapped.forEach((ln, i) => doc.text(ln, x, y + i * lineHeight));
-  return y + wrapped.length * lineHeight;
+  return renderRico(doc, autoRotulo(linhaBruta), x, y, maxWidth, baseFontSize, lineHeight);
 }
 
 export async function POST(req: NextRequest) {
@@ -90,6 +171,7 @@ export async function POST(req: NextRequest) {
     const pageHeight = doc.internal.pageSize.getHeight();
     const M = 25;
     const contentW = pageWidth - M * 2;
+    const baseFontSize = 11;
     const lineHeight = 6.4;
 
     // ── Cabeçalho: logo centralizada ──
@@ -114,14 +196,13 @@ export async function POST(req: NextRequest) {
     y += tituloLinhas.length * 6.8 + 8;
 
     // ── Destinatário ──
+    doc.setTextColor(...BODY);
     if (destinatario?.trim()) {
-      y = renderLinha(doc, `Destinatário: ${String(destinatario).trim()}`, M, y, contentW, lineHeight);
+      y = renderLinhaCorpo(doc, `Destinatário: ${String(destinatario).trim()}`, M, y, contentW, baseFontSize, lineHeight);
       y += 8;
     }
 
-    // ── Corpo (texto corrido, rótulos e marcadores) ──
-    doc.setFontSize(11);
-    doc.setTextColor(50, 50, 56);
+    // ── Corpo (texto corrido, rótulos, marcadores e formatação manual) ──
     const linhas = String(corpo).split("\n");
     for (const linhaRaw of linhas) {
       const linha = linhaRaw.trimEnd();
@@ -133,8 +214,8 @@ export async function POST(req: NextRequest) {
         doc.addPage();
         y = 28;
       }
-      doc.setTextColor(50, 50, 56);
-      y = renderLinha(doc, linha, M, y, contentW, lineHeight);
+      doc.setTextColor(...BODY);
+      y = renderLinhaCorpo(doc, linha, M, y, contentW, baseFontSize, lineHeight);
       y += 2.5;
     }
 
