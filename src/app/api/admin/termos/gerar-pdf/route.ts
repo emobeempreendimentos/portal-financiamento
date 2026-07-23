@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import jsPDF from "jspdf";
+import { LOGO_BASE64 } from "@/lib/logo-base64";
 
 const GREEN: [number, number, number] = [132, 188, 73];
 const DARK: [number, number, number] = [24, 24, 27];
 const GRAY: [number, number, number] = [113, 113, 122];
 const CARD: [number, number, number] = [246, 247, 248];
+const LOGO_RATIO = 3.089; // 766 / 248
 
 const TIPO_LABEL: Record<string, string> = {
   proposta: "PROPOSTA",
@@ -33,21 +35,34 @@ export async function POST(req: NextRequest) {
     const dataFmt = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
     // ── Cabeçalho moderno (faixa escura) ──
+    const headerH = 42;
     doc.setFillColor(...DARK);
-    doc.rect(0, 0, pageWidth, 34, "F");
+    doc.rect(0, 0, pageWidth, headerH, "F");
     doc.setFillColor(...GREEN);
-    doc.rect(0, 34, pageWidth, 1.6, "F");
+    doc.rect(0, headerH, pageWidth, 1.6, "F");
+
+    // Chip branco com a logo
+    const logoW = 42;
+    const logoH = logoW / LOGO_RATIO;
+    const chipPad = 5;
+    const chipW = logoW + chipPad * 2;
+    const chipH = logoH + chipPad * 2;
+    const chipY = (headerH - chipH) / 2;
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(M, chipY, chipW, chipH, 3, 3, "F");
+    doc.addImage(LOGO_BASE64, "PNG", M + chipPad, chipY + chipPad, logoW, logoH);
+
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...GREEN);
+    doc.text(tipoLabel, pageWidth - M, 17, { align: "right" });
 
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(9);
-    doc.setTextColor(...GREEN);
-    doc.text(tipoLabel, M, 15);
-
-    doc.setFontSize(9);
     doc.setTextColor(190, 190, 198);
-    doc.text(dataFmt, pageWidth - M, 15, { align: "right" });
+    doc.text(dataFmt, pageWidth - M, 24, { align: "right" });
 
-    let y = 50;
+    let y = headerH + 18;
 
     // ── Título ──
     doc.setFont("Helvetica", "bold");
