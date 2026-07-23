@@ -7,7 +7,7 @@ const GRAY: [number, number, number] = [113, 113, 122];
 const BODY: [number, number, number] = [50, 50, 56];
 const LINE: [number, number, number] = [205, 205, 210];
 const LOGO_RATIO = 3.089; // 766 / 248
-const FONT_BIG_DELTA = 4; // pt adicionados quando o trecho está marcado como "fonte maior"
+const FONT_BIG_DELTA = 3; // pt adicionados quando o trecho está marcado como "fonte maior"
 
 const TIPO_TITULO: Record<string, string> = {
   proposta: "PROPOSTA COMERCIAL",
@@ -219,22 +219,18 @@ export async function POST(req: NextRequest) {
       y += 2.5;
     }
 
-    // Numeração discreta, apenas se houver mais de uma página de conteúdo
-    const paginasConteudo = doc.internal.pages.length - 1;
-    if (paginasConteudo > 1) {
-      for (let p = 1; p <= paginasConteudo; p++) {
-        doc.setPage(p);
-        doc.setFont("Times", "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(...GRAY);
-        doc.text(`${p} / ${paginasConteudo}`, pageWidth - M, pageHeight - 14, { align: "right" });
-      }
-      doc.setPage(paginasConteudo);
+    // ── Encerramento (assinatura / contato) ──
+    // Flui logo após o conteúdo; só vai para uma nova página se não couber,
+    // evitando um vão grande em branco quando o texto termina no meio da página.
+    const closingH = 46;
+    let y2: number;
+    if (y + 24 + closingH > pageHeight - 18) {
+      doc.addPage();
+      y2 = 50;
+    } else {
+      y2 = y + 24;
     }
 
-    // ── Página de encerramento (assinatura / contato) ──
-    doc.addPage();
-    let y2 = 45;
     doc.setDrawColor(...LINE);
     doc.setLineWidth(0.4);
     doc.line(M, y2, pageWidth - M, y2);
@@ -249,7 +245,7 @@ export async function POST(req: NextRequest) {
     doc.setFont("Times", "normal");
     doc.setFontSize(10.5);
     doc.text("CRECI 4682J", pageWidth / 2, y2, { align: "center" });
-    y2 += 20;
+    y2 += 16;
 
     doc.setFontSize(8.5);
     doc.setTextColor(...GRAY);
@@ -259,6 +255,18 @@ export async function POST(req: NextRequest) {
       y2,
       { align: "center" }
     );
+
+    // Numeração discreta em todas as páginas (apenas se houver mais de uma)
+    const totalPaginas = doc.internal.pages.length - 1;
+    if (totalPaginas > 1) {
+      for (let p = 1; p <= totalPaginas; p++) {
+        doc.setPage(p);
+        doc.setFont("Times", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(...GRAY);
+        doc.text(`${p} / ${totalPaginas}`, pageWidth - M, pageHeight - 14, { align: "right" });
+      }
+    }
 
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
     return new NextResponse(pdfBuffer, {
