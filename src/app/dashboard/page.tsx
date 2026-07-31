@@ -120,7 +120,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <div className="min-h-screen bg-background">
         <div className="h-16 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950" />
         <div className="max-w-3xl mx-auto px-4 py-8 space-y-4">
           <Skeleton className="h-36 w-full" />
@@ -135,7 +135,7 @@ export default function DashboardPage() {
   if (bloqueio) {
     const cancelado = bloqueio.tipo === "cancelado";
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
         <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 text-center space-y-5">
           <div className={`h-16 w-16 rounded-2xl flex items-center justify-center mx-auto ${cancelado ? "bg-red-50 dark:bg-red-900/20" : "bg-zinc-100 dark:bg-zinc-800"}`}>
             {cancelado ? (
@@ -210,7 +210,7 @@ export default function DashboardPage() {
   const hasChartData = chartData.some((d) => d.dias > 0);
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <CelebrationOverlay etapas={novasEtapas} onDismiss={() => setNovasEtapas([])} />
       <Header user={data} darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 

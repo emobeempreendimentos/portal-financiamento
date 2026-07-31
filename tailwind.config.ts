@@ -49,9 +49,23 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
         neon: {
-          DEFAULT: "#4ade80",
-          dark: "#166534",
-          light: "#86efac",
+          DEFAULT: "#10b981",
+          dark: "#047857",
+          light: "#6ee7b7",
+        },
+        // Repaginação: o verde da marca passa a usar a escala esmeralda (mais refinada/profissional)
+        green: {
+          50: "#ecfdf5",
+          100: "#d1fae5",
+          200: "#a7f3d0",
+          300: "#6ee7b7",
+          400: "#34d399",
+          500: "#10b981",
+          600: "#059669",
+          700: "#047857",
+          800: "#065f46",
+          900: "#064e3b",
+          950: "#022c22",
         },
       },
       borderRadius: {
@@ -72,8 +86,8 @@ const config: Config = {
           "100%": { transform: "translateX(100%)" },
         },
         "pulse-neon": {
-          "0%, 100%": { boxShadow: "0 0 8px #4ade80" },
-          "50%": { boxShadow: "0 0 24px #4ade80, 0 0 48px #4ade8040" },
+          "0%, 100%": { boxShadow: "0 0 6px #10b98130" },
+          "50%": { boxShadow: "0 0 16px #10b98150" },
         },
       },
       animation: {

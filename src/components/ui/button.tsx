@@ -9,8 +9,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100",
-        neon: "bg-green-500 text-white hover:bg-green-400 shadow-[0_0_12px_#4ade8040] hover:shadow-[0_0_20px_#4ade8080]",
+          "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 shadow-sm",
+        neon: "bg-green-600 text-white hover:bg-green-700 shadow-sm shadow-green-600/20 hover:shadow-md hover:shadow-green-600/25",
         outline:
           "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-transparent dark:text-white dark:hover:bg-zinc-800",
         ghost:
