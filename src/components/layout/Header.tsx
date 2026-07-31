@@ -68,7 +68,7 @@ export function Header({ user, darkMode, onToggleDarkMode, onToggleMobileMenu, m
           <div className="flex items-center gap-2.5 ml-2">
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="h-9 w-9 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-sm font-bold shadow-sm cursor-pointer"
+              className="h-9 w-9 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-white text-sm font-bold shadow-sm ring-2 ring-white dark:ring-zinc-900 cursor-pointer"
             >
               {user.avatar ? (
                 <img src={user.avatar} alt={user.nome} className="h-9 w-9 rounded-full object-cover" />

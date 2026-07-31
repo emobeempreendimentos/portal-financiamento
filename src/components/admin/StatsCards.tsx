@@ -74,19 +74,21 @@ export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCards
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.1 }}
-          whileHover={{ y: -2 }}
+          whileHover={{ y: -3 }}
           onClick={card.clickable ? card.onClick : undefined}
-          className={`rounded-2xl border p-5 shadow-sm dark:bg-zinc-900 ${card.alert ? "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-900/10" : "border-zinc-100 bg-white dark:border-zinc-800"} ${card.clickable ? "cursor-pointer hover:shadow-md transition-shadow" : "cursor-default"}`}
+          className={`group relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-all dark:bg-zinc-900 ${card.alert ? "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-900/10" : "border-zinc-100/80 bg-white dark:border-zinc-800"} ${card.clickable ? "cursor-pointer hover:shadow-lg hover:shadow-zinc-900/5 hover:border-zinc-200 dark:hover:border-zinc-700" : "cursor-default"}`}
         >
-          <div className={`h-10 w-10 rounded-xl ${card.color} flex items-center justify-center mb-3`}>
+          <div className={`h-11 w-11 rounded-xl ${card.color} flex items-center justify-center mb-3.5 transition-transform group-hover:scale-105`}>
             <card.icon className="h-5 w-5" />
           </div>
-          <div className="text-2xl font-bold text-zinc-900 dark:text-white">
+          <div className="text-[26px] leading-none font-bold tracking-tight text-zinc-900 dark:text-white">
             {card.value === -1 ? "—" : `${card.value}${card.suffix}`}
           </div>
-          <div className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{card.label}</div>
+          <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-1.5">{card.label}</div>
           {card.clickable && (
-            <p className="text-xs text-zinc-400 mt-1.5">Clique para ver detalhes</p>
+            <p className="text-xs text-zinc-400 mt-1 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              Ver detalhes <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            </p>
           )}
         </motion.div>
       ))}

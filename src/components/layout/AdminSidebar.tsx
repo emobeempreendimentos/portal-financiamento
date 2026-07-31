@@ -107,15 +107,15 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
                       className="relative block"
                     >
                       {active && (
-                        <span className="absolute left-0 inset-y-1.5 w-[3px] bg-green-500 rounded-r-full" />
+                        <span className="absolute left-0 inset-y-1 w-1 bg-green-600 rounded-r-full" />
                       )}
                       <motion.div
                         whileHover={{ x: active ? 0 : 2 }}
                         className={cn(
                           "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                           active
-                            ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                            : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100"
+                            ? "bg-green-50 text-green-700 shadow-sm shadow-green-600/5 dark:bg-green-900/20 dark:text-green-400"
+                            : "text-zinc-500 hover:bg-zinc-100/70 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100"
                         )}
                       >
                         <item.icon className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : "")} />
