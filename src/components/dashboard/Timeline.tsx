@@ -23,7 +23,7 @@ function getStatusConfig(status: EtapaStatus) {
     case "concluido":
       return {
         icon: CheckCircle2,
-        dotClass: "bg-green-500 shadow-[0_0_12px_#4ade8060]",
+        dotClass: "bg-green-500 shadow-[0_0_12px_#34d39960]",
         lineClass: "bg-green-500",
         badge: "success" as const,
       };

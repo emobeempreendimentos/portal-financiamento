@@ -242,7 +242,7 @@ export default function FinanceiroPage() {
               <YAxis tick={{ fontSize: 11, fill: "#71717a" }} tickFormatter={(v) => v >= 1000 ? `R$${(v / 1000).toFixed(0)}k` : `R$${v}`} />
               <Tooltip formatter={(value) => [fmt(Number(value))]} contentStyle={{ borderRadius: "12px", border: "1px solid #e4e4e7", fontSize: "12px" }} />
               <Legend formatter={(value) => (value === "receitas" ? "Receitas" : "Despesas")} />
-              <Bar dataKey="receitas" fill="#22c55e" radius={[4, 4, 0, 0]} name="receitas" />
+              <Bar dataKey="receitas" fill="#10b981" radius={[4, 4, 0, 0]} name="receitas" />
               <Bar dataKey="despesas" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesas" />
             </BarChart>
           </ResponsiveContainer>

@@ -18,7 +18,7 @@ export async function sendResetEmail(to: string, nome: string, resetUrl: string)
     <tr><td align="center">
       <table width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e4e4e7;">
         <tr><td style="background:#18181b;padding:28px 32px;">
-          <p style="color:#22c55e;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px;">Portal de Financiamento</p>
+          <p style="color:#10b981;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px;">Portal de Financiamento</p>
           <p style="color:#ffffff;font-size:22px;font-weight:700;margin:0;">Emobe Empreendimentos</p>
         </td></tr>
         <tr><td style="padding:32px;">
@@ -28,7 +28,7 @@ export async function sendResetEmail(to: string, nome: string, resetUrl: string)
             Clique no botão abaixo para criar uma nova senha:
           </p>
           <a href="${resetUrl}"
-             style="display:inline-block;background:#22c55e;color:#ffffff;font-size:14px;font-weight:600;
+             style="display:inline-block;background:#10b981;color:#ffffff;font-size:14px;font-weight:600;
                     text-decoration:none;padding:14px 28px;border-radius:10px;letter-spacing:.01em;">
             Redefinir minha senha
           </a>

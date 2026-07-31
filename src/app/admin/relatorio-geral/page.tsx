@@ -44,7 +44,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_COR: Record<string, string> = {
-  em_andamento: "#22c55e",
+  em_andamento: "#10b981",
   concluido: "#3b82f6",
   pausado: "#f59e0b",
   cancelado: "#ef4444",
@@ -53,7 +53,7 @@ const STATUS_COR: Record<string, string> = {
 const ETAPA_STATUS_COR: Record<string, string> = {
   aguardando: "#94a3b8",
   em_andamento: "#f59e0b",
-  concluido: "#22c55e",
+  concluido: "#10b981",
 };
 
 const ETAPA_STATUS_LABEL: Record<string, string> = {
@@ -171,7 +171,7 @@ export default function RelatorioGeralPage() {
         .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 9px; font-weight: 700; color: white; }
         .progress-wrap { width: 60px; }
         .progress-bg { background: #e5e7eb; border-radius: 99px; height: 5px; }
-        .progress-fill { background: #22c55e; border-radius: 99px; height: 5px; }
+        .progress-fill { background: #10b981; border-radius: 99px; height: 5px; }
         .progress-txt { font-size: 9px; color: #6b7280; margin-top: 2px; }
 
         .etapas-mini { display: flex; gap: 3px; flex-wrap: wrap; }
@@ -210,11 +210,11 @@ export default function RelatorioGeralPage() {
       <div className="stats">
         {[
           { num: stats.total,        lbl: "Total de Clientes" },
-          { num: stats.em_andamento, lbl: "Em Andamento",      cor: "#22c55e" },
+          { num: stats.em_andamento, lbl: "Em Andamento",      cor: "#10b981" },
           { num: stats.concluido,    lbl: "Concluídos",        cor: "#3b82f6" },
           { num: stats.pausado,      lbl: "Pausados",          cor: "#f59e0b" },
           { num: stats.cancelado,    lbl: "Cancelados",        cor: "#ef4444" },
-          { num: stats.pendencias,   lbl: "Pendências Abertas", cor: stats.pendencias > 0 ? "#ef4444" : "#22c55e" },
+          { num: stats.pendencias,   lbl: "Pendências Abertas", cor: stats.pendencias > 0 ? "#ef4444" : "#10b981" },
         ].map((s) => (
           <div className="stat" key={s.lbl}>
             <div className="num" style={{ color: s.cor || "#18181b" }}>{s.num}</div>
@@ -295,7 +295,7 @@ export default function RelatorioGeralPage() {
                         {pendAbertas > 0 ? (
                           <span className="badge" style={{ background: "#ef4444" }}>{pendAbertas}</span>
                         ) : (
-                          <span style={{ color: "#22c55e", fontSize: 10 }}>✓</span>
+                          <span style={{ color: "#10b981", fontSize: 10 }}>✓</span>
                         )}
                       </td>
                       <td style={{ color: "#6b7280" }}>{fmt(c.createdAt)}</td>

@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 const STATUS_COLOR: Record<string, string> = {
   em_andamento: "#f59e0b",
-  concluido: "#22c55e",
+  concluido: "#10b981",
 };
 
 const STATUS_MSG: Record<string, string> = {

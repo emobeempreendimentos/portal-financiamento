@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_COLOR: Record<string, string> = {
   aguardando: "#94a3b8",
   em_andamento: "#f59e0b",
-  concluido: "#22c55e",
+  concluido: "#10b981",
 };
 
 function calcProgresso(etapas: Etapa[]) {
@@ -87,7 +87,7 @@ export default function RelatorioPage({ params }: { params: Promise<{ id: string
 
         .progress-bar-wrap { margin-bottom: 28px; }
         .progress-bar-bg { background: #e5e7eb; border-radius: 99px; height: 10px; }
-        .progress-bar-fill { background: #22c55e; border-radius: 99px; height: 10px; }
+        .progress-bar-fill { background: #10b981; border-radius: 99px; height: 10px; }
         .progress-label { font-size: 12px; color: #6b7280; margin-top: 6px; }
 
         table { width: 100%; border-collapse: collapse; font-size: 12px; }

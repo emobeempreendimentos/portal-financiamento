@@ -16,9 +16,9 @@ interface DashboardChartsProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  "Em Andamento": "#22c55e",
-  "Concluído":    "#16a34a",
-  "Pausado":      "#f59e0b",
+  "Em Andamento": "#10b981", // emerald-500
+  "Concluído":    "#047857", // emerald-700
+  "Pausado":      "#f59e0b", // amber-500
 };
 
 const ETAPAS_ORDEM = [
@@ -75,7 +75,7 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Status Pie */}
-      <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+      <div className="rounded-2xl border border-zinc-100/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm">
         <h3 className="font-semibold text-zinc-900 dark:text-white text-sm mb-1">Distribuição por Status</h3>
         {pieData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2">
@@ -103,7 +103,7 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
                 </Pie>
                 <Tooltip
                   formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, ""]}
-                  contentStyle={{ borderRadius: 10, border: "none", background: isDark ? "#18181b" : "#fff", color: isDark ? "#fff" : "#18181b", fontSize: 12 }}
+                  contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", background: isDark ? "#18181b" : "#fff", color: isDark ? "#fff" : "#18181b", fontSize: 12 }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -112,7 +112,7 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
       </div>
 
       {/* Etapa Bar */}
-      <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+      <div className="rounded-2xl border border-zinc-100/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm">
         <h3 className="font-semibold text-zinc-900 dark:text-white text-sm mb-4">Clientes por Etapa Atual</h3>
         {barData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2">
@@ -124,15 +124,21 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
         ) : (
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={barData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+              <defs>
+                <linearGradient id="barEmerald" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#27272a" : "#f1f5f9"} vertical={false} />
               <XAxis dataKey="nome" tick={{ fontSize: 10, fill: isDark ? "#a1a1aa" : "#71717a" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: isDark ? "#a1a1aa" : "#71717a" }} allowDecimals={false} axisLine={false} tickLine={false} />
               <Tooltip
                 formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, "Clientes"]}
-                contentStyle={{ borderRadius: 10, border: "none", background: isDark ? "#18181b" : "#fff", color: isDark ? "#fff" : "#18181b", fontSize: 12 }}
-                cursor={{ fill: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" }}
+                contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", background: isDark ? "#18181b" : "#fff", color: isDark ? "#fff" : "#18181b", fontSize: 12 }}
+                cursor={{ fill: isDark ? "rgba(255,255,255,0.04)" : "rgba(16,185,129,0.06)" }}
               />
-              <Bar dataKey="clientes" fill="#22c55e" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="clientes" fill="url(#barEmerald)" radius={[6, 6, 0, 0]} maxBarSize={48} />
             </BarChart>
           </ResponsiveContainer>
         )}

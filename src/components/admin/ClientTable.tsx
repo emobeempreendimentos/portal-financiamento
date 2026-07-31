@@ -21,7 +21,7 @@ function diasSemMovimento(updatedAt?: string | null): number {
 }
 
 function corAtividade(dias: number) {
-  if (dias <= 5)  return { bg: "#dcfce7", text: "#15803d", dot: "#22c55e" };
+  if (dias <= 5)  return { bg: "#d1fae5", text: "#047857", dot: "#10b981" };
   if (dias <= 10) return { bg: "#fef3c7", text: "#92400e", dot: "#f59e0b" };
   return           { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" };
 }

@@ -106,7 +106,7 @@ export default function RelatorioFinanceiroPage() {
         .summary-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; }
         .summary-card .label { font-size: 10px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
         .summary-card .value { font-size: 16px; font-weight: 700; }
-        .card-green  { border-color: #bbf7d0; } .card-green  .value { color: #16a34a; }
+        .card-green  { border-color: #a7f3d0; } .card-green  .value { color: #059669; }
         .card-red    { border-color: #fecaca; } .card-red    .value { color: #dc2626; }
         .card-blue   { border-color: #bfdbfe; } .card-blue   .value { color: #2563eb; }
         .card-orange { border-color: #fed7aa; } .card-orange .value { color: #ea580c; }
@@ -130,7 +130,7 @@ export default function RelatorioFinanceiroPage() {
 
         /* ── Badges ── */
         .badge { display: inline-block; padding: 2px 7px; border-radius: 99px; font-size: 9px; font-weight: 700; }
-        .badge-green  { background: #dcfce7; color: #15803d; }
+        .badge-green  { background: #d1fae5; color: #047857; }
         .badge-red    { background: #fee2e2; color: #b91c1c; }
         .badge-purple { background: #ede9fe; color: #6d28d9; }
 
@@ -218,12 +218,12 @@ export default function RelatorioFinanceiroPage() {
                   <tr key={c.categoria}>
                     <td style={{ fontWeight: 500 }}>{c.categoria}</td>
                     <td className="right">{c.count}</td>
-                    <td className="right" style={{ color: "#16a34a", fontWeight: 600 }}>{fmt(c.total)}</td>
+                    <td className="right" style={{ color: "#059669", fontWeight: 600 }}>{fmt(c.total)}</td>
                     <td className="right">{pct(c.total, resumo.totalReceitas)}</td>
                     <td>
                       <div className="bar-wrap">
                         <div className="bar-bg">
-                          <div className="bar-fill" style={{ width: pct(c.total, resumo.totalReceitas), background: "#22c55e" }} />
+                          <div className="bar-fill" style={{ width: pct(c.total, resumo.totalReceitas), background: "#10b981" }} />
                         </div>
                       </div>
                     </td>
@@ -234,7 +234,7 @@ export default function RelatorioFinanceiroPage() {
                 <tr>
                   <td>Total</td>
                   <td className="right">{porCategoria.receitas.reduce((a, c) => a + c.count, 0)}</td>
-                  <td className="right" style={{ color: "#16a34a" }}>{fmt(resumo.totalReceitas)}</td>
+                  <td className="right" style={{ color: "#059669" }}>{fmt(resumo.totalReceitas)}</td>
                   <td className="right">100%</td>
                   <td />
                 </tr>
@@ -344,7 +344,7 @@ export default function RelatorioFinanceiroPage() {
                 {porMes.map((m) => (
                   <tr key={m.label}>
                     <td style={{ fontWeight: 500, textTransform: "capitalize" }}>{m.label}</td>
-                    <td className="right" style={{ color: "#16a34a", fontWeight: 500 }}>{m.receitas > 0 ? fmt(m.receitas) : "—"}</td>
+                    <td className="right" style={{ color: "#059669", fontWeight: 500 }}>{m.receitas > 0 ? fmt(m.receitas) : "—"}</td>
                     <td className="right" style={{ color: "#dc2626", fontWeight: 500 }}>{m.despesas > 0 ? fmt(m.despesas) : "—"}</td>
                     <td className="right">
                       <span style={{ fontWeight: 700, color: m.saldo >= 0 ? "#2563eb" : "#ea580c" }}>{fmt(m.saldo)}</span>
@@ -355,7 +355,7 @@ export default function RelatorioFinanceiroPage() {
               <tfoot>
                 <tr>
                   <td>Total Geral</td>
-                  <td className="right" style={{ color: "#16a34a" }}>{fmt(resumo.totalReceitas)}</td>
+                  <td className="right" style={{ color: "#059669" }}>{fmt(resumo.totalReceitas)}</td>
                   <td className="right" style={{ color: "#dc2626" }}>{fmt(resumo.totalDespesas)}</td>
                   <td className="right" style={{ color: resumo.saldo >= 0 ? "#2563eb" : "#ea580c" }}>{fmt(resumo.saldo)}</td>
                 </tr>
@@ -401,7 +401,7 @@ export default function RelatorioFinanceiroPage() {
                         </span>
                       ) : "—"}
                     </td>
-                    <td className="right" style={{ fontWeight: 700, color: l.tipo === "receita" ? "#16a34a" : "#dc2626", whiteSpace: "nowrap" }}>
+                    <td className="right" style={{ fontWeight: 700, color: l.tipo === "receita" ? "#059669" : "#dc2626", whiteSpace: "nowrap" }}>
                       {l.tipo === "despesa" ? "- " : ""}{fmt(l.valor)}
                     </td>
                   </tr>

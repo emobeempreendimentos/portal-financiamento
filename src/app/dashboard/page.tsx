@@ -270,7 +270,7 @@ export default function DashboardPage() {
                     strokeWidth={0}
                     paddingAngle={progresso > 0 && progresso < 100 ? 3 : 0}
                   >
-                    <Cell fill="#22c55e" />
+                    <Cell fill="#10b981" />
                     <Cell fill={emptyFill} />
                   </Pie>
                 </PieChart>
@@ -486,7 +486,7 @@ export default function DashboardPage() {
                         key={index}
                         fill={
                           entry.status === "concluido"
-                            ? "#22c55e"
+                            ? "#10b981"
                             : entry.status === "em_andamento"
                             ? "#3b82f6"
                             : "#e4e4e7"
