@@ -8,10 +8,10 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
-import { EB_Garamond } from "next/font/google";
+import { Montserrat } from "next/font/google";
 
-// Fonte serifada formal e elegante para o documento (auto-hospedada, imprime com fidelidade)
-const docFont = EB_Garamond({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
+// Fonte moderna e profissional para o documento (auto-hospedada, imprime com fidelidade)
+const docFont = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 interface TermoRow {
   id: string;
@@ -416,15 +416,15 @@ export default function TermosPage() {
           </div>
 
           {/* Título do documento */}
-          <h2 className="text-center font-bold tracking-wide mb-2" style={{ fontSize: 25 }}>{docTitulo}</h2>
+          <h2 className="text-center font-bold tracking-wide mb-2" style={{ fontSize: 22, letterSpacing: "0.02em" }}>{docTitulo}</h2>
           {titulo.trim() && (
-            <p className="text-center mb-8" style={{ fontSize: 15, color: "#555" }}>{titulo.trim()}</p>
+            <p className="text-center mb-8" style={{ fontSize: 13, color: "#555" }}>{titulo.trim()}</p>
           )}
           {!titulo.trim() && <div className="mb-8" />}
 
           {/* Destinatário */}
           {destinatario.trim() && (
-            <p className="mb-5" style={{ fontSize: 15.5 }}>
+            <p className="mb-5" style={{ fontSize: 13.5 }}>
               <strong>Destinatário:</strong> {destinatario.trim()}
             </p>
           )}
@@ -433,21 +433,21 @@ export default function TermosPage() {
           {textoPuro ? (
             <div
               className="termo-doc-body leading-relaxed"
-              style={{ fontSize: 15.5, lineHeight: 1.75, minHeight: 120 }}
+              style={{ fontSize: 13.5, lineHeight: 1.75, minHeight: 120 }}
               dangerouslySetInnerHTML={{ __html: corpoHtml }}
             />
           ) : (
-            <p style={{ fontSize: 15.5, color: "#a1a1aa", minHeight: 120 }}>[escreva aqui o conteúdo do documento]</p>
+            <p style={{ fontSize: 13.5, color: "#a1a1aa", minHeight: 120 }}>[escreva aqui o conteúdo do documento]</p>
           )}
 
           {/* Data */}
-          <p className="mt-8" style={{ fontSize: 15.5 }}>Itaúna/MG, {dataHoje}.</p>
+          <p className="mt-8" style={{ fontSize: 13.5 }}>Itaúna/MG, {dataHoje}.</p>
 
           {/* Assinatura */}
           {incluirAssinatura && (
             <div className="mt-16 mb-4 text-center">
               <div style={{ borderTop: "1px solid #333", width: 260, margin: "0 auto 8px" }} />
-              <p style={{ fontSize: 15, fontWeight: "bold" }}>
+              <p style={{ fontSize: 13.5, fontWeight: "bold" }}>
                 {corretor.trim() || "EMOBE Empreendimentos Imobiliários"}
               </p>
               {corretor.trim() && <p style={{ fontSize: 13 }}>EMOBE Empreendimentos Imobiliários</p>}
