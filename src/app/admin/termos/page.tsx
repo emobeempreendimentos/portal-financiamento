@@ -448,9 +448,9 @@ export default function TermosPage() {
             <div className="mt-16 mb-4 text-center">
               <div style={{ borderTop: "1px solid #333", width: 260, margin: "0 auto 8px" }} />
               <p style={{ fontSize: 13.5, fontWeight: "bold" }}>
-                {corretor.trim() || "EMOBE Empreendimentos Imobiliários"}
+                {corretor.trim() || "Emobe Empreendimentos Imobiliários"}
               </p>
-              {corretor.trim() && <p style={{ fontSize: 13 }}>EMOBE Empreendimentos Imobiliários</p>}
+              {corretor.trim() && <p style={{ fontSize: 13 }}>Emobe Empreendimentos Imobiliários</p>}
               <p style={{ fontSize: 13 }}>CRECI 4682J</p>
             </div>
           )}
@@ -458,7 +458,7 @@ export default function TermosPage() {
           {/* Rodapé */}
           <div className="mt-16 pt-4 text-center" style={{ borderTop: "1px solid #e5e7eb" }}>
             <p style={{ fontSize: 11, color: "#9ca3af" }}>
-              EMOBE Empreendimentos Imobiliários · +55 (37) 99925-1577 · contato@emobe.com.br
+              Emobe Empreendimentos Imobiliários · +55 (37) 99925-1577 · contato@emobe.com.br
             </p>
           </div>
         </div>
