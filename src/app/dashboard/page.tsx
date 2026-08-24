@@ -158,12 +158,6 @@ export default function DashboardPage() {
                 : "Seu processo foi concluído com sucesso! O acesso ao portal expirou 3 dias após a conclusão."}
             </p>
           </div>
-          {cancelado && bloqueio.motivo && (
-            <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl p-4 text-left">
-              <p className="text-xs font-semibold text-red-500 uppercase tracking-wide mb-1">Justificativa</p>
-              <p className="text-sm text-red-800 dark:text-red-300">{bloqueio.motivo}</p>
-            </div>
-          )}
           {!cancelado && bloqueio.concluidoEm && (
             <p className="text-xs text-zinc-400">
               Concluído em {new Date(bloqueio.concluidoEm).toLocaleDateString("pt-BR")}

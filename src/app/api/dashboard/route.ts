@@ -28,11 +28,11 @@ export async function GET() {
     const fin = user.financiamento;
 
     // Processo cancelado → acesso bloqueado imediatamente
+    // (não expomos o motivo do cancelamento ao cliente)
     if (fin?.statusGeral === "cancelado") {
       return NextResponse.json({
         success: false,
         bloqueio: "cancelado",
-        motivo: fin.motivoCancelamento || null,
       }, { status: 403 });
     }
 
