@@ -15,6 +15,7 @@ export interface User {
   conjugeEmail?: string | null;
   conjugeTelefone?: string | null;
   banco?: string | null;
+  imovelVenda?: string | null;
   role: UserRole;
   avatar?: string | null;
   createdAt: string;

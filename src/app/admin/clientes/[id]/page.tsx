@@ -45,7 +45,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [cliente, setCliente] = useState<ClienteDetalhado | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", conjugeCpf: "", conjugeEmail: "", conjugeTelefone: "", banco: "" });
+  const [form, setForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", conjugeCpf: "", conjugeEmail: "", conjugeTelefone: "", banco: "", imovelVenda: "" });
   const [novaSenha, setNovaSenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
   const [showSenhaSalva, setShowSenhaSalva] = useState(false);
@@ -56,7 +56,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const [salvandoStatus, setSalvandoStatus] = useState(false);
   const [activeTab, setActiveTab] = useState<"processo" | "financeiro">("processo");
   const [editing, setEditing] = useState(false);
-  const [savedForm, setSavedForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", conjugeCpf: "", conjugeEmail: "", conjugeTelefone: "", banco: "" });
+  const [savedForm, setSavedForm] = useState({ nome: "", email: "", telefone: "", cpf: "", conjuge: "", conjugeCpf: "", conjugeEmail: "", conjugeTelefone: "", banco: "", imovelVenda: "" });
 
   useEffect(() => {
     fetch(`/api/clientes/${id}`)
@@ -72,6 +72,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           conjugeEmail: u.conjugeEmail || "",
           conjugeTelefone: u.conjugeTelefone || "",
           banco: u.banco || "",
+          imovelVenda: u.imovelVenda || "",
         };
         setForm(initialForm);
         setSavedForm(initialForm);
@@ -405,6 +406,25 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
               )}
             </div>
           ))}
+        </div>
+
+        {/* Imóvel em processo de venda — interno (não visível ao cliente) */}
+        <div className="mt-4 rounded-xl border border-amber-100 dark:border-amber-900/30 bg-amber-50/50 dark:bg-amber-900/10 p-4">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <p className="text-xs font-semibold text-amber-700 dark:text-amber-500">Imóvel em processo de venda</p>
+            <span className="text-[10px] font-medium text-amber-600/70 dark:text-amber-500/70">· interno, não visível ao cliente</span>
+          </div>
+          {editing ? (
+            <Input
+              value={form.imovelVenda}
+              onChange={(e) => setForm((p) => ({ ...p, imovelVenda: e.target.value }))}
+              placeholder="Ex: Apto 302, Ed. Aurora — Rua X, 100"
+            />
+          ) : (
+            <p className="text-sm text-zinc-900 dark:text-white py-1.5 min-h-[34px] flex items-center">
+              {form.imovelVenda || <span className="text-zinc-400 dark:text-zinc-600">— não informado</span>}
+            </p>
+          )}
         </div>
 
         {/* Campos adicionais do cônjuge */}

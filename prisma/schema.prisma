@@ -106,6 +106,7 @@ model User {
   conjugeEmail    String?
   conjugeTelefone String?
   banco           String?
+  imovelVenda     String?        // interno (só admin): imóvel em processo de venda
   role          String         @default("cliente")
   avatar        String?
   createdAt     DateTime       @default(now())

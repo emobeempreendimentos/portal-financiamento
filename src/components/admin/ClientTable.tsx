@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Eye, Trash2, UserPlus, ChevronRight } from "lucide-react";
+import { Search, Eye, Trash2, UserPlus, ChevronRight, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -157,6 +157,12 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
                         </p>
                       </div>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{cliente.email}</p>
+                      {cliente.imovelVenda && (
+                        <p className="hidden sm:flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 truncate mt-0.5">
+                          <Home className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{cliente.imovelVenda}</span>
+                        </p>
+                      )}
                     </div>
 
                     {/* Progress */}

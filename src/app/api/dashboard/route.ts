@@ -49,7 +49,9 @@ export async function GET() {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { senha: _senha, ...userSemSenha } = user;
+    // Remove campos internos que não devem ir para o cliente
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { senha: _senha, senhaVisivel: _sv, imovelVenda: _iv, ...userSemSenha } = user;
     return NextResponse.json({ success: true, data: userSemSenha });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Erro interno";

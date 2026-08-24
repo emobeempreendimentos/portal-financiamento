@@ -33,9 +33,11 @@ export async function GET(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { senha: _senha, senhaVisivel, ...userSemSenha } = user;
-    // Somente admin pode ver a senha legível do cliente
-    const data = session.role === "admin" ? { ...userSemSenha, senhaVisivel } : userSemSenha;
+    const { senha: _senha, senhaVisivel, imovelVenda, ...userSemSenha } = user;
+    // Campos internos (senha legível e imóvel em venda) só vão para o admin
+    const data = session.role === "admin"
+      ? { ...userSemSenha, senhaVisivel, imovelVenda }
+      : userSemSenha;
     return NextResponse.json({ success: true, data });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Erro interno";
@@ -56,7 +58,7 @@ export async function PUT(
 
     // Admin can edit all fields; client can only edit email and telefone
     if (session.role === "admin") {
-      const { nome, email, telefone, cpf, conjuge, conjugeCpf, conjugeEmail, conjugeTelefone, banco, senha } = body;
+      const { nome, email, telefone, cpf, conjuge, conjugeCpf, conjugeEmail, conjugeTelefone, banco, imovelVenda, senha } = body;
 
       // Campos opcionais em branco viram null (evita colisão no índice único do CPF)
       const opt = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
@@ -82,6 +84,7 @@ export async function PUT(
         conjugeEmail: opt(conjugeEmail),
         conjugeTelefone: opt(conjugeTelefone),
         banco: opt(banco),
+        imovelVenda: opt(imovelVenda),
       };
       if (senha) {
         data.senha = await bcrypt.hash(senha, 12);
@@ -94,7 +97,7 @@ export async function PUT(
         select: {
           id: true, nome: true, email: true, telefone: true,
           cpf: true, conjuge: true, conjugeCpf: true, conjugeEmail: true, conjugeTelefone: true,
-          banco: true, role: true, avatar: true,
+          banco: true, imovelVenda: true, role: true, avatar: true,
           createdAt: true, updatedAt: true,
         },
       });
