@@ -207,14 +207,18 @@ export default function TermosPage() {
         .termo-doc-body ol { list-style: decimal; padding-left: 1.4rem; margin: 0.4rem 0; }
         .termo-doc-body p { margin: 0 0 0.6rem; }
         @media print {
-          @page { size: A4; margin: 16mm; }
+          @page { size: A4; margin: 14mm; }
           body { background: #fff !important; }
-          body * { visibility: hidden !important; }
-          .termo-doc, .termo-doc * { visibility: visible !important; }
+          /* Remove do fluxo tudo que não é o documento (display:none não deixa
+             espaço fantasma — evita folhas em branco extras) */
+          header, aside, .fixed, .no-print { display: none !important; }
+          main { margin: 0 !important; padding: 0 !important; min-height: 0 !important; }
+          .min-h-screen { min-height: 0 !important; }
+          main > div { max-width: 100% !important; }
+          .termo-grid { display: block !important; }
           .termo-doc {
-            position: absolute; left: 0; top: 0; width: 100%;
             box-shadow: none !important; border: none !important; border-radius: 0 !important;
-            padding: 0 !important; margin: 0 !important;
+            padding: 0 !important; margin: 0 !important; width: 100% !important;
           }
         }
       `}</style>
@@ -238,7 +242,7 @@ export default function TermosPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,400px)_1fr] gap-6 items-start">
+      <div className="termo-grid grid grid-cols-1 lg:grid-cols-[minmax(0,400px)_1fr] gap-6 items-start">
         {/* ── COLUNA ESQUERDA: FORMULÁRIO ── */}
         <div className="space-y-4 no-print">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
