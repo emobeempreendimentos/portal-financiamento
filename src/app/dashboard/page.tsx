@@ -188,7 +188,6 @@ export default function DashboardPage() {
   const etapasConcluidas = etapas.filter((e) => e.status === "concluido").length;
   const etapaAtual = etapas.find((e) => e.status === "em_andamento");
   const totalDias = data.financiamento ? daysSince(data.financiamento.createdAt) : 0;
-  const emptyFill = darkMode ? "#27272a" : "#f4f4f5";
 
   const chartData = etapas.map((e) => ({
     nome: NOME_ABREV[e.nome] || e.nome,
@@ -225,95 +224,100 @@ export default function DashboardPage() {
                   <p className="text-xs text-red-600 dark:text-red-300 mt-1">
                     Infelizmente seu processo foi cancelado. Entre em contato conosco.
                   </p>
-                  {data.financiamento.motivoCancelamento && (
-                    <div className="mt-2 p-2.5 rounded-lg bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                      <p className="text-xs text-red-800 dark:text-red-300">{data.financiamento.motivoCancelamento}</p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
           </motion.div>
         )}
 
-        {/* ── HERO: anel de progresso + info ── */}
+        {/* ── HERO estilo site: gradiente esmeralda ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
-            <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 relative overflow-hidden">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-600 via-green-700 to-green-900 text-white shadow-xl shadow-green-900/20">
+            {/* Elementos decorativos */}
+            <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-green-400/20 blur-3xl" />
+
+            {/* Barra de progresso no topo */}
+            <div className="h-1.5 bg-white/15 relative overflow-hidden">
               <motion.div
-                className="absolute inset-y-0 left-0 bg-green-500"
+                className="absolute inset-y-0 left-0 bg-white"
                 initial={{ width: 0 }}
                 animate={{ width: `${progresso}%` }}
                 transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
               />
             </div>
-            <div className="p-6">
-            <div className="flex items-center gap-6">
+
+            <div className="relative p-6 md:p-8">
+            <div className="flex flex-col sm:flex-row items-center gap-6">
               {/* Donut chart */}
               <div className="relative shrink-0">
-                <PieChart width={130} height={130}>
+                <PieChart width={140} height={140}>
                   <Pie
                     data={[{ v: progresso }, { v: Math.max(0, 100 - progresso) }]}
-                    cx={65}
-                    cy={65}
-                    innerRadius={44}
-                    outerRadius={58}
+                    cx={70}
+                    cy={70}
+                    innerRadius={48}
+                    outerRadius={62}
                     startAngle={90}
                     endAngle={-270}
                     dataKey="v"
                     strokeWidth={0}
                     paddingAngle={progresso > 0 && progresso < 100 ? 3 : 0}
                   >
-                    <Cell fill="#10b981" />
-                    <Cell fill={emptyFill} />
+                    <Cell fill="#ffffff" />
+                    <Cell fill="rgba(255,255,255,0.18)" />
                   </Pie>
                 </PieChart>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-2xl font-bold text-zinc-900 dark:text-white">{progresso}%</span>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">concluído</span>
+                  <span className="text-3xl font-bold text-white">{progresso}%</span>
+                  <span className="text-[11px] text-green-100/90">concluído</span>
                 </div>
               </div>
 
               {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-bold text-zinc-900 dark:text-white truncate">{data.nome}</h1>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
+              <div className="flex-1 min-w-0 text-center sm:text-left">
+                <p className="text-sm font-medium text-green-100/90">Bem-vindo de volta 👋</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-white truncate mt-0.5">{data.nome}</h1>
+                <p className="text-sm text-green-100/80 mt-1.5">
+                  Acompanhe cada etapa do seu financiamento em tempo real.
+                </p>
+                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-3 gap-y-1 mt-2.5">
                   {data.banco && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                    <p className="text-sm text-green-50/90 flex items-center gap-1">
                       <Building className="h-3.5 w-3.5 shrink-0" />
                       {data.banco}
                     </p>
                   )}
                   {data.financiamento?.protocolo && (
-                    <p className="text-sm text-zinc-400 dark:text-zinc-500 flex items-center gap-1 font-mono">
+                    <p className="text-sm text-green-100/70 flex items-center gap-1 font-mono">
                       <Hash className="h-3 w-3 shrink-0" />
                       EMB-{String(data.financiamento.protocolo).padStart(5, "0")}
                     </p>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3.5">
                   {data.financiamento?.statusGeral === "em_andamento" && (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-                      <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-white backdrop-blur-sm">
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-300 animate-pulse" />
                       Em andamento
                     </span>
                   )}
                   {data.financiamento?.statusGeral === "pausado" && (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/20 text-amber-100 backdrop-blur-sm">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
                       Pausado
                     </span>
                   )}
                   {progresso === 100 && (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm">
                       <CheckCircle2 className="h-3 w-3" />
                       Concluído
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-green-50 backdrop-blur-sm">
                     {etapasConcluidas}/{etapas.length} etapas
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-green-50 backdrop-blur-sm">
                     <Clock className="h-3 w-3" />
                     {totalDias} dias
                   </span>
@@ -326,9 +330,9 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="mt-4 rounded-xl bg-green-50 dark:bg-green-900/20 p-3 text-center"
+                className="mt-5 rounded-2xl bg-white/15 backdrop-blur-sm p-3.5 text-center"
               >
-                <p className="text-sm font-semibold text-green-700 dark:text-green-400">
+                <p className="text-sm font-semibold text-white">
                   🎉 Parabéns! Seu financiamento foi concluído com sucesso!
                 </p>
               </motion.div>

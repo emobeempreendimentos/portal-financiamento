@@ -125,22 +125,33 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Dashboard</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
-            Visão geral de todos os financiamentos
-          </p>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-600 via-green-700 to-green-900 text-white shadow-lg shadow-green-900/15 p-6 md:p-8">
+          {/* Elementos decorativos */}
+          <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-28 -left-12 h-64 w-64 rounded-full bg-green-400/20 blur-3xl" />
+
+          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-green-100/90 capitalize">
+                {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+              </p>
+              <h1 className="text-2xl md:text-3xl font-bold text-white mt-0.5">Dashboard</h1>
+              <p className="text-green-100/80 text-sm mt-1">
+                Visão geral de todos os financiamentos
+              </p>
+            </div>
+            <Link
+              href="/admin/relatorio-geral"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 backdrop-blur-sm text-sm font-semibold text-white hover:bg-white/25 transition-colors w-fit"
+            >
+              <FileBarChart className="h-4 w-4" />
+              Relatório Geral
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/admin/relatorio-geral"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm"
-        >
-          <FileBarChart className="h-4 w-4 text-zinc-500" />
-          Relatório Geral
-        </Link>
       </motion.div>
 
       {stats && (

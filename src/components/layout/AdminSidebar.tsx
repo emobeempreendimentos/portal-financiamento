@@ -85,7 +85,7 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] w-64 border-r border-zinc-100 bg-white transition-transform duration-300 dark:border-zinc-800 dark:bg-zinc-950",
+          "fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] w-64 border-r border-zinc-800/60 bg-zinc-950 transition-transform duration-300",
           "md:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
@@ -93,7 +93,7 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
         <div className="flex h-full flex-col py-4 gap-0.5">
           {navGroups.map((group) => (
             <div key={group.label} className="mb-3 px-3">
-              <p className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-300 dark:text-zinc-600">
+              <p className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -107,18 +107,18 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
                       className="relative block"
                     >
                       {active && (
-                        <span className="absolute left-0 inset-y-1 w-1 bg-green-600 rounded-r-full" />
+                        <span className="absolute left-0 inset-y-1 w-1 bg-green-500 rounded-r-full" />
                       )}
                       <motion.div
                         whileHover={{ x: active ? 0 : 2 }}
                         className={cn(
                           "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                           active
-                            ? "bg-green-50 text-green-700 shadow-sm shadow-green-600/5 dark:bg-green-900/20 dark:text-green-400"
-                            : "text-zinc-500 hover:bg-zinc-100/70 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100"
+                            ? "bg-green-500/15 text-green-400"
+                            : "text-zinc-400 hover:bg-white/5 hover:text-white"
                         )}
                       >
-                        <item.icon className={cn("h-4 w-4 shrink-0", active ? "text-green-600 dark:text-green-400" : "")} />
+                        <item.icon className={cn("h-4 w-4 shrink-0", active ? "text-green-400" : "")} />
                         <span>{item.label}</span>
                         {item.badge === "tarefas" && tarefasPendentes > 0 && (
                           <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
@@ -133,12 +133,12 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
             </div>
           ))}
 
-          <div className="mt-auto mx-3 p-3 rounded-2xl bg-green-50 dark:bg-green-900/15 border border-green-100 dark:border-green-900/30">
+          <div className="mt-auto mx-3 p-3.5 rounded-2xl bg-gradient-to-br from-green-500/15 to-green-700/10 border border-green-500/20">
             <div className="flex items-center gap-2 mb-1">
-              <Building2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <span className="text-xs font-semibold text-green-700 dark:text-green-400">Portal Admin</span>
+              <Building2 className="h-4 w-4 text-green-400" />
+              <span className="text-xs font-semibold text-green-400">Portal Admin</span>
             </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-zinc-500">
               Gerencie todos os processos de financiamento
             </p>
           </div>
