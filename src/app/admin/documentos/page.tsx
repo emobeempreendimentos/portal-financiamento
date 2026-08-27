@@ -98,8 +98,8 @@ export default function DocumentosPage() {
 
   function selecionarArquivo(f: File | null) {
     if (!f) return;
-    if (f.size > 10 * 1024 * 1024) {
-      addToast({ title: "Arquivo muito grande. Máximo: 10MB", variant: "error" });
+    if (f.size > 4 * 1024 * 1024) {
+      addToast({ title: "Arquivo muito grande. Máximo: 4MB (limite do servidor)", variant: "error" });
       return;
     }
     setArquivo(f);
@@ -339,7 +339,7 @@ export default function DocumentosPage() {
                     <>
                       <Upload className="h-7 w-7 text-zinc-400 mx-auto mb-2" />
                       <p className="text-sm text-zinc-600 dark:text-zinc-300">Clique ou arraste o arquivo aqui</p>
-                      <p className="text-xs text-zinc-400 mt-0.5">PDF, Word, Excel ou imagem · até 10MB</p>
+                      <p className="text-xs text-zinc-400 mt-0.5">PDF, Word, Excel ou imagem · até 4MB</p>
                     </>
                   )}
                 </div>

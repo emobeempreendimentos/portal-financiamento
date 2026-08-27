@@ -48,25 +48,50 @@ export function DocumentosPanel({ financiamentoId, isAdmin = false }: Documentos
       .finally(() => setLoading(false));
   }, [financiamentoId]);
 
+  // A Vercel limita o corpo da requisição a ~4,5MB; usamos 4MB de margem.
+  const TAMANHO_MAX = 4 * 1024 * 1024;
+
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     setUploading(true);
+    let enviados = 0;
     try {
       for (const file of files) {
+        if (file.size > TAMANHO_MAX) {
+          addToast({
+            title: `"${file.name}" é muito grande (${formatBytes(file.size)})`,
+            description: "O limite é 4MB por arquivo. Comprima o PDF e tente novamente.",
+            variant: "error",
+          });
+          continue;
+        }
         const fd = new FormData();
         fd.append("file", file);
         fd.append("financiamentoId", financiamentoId);
         fd.append("tipo", tipoSelecionado);
         const res = await fetch("/api/documentos", { method: "POST", body: fd });
-        if (!res.ok) throw new Error("Falha no upload");
+        if (!res.ok) {
+          const msg = res.status === 413
+            ? `"${file.name}" excede o limite de tamanho do servidor (4MB).`
+            : await res.json().then((j) => j.error).catch(() => null);
+          addToast({
+            title: `Falha ao enviar "${file.name}"`,
+            description: msg || `Erro ${res.status}`,
+            variant: "error",
+          });
+          continue;
+        }
         const json = await res.json();
         setDocumentos((prev) => [json.data, ...prev]);
+        enviados++;
       }
-      addToast({ title: "Documento(s) enviado(s)!", variant: "success" });
-      setShowUpload(false);
+      if (enviados > 0) {
+        addToast({ title: `${enviados} documento(s) enviado(s)!`, variant: "success" });
+        setShowUpload(false);
+      }
     } catch {
-      addToast({ title: "Erro ao enviar documento", variant: "error" });
+      addToast({ title: "Erro de conexão ao enviar documento", variant: "error" });
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -154,7 +179,7 @@ export function DocumentosPanel({ financiamentoId, isAdmin = false }: Documentos
                   : <><Upload className="h-4 w-4 mr-2" />Selecionar arquivo(s)</>
                 }
               </Button>
-              <p className="text-xs text-zinc-400 text-center">PDF, JPG, PNG, DOC — máx. 10MB por arquivo</p>
+              <p className="text-xs text-zinc-400 text-center">PDF, JPG, PNG, DOC — máx. 4MB por arquivo</p>
             </div>
           </motion.div>
         )}

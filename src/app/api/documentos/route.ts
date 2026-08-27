@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Arquivo e financiamentoId obrigatórios" }, { status: 400 });
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ success: false, error: "Arquivo muito grande. Máximo: 10MB" }, { status: 413 });
+    if (file.size > 4 * 1024 * 1024) {
+      return NextResponse.json({ success: false, error: "Arquivo muito grande. Máximo: 4MB (limite do servidor)" }, { status: 413 });
     }
 
     const arrayBuffer = await file.arrayBuffer();

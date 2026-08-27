@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
     if (!file || !titulo.trim()) {
       return NextResponse.json({ success: false, error: "Título e arquivo são obrigatórios" }, { status: 400 });
     }
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ success: false, error: "Arquivo muito grande. Máximo: 10MB" }, { status: 413 });
+    if (file.size > 4 * 1024 * 1024) {
+      return NextResponse.json({ success: false, error: "Arquivo muito grande. Máximo: 4MB (limite do servidor)" }, { status: 413 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());

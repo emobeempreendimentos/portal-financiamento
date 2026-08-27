@@ -36,8 +36,8 @@ export async function PUT(
 
     // Se um novo arquivo foi enviado, substitui o conteúdo
     if (file && file.size > 0) {
-      if (file.size > 10 * 1024 * 1024) {
-        return NextResponse.json({ success: false, error: "Arquivo muito grande. Máximo: 10MB" }, { status: 413 });
+      if (file.size > 4 * 1024 * 1024) {
+        return NextResponse.json({ success: false, error: "Arquivo muito grande. Máximo: 4MB (limite do servidor)" }, { status: 413 });
       }
       data.conteudo = Buffer.from(await file.arrayBuffer());
       data.nomeArquivo = file.name;
