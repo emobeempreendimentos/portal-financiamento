@@ -54,7 +54,7 @@ export default function NovoClientePage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Novo Cliente</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Novo Cliente</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm">Cadastrar cliente e iniciar financiamento</p>
         </div>
       </div>

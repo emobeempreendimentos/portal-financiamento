@@ -21,7 +21,7 @@ function diasSemMovimento(updatedAt?: string | null): number {
 }
 
 function corAtividade(dias: number) {
-  if (dias <= 5)  return { bg: "#d1fae5", text: "#047857", dot: "#10b981" };
+  if (dias <= 5)  return { bg: "#f9edd8", text: "#70521d", dot: "#c49e62" };
   if (dias <= 10) return { bg: "#fef3c7", text: "#92400e", dot: "#f59e0b" };
   return           { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444" };
 }
@@ -145,7 +145,7 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
                     className="flex items-center gap-4 px-5 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group"
                   >
                     {/* Avatar */}
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-[#16181d] dark:bg-[#332710] flex items-center justify-center text-[#e4c28c] text-sm font-bold shrink-0">
                       {getInitials(cliente.nome)}
                     </div>
 
@@ -158,7 +158,7 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
                       </div>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{cliente.email}</p>
                       {cliente.imovelVenda && (
-                        <p className="hidden sm:flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 truncate mt-0.5">
+                        <p className="hidden sm:flex items-center gap-1 text-xs text-green-600 dark:text-green-400 truncate mt-0.5">
                           <Home className="h-3 w-3 shrink-0" />
                           <span className="truncate">{cliente.imovelVenda}</span>
                         </p>

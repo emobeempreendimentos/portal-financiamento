@@ -16,9 +16,9 @@ interface DashboardChartsProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  "Em Andamento": "#10b981", // emerald-500
-  "Concluído":    "#047857", // emerald-700
-  "Pausado":      "#f59e0b", // amber-500
+  "Em Andamento": "#c49e62",
+  "Concluído":    "#1b9673",
+  "Pausado":      "#d6612f",
 };
 
 const ETAPAS_ORDEM = [
@@ -126,8 +126,8 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
             <BarChart data={barData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
               <defs>
                 <linearGradient id="barEmerald" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" />
-                  <stop offset="100%" stopColor="#059669" />
+                  <stop offset="0%" stopColor="#c49e62" />
+                  <stop offset="100%" stopColor="#8b682b" />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#27272a" : "#f1f5f9"} vertical={false} />

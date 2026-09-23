@@ -47,7 +47,7 @@ export function ClientInfo({ user, onUpdate }: ClientInfoProps) {
         <div className="flex items-center gap-4">
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="h-14 w-14 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-green-500/20"
+            className="h-14 w-14 rounded-2xl bg-[#16181d] dark:bg-[#332710] flex items-center justify-center text-[#e4c28c] text-xl font-bold"
           >
             {user.avatar ? (
               <img src={user.avatar} alt={user.nome} className="h-14 w-14 rounded-2xl object-cover" />

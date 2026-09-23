@@ -4,24 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 shadow-sm",
-        neon: "bg-green-600 text-white hover:bg-green-700 shadow-sm shadow-green-600/20 hover:shadow-md hover:shadow-green-600/25",
+          "bg-[#16181d] text-[#fcfcfc] hover:bg-[#262930] dark:bg-[#f4f5f6] dark:text-[#0e0f13] dark:hover:bg-white",
+        neon: "bg-[#c49e62] text-[#1d1406] hover:bg-[#b8914f] dark:bg-[#d9b06b] dark:text-[#181003] dark:hover:bg-[#e4bf7f] shadow-sm shadow-[#c49e62]/20",
         outline:
-          "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-transparent dark:text-white dark:hover:bg-zinc-800",
+          "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 hover:border-zinc-300 dark:border-zinc-700 dark:bg-transparent dark:text-white dark:hover:bg-zinc-800",
         ghost:
           "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white",
         destructive:
-          "bg-red-500 text-white hover:bg-red-600",
-        link: "text-zinc-900 underline-offset-4 hover:underline dark:text-white",
+          "bg-[#ba1d27] text-white hover:bg-[#a0161f]",
+        link: "text-[#8b682b] underline-offset-4 hover:underline dark:text-[#d9b06b]",
       },
       size: {
         default: "h-11 px-5 py-2.5",
-        sm: "h-9 rounded-lg px-3 text-xs",
+        sm: "h-9 rounded-md px-3 text-xs",
         lg: "h-12 rounded-xl px-8 text-base",
         icon: "h-10 w-10",
       },

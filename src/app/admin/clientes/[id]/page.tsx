@@ -25,7 +25,7 @@ function diasSemMovimento(updatedAt?: string | null): number {
 }
 
 function corAtividade(dias: number) {
-  if (dias <= 5)  return { bg: "#d1fae5", text: "#047857", dot: "#10b981", label: "Ativo" };
+  if (dias <= 5)  return { bg: "#f9edd8", text: "#70521d", dot: "#c49e62", label: "Ativo" };
   if (dias <= 10) return { bg: "#fef3c7", text: "#92400e", dot: "#f59e0b", label: "Atenção" };
   return           { bg: "#fee2e2", text: "#991b1b", dot: "#ef4444", label: "Parado" };
 }
@@ -237,11 +237,11 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-lg">
+            <div className="h-12 w-12 rounded-2xl bg-[#16181d] dark:bg-[#332710] flex items-center justify-center text-[#e4c28c] font-bold text-lg">
               {getInitials(cliente.nome)}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{cliente.nome}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">{cliente.nome}</h1>
               <div className="flex items-center gap-3 mt-0.5">
                 <p className="text-zinc-500 dark:text-zinc-400 text-sm">{cliente.email}</p>
                 {cliente.financiamento?.protocolo && (

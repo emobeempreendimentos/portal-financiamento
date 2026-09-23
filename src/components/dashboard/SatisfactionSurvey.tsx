@@ -51,7 +51,7 @@ export function SatisfactionSurvey({ onSubmitted }: Props) {
   return (
     <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
       {/* Header bar */}
-      <div className="h-1 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-400" />
+      <div className="h-1 bg-gradient-to-r from-green-300 via-green-400 to-green-600" />
 
       <AnimatePresence mode="wait">
         {enviado ? (
@@ -196,7 +196,7 @@ export function SatisfactionSurvey({ onSubmitted }: Props) {
             <button
               type="submit"
               disabled={loading || !nota || recomendaria === null}
-              className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] text-white font-semibold rounded-2xl py-3.5 transition-all text-sm shadow-md shadow-green-500/20"
+              className="w-full flex items-center justify-center gap-2 bg-[#16181d] hover:bg-[#262930] dark:bg-[#c49e62] dark:text-[#1d1406] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] text-white font-semibold rounded-2xl py-3.5 transition-all text-sm"
             >
               {loading ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</>

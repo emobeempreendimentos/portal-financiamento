@@ -49,23 +49,44 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
         neon: {
-          DEFAULT: "#10b981",
-          dark: "#047857",
-          light: "#6ee7b7",
+          DEFAULT: "#c49e62",
+          dark: "#8b682b",
+          light: "#e4c28c",
         },
-        // Repaginação: o verde da marca passa a usar a escala esmeralda (mais refinada/profissional)
+        // Identidade do site emobe.com.br: a cor de destaque é o dourado da marca.
+        // A escala "green" foi remapeada para o dourado para alinhar todo o sistema ao site.
         green: {
-          50: "#ecfdf5",
-          100: "#d1fae5",
-          200: "#a7f3d0",
-          300: "#6ee7b7",
-          400: "#34d399",
-          500: "#10b981",
-          600: "#059669",
-          700: "#047857",
-          800: "#065f46",
-          900: "#064e3b",
-          950: "#022c22",
+          50: "#fcf6ec",
+          100: "#f9edd8",
+          200: "#f2dbb6",
+          300: "#e4c28c",
+          400: "#c49e62",
+          500: "#ac8545",
+          600: "#8b682b",
+          700: "#70521d",
+          800: "#553e15",
+          900: "#3c2a0d",
+          950: "#1d1406",
+        },
+        // Neutros do site: a escala zinc passa a usar os tons grafite/pedra do emobe.com.br
+        zinc: {
+          50: "#f8f8f6",
+          100: "#efeeeb",
+          200: "#dddee1",
+          300: "#c8cace",
+          400: "#8d8f94",
+          500: "#696c71",
+          600: "#585b61",
+          700: "#3a3d43",
+          800: "#27292d",
+          900: "#131518",
+          950: "#0b0c0f",
+        },
+        graphite: {
+          DEFAULT: "#16181d",
+          900: "#0e0f13",
+          800: "#16181d",
+          700: "#212327",
         },
       },
       borderRadius: {
@@ -86,8 +107,8 @@ const config: Config = {
           "100%": { transform: "translateX(100%)" },
         },
         "pulse-neon": {
-          "0%, 100%": { boxShadow: "0 0 6px #10b98130" },
-          "50%": { boxShadow: "0 0 16px #10b98150" },
+          "0%, 100%": { boxShadow: "0 0 6px #c49e6230" },
+          "50%": { boxShadow: "0 0 16px #c49e6250" },
         },
       },
       animation: {
@@ -98,6 +119,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "serif"],
       },
     },
   },

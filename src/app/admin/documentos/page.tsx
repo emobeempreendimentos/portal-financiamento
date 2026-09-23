@@ -160,7 +160,7 @@ export default function DocumentosPage() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Documentos</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Documentos</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Documentos importantes e PDFs da imobiliária</p>
         </div>
         <button onClick={abrirModal}

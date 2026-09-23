@@ -16,7 +16,7 @@ export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCards
       label: "Total de Clientes",
       value: stats.totalClientes,
       icon: Users,
-      color: "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
+      color: "bg-[#16181d] text-[#e4c28c] dark:bg-zinc-800 dark:text-[#d9b06b]",
       suffix: "",
       alert: false,
       clickable: true,
@@ -26,7 +26,7 @@ export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCards
       label: "Em Aprovação",
       value: stats.emAprovacao,
       icon: Clock,
-      color: "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
+      color: "bg-[#f9edd8] text-[#8b682b] dark:bg-[#332710] dark:text-[#d9b06b]",
       suffix: "",
       alert: false,
       clickable: true,
@@ -36,7 +36,7 @@ export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCards
       label: "Concluídos",
       value: stats.concluidos,
       icon: CheckCircle2,
-      color: "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400",
+      color: "bg-[#dcf7e2] text-[#007938] dark:bg-[#14301c] dark:text-[#4fb772]",
       suffix: "",
       alert: false,
       clickable: true,
@@ -58,7 +58,7 @@ export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCards
       icon: AlertTriangle,
       color: stats.pendenciasAbertas > 0
         ? "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
-        : "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400",
+        : "bg-[#dcf7e2] text-[#007938] dark:bg-[#14301c] dark:text-[#4fb772]",
       suffix: "",
       alert: stats.pendenciasAbertas > 0,
       clickable: true,
@@ -76,12 +76,12 @@ export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCards
           transition={{ delay: i * 0.1 }}
           whileHover={{ y: -3 }}
           onClick={card.clickable ? card.onClick : undefined}
-          className={`group relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-all dark:bg-zinc-900 ${card.alert ? "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-900/10" : "border-zinc-100/80 bg-white dark:border-zinc-800"} ${card.clickable ? "cursor-pointer hover:shadow-lg hover:shadow-zinc-900/5 hover:border-zinc-200 dark:hover:border-zinc-700" : "cursor-default"}`}
+          className={`group relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-all dark:bg-zinc-900 ${card.alert ? "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-900/10" : "border-zinc-200/80 bg-white dark:border-zinc-800"} ${card.clickable ? "cursor-pointer hover:shadow-lg hover:shadow-zinc-900/5 hover:border-zinc-200 dark:hover:border-zinc-700" : "cursor-default"}`}
         >
           <div className={`h-11 w-11 rounded-xl ${card.color} flex items-center justify-center mb-3.5 transition-transform group-hover:scale-105`}>
             <card.icon className="h-5 w-5" />
           </div>
-          <div className="text-[26px] leading-none font-bold tracking-tight text-zinc-900 dark:text-white">
+          <div className="font-display text-[34px] leading-none font-normal tracking-tight text-zinc-900 dark:text-white">
             {card.value === -1 ? "—" : `${card.value}${card.suffix}`}
           </div>
           <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-1.5">{card.label}</div>

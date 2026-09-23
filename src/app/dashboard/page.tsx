@@ -167,9 +167,9 @@ export default function DashboardPage() {
             href="https://wa.me/5537999251577"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 w-full bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl py-3 transition-colors"
+            className="flex items-center justify-center gap-3 w-full bg-[#16181d] hover:bg-[#262930] dark:bg-[#c49e62] dark:hover:bg-[#d4ae70] text-white dark:text-[#1d1406] font-medium rounded-lg py-3 transition-colors"
           >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-white">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
             </svg>
             Falar com a Emobe
@@ -230,17 +230,20 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {/* ── HERO estilo site: gradiente esmeralda ── */}
+        {/* ── HERO no estilo do site emobe.com.br: foto escura + tipografia serifada ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-600 via-green-700 to-green-900 text-white shadow-xl shadow-green-900/20">
-            {/* Elementos decorativos */}
-            <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-            <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-green-400/20 blur-3xl" />
+          <div className="relative overflow-hidden rounded-[22px] bg-[#16181d] text-white shadow-xl shadow-black/10">
+            <div
+              className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35"
+              style={{ backgroundImage: "url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=70)" }}
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0e0f13] via-[#0e0f13]/88 to-[#0e0f13]/45" />
+            <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-[#c49e62]/20 blur-3xl" />
 
             {/* Barra de progresso no topo */}
-            <div className="h-1.5 bg-white/15 relative overflow-hidden">
+            <div className="h-1 bg-white/10 relative overflow-hidden">
               <motion.div
-                className="absolute inset-y-0 left-0 bg-white"
+                className="absolute inset-y-0 left-0 bg-[#c49e62]"
                 initial={{ width: 0 }}
                 animate={{ width: `${progresso}%` }}
                 transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
@@ -264,32 +267,32 @@ export default function DashboardPage() {
                     strokeWidth={0}
                     paddingAngle={progresso > 0 && progresso < 100 ? 3 : 0}
                   >
-                    <Cell fill="#ffffff" />
-                    <Cell fill="rgba(255,255,255,0.18)" />
+                    <Cell fill="#c49e62" />
+                    <Cell fill="rgba(255,255,255,0.14)" />
                   </Pie>
                 </PieChart>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-3xl font-bold text-white">{progresso}%</span>
-                  <span className="text-[11px] text-green-100/90">concluído</span>
+                  <span className="font-display text-4xl text-white leading-none">{progresso}%</span>
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 mt-1">concluído</span>
                 </div>
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0 text-center sm:text-left">
-                <p className="text-sm font-medium text-green-100/90">Bem-vindo de volta 👋</p>
-                <h1 className="text-2xl md:text-3xl font-bold text-white truncate mt-0.5">{data.nome}</h1>
-                <p className="text-sm text-green-100/80 mt-1.5">
-                  Acompanhe cada etapa do seu financiamento em tempo real.
+                <p className="eyebrow text-[#d9b06b]">Bem-vindo de volta</p>
+                <h1 className="font-display text-3xl md:text-4xl font-normal text-white truncate mt-2 leading-tight">{data.nome}</h1>
+                <p className="text-sm text-white/70 mt-2">
+                  Acompanhe cada etapa do seu financiamento <em className="font-display text-[#e4c28c]">em tempo real.</em>
                 </p>
-                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-3 gap-y-1 mt-2.5">
+                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-3 gap-y-1 mt-3">
                   {data.banco && (
-                    <p className="text-sm text-green-50/90 flex items-center gap-1">
-                      <Building className="h-3.5 w-3.5 shrink-0" />
+                    <p className="text-sm text-white/85 flex items-center gap-1">
+                      <Building className="h-3.5 w-3.5 shrink-0 text-[#d9b06b]" />
                       {data.banco}
                     </p>
                   )}
                   {data.financiamento?.protocolo && (
-                    <p className="text-sm text-green-100/70 flex items-center gap-1 font-mono">
+                    <p className="text-sm text-white/60 flex items-center gap-1 font-mono">
                       <Hash className="h-3 w-3 shrink-0" />
                       EMB-{String(data.financiamento.protocolo).padStart(5, "0")}
                     </p>
@@ -297,8 +300,8 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3.5">
                   {data.financiamento?.statusGeral === "em_andamento" && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-white backdrop-blur-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-green-300 animate-pulse" />
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#c49e62] text-[#1d1406]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#1d1406] animate-pulse" />
                       Em andamento
                     </span>
                   )}
@@ -314,10 +317,10 @@ export default function DashboardPage() {
                       Concluído
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-green-50 backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-white/15 bg-white/5 text-white/85 backdrop-blur-sm">
                     {etapasConcluidas}/{etapas.length} etapas
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-green-50 backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-white/15 bg-white/5 text-white/85 backdrop-blur-sm">
                     <Clock className="h-3 w-3" />
                     {totalDias} dias
                   </span>
@@ -330,9 +333,9 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="mt-5 rounded-2xl bg-white/15 backdrop-blur-sm p-3.5 text-center"
+                className="mt-5 rounded-2xl border border-[#c49e62]/40 bg-[#c49e62]/10 backdrop-blur-sm p-3.5 text-center"
               >
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-[#f2dbb6]">
                   🎉 Parabéns! Seu financiamento foi concluído com sucesso!
                 </p>
               </motion.div>
@@ -351,9 +354,9 @@ export default function DashboardPage() {
                 <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">/{etapas.length}</span>
               </p>
             </div>
-            <div className="rounded-2xl border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/10 p-4">
-              <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Etapa atual</p>
-              <p className="text-base font-bold text-blue-900 dark:text-blue-200 leading-tight">
+            <div className="rounded-2xl border border-[#f2dbb6] dark:border-[#553e15] bg-[#f9edd8] dark:bg-[#332710] p-4">
+              <p className="text-xs font-medium text-[#8b682b] dark:text-[#d9b06b] mb-1">Etapa atual</p>
+              <p className="text-base font-bold text-[#1d1406] dark:text-[#edc889] leading-tight">
                 {etapaAtual?.nome ?? (progresso === 100 ? "Concluído" : "—")}
               </p>
             </div>
@@ -384,14 +387,14 @@ export default function DashboardPage() {
                             etapa.status === "concluido"
                               ? "bg-green-500"
                               : etapa.status === "em_andamento"
-                              ? "bg-blue-500 ring-4 ring-blue-100 dark:ring-blue-900/40"
+                              ? "bg-[#16181d] dark:bg-[#d9b06b] ring-4 ring-[#f9edd8] dark:ring-[#332710]"
                               : "bg-zinc-100 dark:bg-zinc-800"
                           )}
                         >
                           {etapa.status === "concluido" ? (
                             <CheckCircle2 className="h-4 w-4 text-white" />
                           ) : etapa.status === "em_andamento" ? (
-                            <Loader2 className="h-4 w-4 text-white animate-spin" />
+                            <Loader2 className="h-4 w-4 text-[#e4c28c] dark:text-[#181003] animate-spin" />
                           ) : (
                             <EtapaIcon className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />
                           )}
@@ -402,7 +405,7 @@ export default function DashboardPage() {
                             etapa.status === "concluido"
                               ? "text-green-600 dark:text-green-400 font-medium"
                               : etapa.status === "em_andamento"
-                              ? "text-blue-600 dark:text-blue-400 font-medium"
+                              ? "text-zinc-950 dark:text-white font-semibold"
                               : "text-zinc-400 dark:text-zinc-500"
                           )}
                         >
@@ -484,10 +487,10 @@ export default function DashboardPage() {
                         key={index}
                         fill={
                           entry.status === "concluido"
-                            ? "#10b981"
+                            ? "#c49e62"
                             : entry.status === "em_andamento"
-                            ? "#3b82f6"
-                            : "#e4e4e7"
+                            ? (darkMode ? "#f4f5f6" : "#16181d")
+                            : "#dddee1"
                         }
                       />
                     ))}
@@ -496,11 +499,11 @@ export default function DashboardPage() {
               </ResponsiveContainer>
               <div className="flex gap-4 mt-3 justify-end">
                 <span className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-                  <span className="h-2 w-2 rounded-full bg-green-500" />
+                  <span className="h-2 w-2 rounded-full bg-[#c49e62]" />
                   Concluída
                 </span>
                 <span className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                  <span className="h-2 w-2 rounded-full bg-[#16181d] dark:bg-[#f4f5f6]" />
                   Em andamento
                 </span>
               </div>
@@ -533,22 +536,23 @@ export default function DashboardPage() {
             href="https://wa.me/5537999251577"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-4 rounded-2xl border border-green-100 dark:border-green-900/40 bg-green-50 dark:bg-green-900/20 p-5 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors group"
+            className="relative overflow-hidden flex items-center gap-4 rounded-[22px] bg-[#16181d] dark:bg-[#131518] dark:border dark:border-zinc-800 p-5 md:p-6 hover:bg-[#1c1f25] transition-colors group"
           >
-            <div className="flex-shrink-0 h-12 w-12 rounded-2xl bg-green-500 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <svg viewBox="0 0 24 24" className="h-6 w-6 fill-white">
+            <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-[#c49e62]/20 blur-3xl" />
+            <div className="relative flex-shrink-0 h-12 w-12 rounded-2xl bg-[#c49e62] flex items-center justify-center group-hover:scale-105 transition-transform">
+              <svg viewBox="0 0 24 24" className="h-6 w-6 fill-[#1d1406]">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
             </div>
-            <div className="flex-1">
-              <p className="font-semibold text-green-800 dark:text-green-300 text-sm">
-                Dúvidas? Converse conosco pelo WhatsApp
+            <div className="relative flex-1">
+              <p className="font-display text-lg text-white leading-snug">
+                Dúvidas? <em className="text-[#e4c28c]">Fale com a gente.</em>
               </p>
-              <p className="text-green-600 dark:text-green-400 text-xs mt-0.5">
-                Nossa equipe está pronta para te atender · (37) 99925-1577
+              <p className="text-white/60 text-xs mt-1">
+                Nossa equipe está pronta para te atender pelo WhatsApp · (37) 99925-1577
               </p>
             </div>
-            <svg className="h-5 w-5 text-green-500 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="relative h-5 w-5 text-[#d9b06b] group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </a>

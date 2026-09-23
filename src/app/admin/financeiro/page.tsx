@@ -191,7 +191,7 @@ export default function FinanceiroPage() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Controle Financeiro</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Controle Financeiro</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">Gerencie receitas e despesas da empresa</p>
         </div>
         <div className="flex items-center gap-2">
@@ -242,7 +242,7 @@ export default function FinanceiroPage() {
               <YAxis tick={{ fontSize: 11, fill: "#71717a" }} tickFormatter={(v) => v >= 1000 ? `R$${(v / 1000).toFixed(0)}k` : `R$${v}`} />
               <Tooltip formatter={(value) => [fmt(Number(value))]} contentStyle={{ borderRadius: "12px", border: "1px solid #e4e4e7", fontSize: "12px" }} />
               <Legend formatter={(value) => (value === "receitas" ? "Receitas" : "Despesas")} />
-              <Bar dataKey="receitas" fill="#10b981" radius={[4, 4, 0, 0]} name="receitas" />
+              <Bar dataKey="receitas" fill="#c49e62" radius={[4, 4, 0, 0]} name="receitas" />
               <Bar dataKey="despesas" fill="#ef4444" radius={[4, 4, 0, 0]} name="despesas" />
             </BarChart>
           </ResponsiveContainer>

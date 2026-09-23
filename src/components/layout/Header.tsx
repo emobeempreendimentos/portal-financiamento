@@ -34,24 +34,25 @@ export function Header({ user, darkMode, onToggleDarkMode, onToggleMobileMenu, m
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-100 bg-white/80 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-950/80">
-      <div className="flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Logo */}
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-[#fafaf9]/85 backdrop-blur-xl dark:border-zinc-800 dark:bg-[#0b0c0f]/85">
+      <div className="flex h-16 items-center justify-between px-4 md:px-8">
+        {/* Marca (mesma assinatura tipográfica do site emobe.com.br) */}
         <div className="flex items-center gap-3">
           {onToggleMobileMenu && (
             <button
               onClick={onToggleMobileMenu}
-              className="md:hidden p-2 rounded-xl text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors"
+              className="md:hidden p-2 rounded-lg text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           )}
-          <div className="flex items-center">
-            <img
-              src="/logo.png"
-              alt="Emobe"
-              className="h-9 w-auto object-contain"
-            />
+          <div className="flex items-baseline gap-2 select-none" aria-label="Emobe Financiamento">
+            <span className="font-display text-[26px] leading-none tracking-[-0.02em] text-zinc-950 dark:text-white">
+              Emobe
+            </span>
+            <span className="hidden sm:inline text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500 dark:text-zinc-400">
+              Financiamento
+            </span>
           </div>
         </div>
 
@@ -59,16 +60,16 @@ export function Header({ user, darkMode, onToggleDarkMode, onToggleMobileMenu, m
         <div className="flex items-center gap-2">
           <button
             onClick={onToggleDarkMode}
-            className="p-2 rounded-xl text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors"
+            className="p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors"
           >
             {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
 
           {/* Avatar */}
-          <div className="flex items-center gap-2.5 ml-2">
+          <div className="flex items-center gap-2.5 ml-2 pl-3 border-l border-zinc-200 dark:border-zinc-800">
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="h-9 w-9 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-white text-sm font-bold shadow-sm ring-2 ring-white dark:ring-zinc-900 cursor-pointer"
+              className="h-9 w-9 rounded-full bg-[#16181d] dark:bg-[#f9edd8] flex items-center justify-center text-[#e4c28c] dark:text-[#1d1406] text-sm font-semibold shadow-sm ring-2 ring-[#fafaf9] dark:ring-zinc-900 cursor-pointer"
             >
               {user.avatar ? (
                 <img src={user.avatar} alt={user.nome} className="h-9 w-9 rounded-full object-cover" />

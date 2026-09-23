@@ -85,15 +85,15 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] w-64 border-r border-zinc-800/60 bg-zinc-950 transition-transform duration-300",
+          "fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] w-64 overflow-y-auto scrollbar-hide border-r border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-[#0b0c0f] transition-transform duration-300",
           "md:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        <div className="flex h-full flex-col py-4 gap-0.5">
+        <div className="flex min-h-full flex-col py-5 gap-0.5">
           {navGroups.map((group) => (
-            <div key={group.label} className="mb-3 px-3">
-              <p className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+            <div key={group.label} className="mb-4 px-3">
+              <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -107,21 +107,21 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
                       className="relative block"
                     >
                       {active && (
-                        <span className="absolute left-0 inset-y-1 w-1 bg-green-500 rounded-r-full" />
+                        <span className="absolute -left-3 inset-y-1.5 w-[3px] bg-[#c49e62] rounded-r-full" />
                       )}
                       <motion.div
                         whileHover={{ x: active ? 0 : 2 }}
                         className={cn(
-                          "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-150",
                           active
-                            ? "bg-green-500/15 text-green-400"
-                            : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                            ? "bg-[#f9edd8] text-[#1d1406] font-semibold dark:bg-[#332710] dark:text-[#edc889]"
+                            : "font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white"
                         )}
                       >
-                        <item.icon className={cn("h-4 w-4 shrink-0", active ? "text-green-400" : "")} />
+                        <item.icon className={cn("h-4 w-4 shrink-0", active ? "text-[#8b682b] dark:text-[#d9b06b]" : "text-zinc-400 dark:text-zinc-500")} />
                         <span>{item.label}</span>
                         {item.badge === "tarefas" && tarefasPendentes > 0 && (
-                          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center">
+                          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-[#c49e62] text-[#1d1406] text-[10px] font-bold flex items-center justify-center">
                             {tarefasPendentes > 99 ? "99+" : tarefasPendentes}
                           </span>
                         )}
@@ -133,13 +133,14 @@ export function AdminSidebar({ mobileOpen, onClose }: AdminSidebarProps) {
             </div>
           ))}
 
-          <div className="mt-auto mx-3 p-3.5 rounded-2xl bg-gradient-to-br from-green-500/15 to-green-700/10 border border-green-500/20">
-            <div className="flex items-center gap-2 mb-1">
-              <Building2 className="h-4 w-4 text-green-400" />
-              <span className="text-xs font-semibold text-green-400">Portal Admin</span>
+          <div className="mt-auto mx-3 p-4 rounded-2xl bg-[#16181d] text-white relative overflow-hidden">
+            <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[#c49e62]/25 blur-2xl" />
+            <div className="relative flex items-center gap-2 mb-1.5">
+              <Building2 className="h-4 w-4 text-[#d9b06b]" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d9b06b]">Portal Admin</span>
             </div>
-            <p className="text-xs text-zinc-500">
-              Gerencie todos os processos de financiamento
+            <p className="relative font-display text-[15px] leading-snug text-white/90">
+              Gerencie todos os processos de <em>financiamento</em>
             </p>
           </div>
         </div>

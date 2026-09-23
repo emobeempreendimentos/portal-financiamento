@@ -11,7 +11,7 @@ interface Props {
 }
 
 const COLORS = [
-  "#10b981", "#059669", "#34d399", "#6ee7b7",
+  "#c49e62", "#8b682b", "#c49e62", "#e4c28c",
   "#fbbf24", "#f59e0b", "#fb923c",
   "#60a5fa", "#818cf8", "#a78bfa",
   "#f472b6", "#fb7185",
@@ -167,7 +167,7 @@ export function CelebrationOverlay({ etapas, onDismiss }: Props) {
           >
             <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
               {/* Green top bar */}
-              <div className="h-1.5 bg-gradient-to-r from-green-400 via-emerald-500 to-green-400" />
+              <div className="h-1.5 bg-gradient-to-r from-green-300 via-green-500 to-green-300" />
 
               <div className="p-8 text-center">
                 <button
@@ -236,7 +236,7 @@ export function CelebrationOverlay({ etapas, onDismiss }: Props) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.55 }}
                   onClick={onDismiss}
-                  className="mt-7 w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 active:scale-95 text-white font-semibold rounded-2xl py-3.5 transition-all text-sm shadow-lg shadow-green-500/20"
+                  className="mt-7 w-full flex items-center justify-center gap-2 bg-[#16181d] hover:bg-[#262930] dark:bg-[#c49e62] dark:text-[#1d1406] active:scale-95 text-white font-semibold rounded-2xl py-3.5 transition-all text-sm"
                 >
                   <Rocket className="h-4 w-4" />
                   Ver o progresso

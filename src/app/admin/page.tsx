@@ -126,26 +126,32 @@ export default function AdminPage() {
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-600 via-green-700 to-green-900 text-white shadow-lg shadow-green-900/15 p-6 md:p-8">
-          {/* Elementos decorativos */}
-          <div className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-28 -left-12 h-64 w-64 rounded-full bg-green-400/20 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[22px] bg-[#16181d] text-white shadow-xl shadow-black/10">
+          {/* Foto de fundo com véu escuro, no estilo do hero do site */}
+          <div
+            className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-40"
+            style={{ backgroundImage: "url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=70)" }}
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0e0f13] via-[#0e0f13]/85 to-[#0e0f13]/30" />
+          <div className="pointer-events-none absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-[#c49e62]/20 blur-3xl" />
 
-          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="relative flex flex-col sm:flex-row sm:items-end justify-between gap-6 p-7 md:p-10">
             <div>
-              <p className="text-sm font-medium text-green-100/90 capitalize">
+              <p className="eyebrow text-[#d9b06b] capitalize">
                 {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
               </p>
-              <h1 className="text-2xl md:text-3xl font-bold text-white mt-0.5">Dashboard</h1>
-              <p className="text-green-100/80 text-sm mt-1">
-                Visão geral de todos os financiamentos
+              <h1 className="font-display text-4xl md:text-5xl font-normal text-white mt-3 leading-[1.05]">
+                Seu painel, <em className="text-[#e4c28c]">em ordem.</em>
+              </h1>
+              <p className="text-white/70 text-sm md:text-base mt-3 max-w-md">
+                Visão geral de todos os financiamentos, clientes e pendências.
               </p>
             </div>
             <Link
               href="/admin/relatorio-geral"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 backdrop-blur-sm text-sm font-semibold text-white hover:bg-white/25 transition-colors w-fit"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#c49e62] text-sm font-medium text-[#1d1406] hover:bg-[#d4ae70] transition-colors w-fit shrink-0"
             >
               <FileBarChart className="h-4 w-4" />
               Relatório Geral

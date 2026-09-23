@@ -246,7 +246,7 @@ export default function ReciboPage() {
         <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <ArrowLeft className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
         </button>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Gerador de Recibo</h1>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Gerador de Recibo</h1>
         {current && (
           <span className="px-2.5 py-1 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-semibold">
             Nº {String(current.numero).padStart(4, "0")}

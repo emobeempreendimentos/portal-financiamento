@@ -110,7 +110,7 @@ export function ClientesModal({ open, onClose, titulo, clientes, loading }: Clie
                     <Link key={c.id} href={`/admin/clientes/${c.id}`} onClick={onClose}>
                       <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors group cursor-pointer">
                         {/* Avatar */}
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                        <div className="h-10 w-10 rounded-full bg-[#16181d] dark:bg-[#332710] flex items-center justify-center text-[#e4c28c] text-sm font-bold shrink-0">
                           {getInitials(c.nome)}
                         </div>
 
