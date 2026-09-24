@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { LayoutDashboard, Users, UserPlus, Landmark, User as UserIcon, Calculator, FileText, ReceiptText, ListTodo, FileSignature, LogOut, Moon, Sun, X } from "lucide-react";
+import { LayoutDashboard, Users, UserPlus, Landmark, User as UserIcon, Calculator, FileText, ReceiptText, ListTodo, FileSignature, LogOut, Moon, Sun, X, SquareKanban, Search } from "lucide-react";
 import { cn, getInitials } from "@/lib/utils";
 import { TAREFAS_CHANGED_EVENT } from "@/lib/tarefas";
+import { PROCESSOS_CHANGED_EVENT, lerLimiteParado, processosParados } from "@/lib/processos";
+import { abrirBuscaRapida } from "@/components/admin/BuscaRapida";
 import { User } from "@/types";
 
 interface NavItem {
@@ -13,7 +15,7 @@ interface NavItem {
   label: string;
   icon: React.ElementType;
   exact: boolean;
-  badge?: "tarefas";
+  badge?: "tarefas" | "parados";
 }
 
 const navGroups: { label: string; items: NavItem[] }[] = [
@@ -21,6 +23,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Geral",
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+      { href: "/admin/processos", label: "Quadro de Processos", icon: SquareKanban, exact: false, badge: "parados" },
       { href: "/admin/clientes", label: "Clientes", icon: Users, exact: false },
       { href: "/admin/clientes/novo", label: "Novo Cliente", icon: UserPlus, exact: true },
     ],
@@ -70,6 +73,7 @@ export function BrandMark({ className }: { className?: string }) {
 export function AdminSidebar({ user, darkMode, onToggleDarkMode, onLogout, mobileOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const [tarefasPendentes, setTarefasPendentes] = useState(0);
+  const [parados, setParados] = useState(0);
 
   const carregarContador = useCallback(async () => {
     try {
@@ -79,11 +83,24 @@ export function AdminSidebar({ user, darkMode, onToggleDarkMode, onLogout, mobil
     } catch { /* silencioso */ }
   }, []);
 
+  const carregarParados = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/processos");
+      const json = await res.json();
+      if (json.success) setParados(processosParados(json.data, lerLimiteParado()).length);
+    } catch { /* silencioso */ }
+  }, []);
+
   useEffect(() => {
     carregarContador();
+    carregarParados();
     window.addEventListener(TAREFAS_CHANGED_EVENT, carregarContador);
-    return () => window.removeEventListener(TAREFAS_CHANGED_EVENT, carregarContador);
-  }, [carregarContador]);
+    window.addEventListener(PROCESSOS_CHANGED_EVENT, carregarParados);
+    return () => {
+      window.removeEventListener(TAREFAS_CHANGED_EVENT, carregarContador);
+      window.removeEventListener(PROCESSOS_CHANGED_EVENT, carregarParados);
+    };
+  }, [carregarContador, carregarParados]);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
@@ -114,6 +131,20 @@ export function AdminSidebar({ user, darkMode, onToggleDarkMode, onLogout, mobil
           <BrandMark />
           <button onClick={onClose} className="md:hidden p-1.5 rounded-lg text-white/60 hover:bg-white/10">
             <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Busca rápida */}
+        <div className="relative px-3 pb-4">
+          <button
+            onClick={() => { onClose?.(); abrirBuscaRapida(); }}
+            className="flex w-full items-center gap-2.5 rounded-xl bg-white/[0.05] px-3 py-2.5 text-[13px] text-white/45 ring-1 ring-white/[0.06] transition-colors hover:bg-white/[0.08] hover:text-white/70"
+          >
+            <Search className="h-4 w-4" />
+            <span className="flex-1 text-left">Buscar...</span>
+            <kbd className="hidden md:inline-flex items-center rounded-md bg-white/[0.08] px-1.5 py-0.5 font-sans text-[10px] font-semibold text-white/50">
+              Ctrl K
+            </kbd>
           </button>
         </div>
 
@@ -151,6 +182,14 @@ export function AdminSidebar({ user, darkMode, onToggleDarkMode, onLogout, mobil
                       {item.badge === "tarefas" && tarefasPendentes > 0 && (
                         <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-[#c49e62] text-[#1d1406] text-[10px] font-bold flex items-center justify-center">
                           {tarefasPendentes > 99 ? "99+" : tarefasPendentes}
+                        </span>
+                      )}
+                      {item.badge === "parados" && parados > 0 && (
+                        <span
+                          title={`${parados} processo(s) parado(s)`}
+                          className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center"
+                        >
+                          {parados > 99 ? "99+" : parados}
                         </span>
                       )}
                     </Link>

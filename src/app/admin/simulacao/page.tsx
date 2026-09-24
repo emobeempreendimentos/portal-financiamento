@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Save, FileDown, Loader2, ArrowLeft, DollarSign, Pencil, Lock, History, Trash2, Plus, FileText } from "lucide-react";
+import { Save, FileDown, Loader2, ArrowLeft, DollarSign, Pencil, Lock, History, Trash2, Plus, FileText, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -130,6 +130,26 @@ export default function SimulacaoPage() {
   useEffect(() => {
     carregarRecentes();
   }, [carregarRecentes]);
+
+  // Abre direto uma simulação vinda da busca rápida (?id=...)
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (!id) return;
+    fetch(`/api/admin/simulacao?id=${encodeURIComponent(id)}`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          setForm(simToForm(json.data));
+          setCurrentId(json.data.id);
+          setEditing(false);
+        }
+      })
+      .catch(() => { /* silencioso */ });
+  }, []);
+
+  function transformarEmCliente(id: string) {
+    router.push(`/admin/clientes/novo?simulacao=${encodeURIComponent(id)}`);
+  }
 
   const buildPayload = () => ({
     clienteNome: form.clienteNome,
@@ -297,11 +317,22 @@ export default function SimulacaoPage() {
         </div>
       </div>
 
-      {/* Aviso de simulação salva/travada */}
+      {/* Aviso de simulação salva/travada + conversão em cliente */}
       {!editing && (
-        <div className="flex items-center gap-2 rounded-xl border border-green-100 dark:border-green-900/30 bg-green-50 dark:bg-green-900/15 px-4 py-2.5 text-sm text-green-700 dark:text-green-400">
-          <Lock className="h-3.5 w-3.5 shrink-0" />
-          Simulação salva. Clique em <span className="font-semibold">Editar</span> para alterar os dados.
+        <div className="flex flex-col gap-3 rounded-2xl border border-green-100 dark:border-green-900/30 bg-green-50 dark:bg-green-900/15 px-4 py-3 sm:flex-row sm:items-center">
+          <p className="flex flex-1 items-center gap-2 text-sm text-green-700 dark:text-green-400">
+            <Lock className="h-3.5 w-3.5 shrink-0" />
+            <span>Simulação salva. Clique em <span className="font-semibold">Editar</span> para alterar os dados.</span>
+          </p>
+          {currentId && (
+            <button
+              onClick={() => transformarEmCliente(currentId)}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#16181d] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#262930] dark:bg-[#c49e62] dark:text-[#1d1406] dark:hover:bg-[#d4ae70]"
+            >
+              <UserPlus className="h-4 w-4" />
+              Transformar em cliente
+            </button>
+          )}
         </div>
       )}
 
@@ -697,6 +728,13 @@ export default function SimulacaoPage() {
                       {new Date(s.createdAt).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
+                </button>
+                <button
+                  onClick={() => transformarEmCliente(s.id)}
+                  className="shrink-0 p-1.5 rounded-lg text-zinc-400 hover:text-[#8b682b] hover:bg-[#f9edd8] dark:hover:bg-[#332710] dark:hover:text-[#d9b06b] transition-colors md:opacity-0 md:group-hover:opacity-100"
+                  title="Transformar em cliente"
+                >
+                  <UserPlus className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => excluirSimulacao(s.id, s.clienteNome)}

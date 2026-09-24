@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FileBarChart, UserPlus, ArrowUpRight } from "lucide-react";
 import { StatsCards } from "@/components/admin/StatsCards";
 import { TarefasPendentesCard } from "@/components/admin/TarefasPendentesCard";
+import { ProcessosParadosCard } from "@/components/admin/ProcessosParadosCard";
 import { PendenciasModal } from "@/components/admin/PendenciasModal";
 import { ClientesModal } from "@/components/admin/ClientesModal";
 import { CanceladosPanel } from "@/components/admin/CanceladosPanel";
@@ -208,7 +209,10 @@ export default function AdminPage() {
         </motion.div>
       )}
 
-      <TarefasPendentesCard />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+        <ProcessosParadosCard />
+        <TarefasPendentesCard />
+      </div>
 
       <PendenciasModal
         open={modalOpen}

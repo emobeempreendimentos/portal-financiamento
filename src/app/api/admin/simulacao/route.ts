@@ -31,10 +31,16 @@ function toData(body: any) {
   };
 }
 
-// GET — lista as últimas 10 simulações
-export async function GET() {
+// GET — lista as últimas 10 simulações (ou uma só, com ?id=)
+export async function GET(req: NextRequest) {
   try {
     await requireAdmin();
+    const id = req.nextUrl.searchParams.get("id");
+    if (id) {
+      const sim = await prisma.simulacao.findUnique({ where: { id } });
+      if (!sim) return NextResponse.json({ success: false, error: "Simulação não encontrada" }, { status: 404 });
+      return NextResponse.json({ success: true, data: sim });
+    }
     const data = await prisma.simulacao.findMany({
       orderBy: { createdAt: "desc" },
       take: MAX_SIMULACOES,

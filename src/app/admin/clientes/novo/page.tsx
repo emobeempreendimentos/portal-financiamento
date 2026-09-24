@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, UserPlus, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, UserPlus, Eye, EyeOff, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
+
+const BANCO_SIMULACAO: Record<string, string> = {
+  caixa: "Caixa Econômica Federal",
+  banco_brasil: "Banco do Brasil",
+  itau: "Banco Itaú",
+};
 
 export default function NovoClientePage() {
   const router = useRouter();
@@ -18,6 +24,28 @@ export default function NovoClientePage() {
     nome: "", email: "", senha: "", telefone: "",
     cpf: "", conjuge: "", banco: "",
   });
+
+  const [origemSimulacao, setOrigemSimulacao] = useState<string | null>(null);
+
+  // Pré-preenche a partir de uma simulação salva (?simulacao=<id>)
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("simulacao");
+    if (!id) return;
+    fetch(`/api/admin/simulacao?id=${encodeURIComponent(id)}`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (!json.success || !json.data) return;
+        const s = json.data;
+        setForm((prev) => ({
+          ...prev,
+          nome: s.clienteNome || prev.nome,
+          cpf: s.clienteCpf || prev.cpf,
+          banco: BANCO_SIMULACAO[s.banco] ?? s.banco ?? prev.banco,
+        }));
+        setOrigemSimulacao(s.clienteNome);
+      })
+      .catch(() => { /* silencioso */ });
+  }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -58,6 +86,15 @@ export default function NovoClientePage() {
           <p className="text-zinc-500 dark:text-zinc-400 text-sm">Cadastrar cliente e iniciar financiamento</p>
         </div>
       </div>
+
+      {origemSimulacao && (
+        <div className="flex items-center gap-3 rounded-2xl bg-[#f9edd8] px-4 py-3 text-sm text-[#553e15] ring-1 ring-[#f2dbb6] dark:bg-[#332710] dark:text-[#edc889] dark:ring-[#553e15]">
+          <Calculator className="h-4 w-4 shrink-0" />
+          <span>
+            Dados importados da simulação de <strong>{origemSimulacao}</strong>. Complete o e-mail, o telefone e a senha para criar o acesso.
+          </span>
+        </div>
+      )}
 
       <motion.form
         initial={{ opacity: 0, y: 10 }}

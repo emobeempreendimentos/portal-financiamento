@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { AdminSidebar, BrandMark } from "@/components/layout/AdminSidebar";
 import { TarefaNotificacoes } from "@/components/admin/TarefaNotificacoes";
+import { BuscaRapida, abrirBuscaRapida } from "@/components/admin/BuscaRapida";
 import { useToast } from "@/components/ui/toast";
 import { User } from "@/types";
 
@@ -58,17 +59,27 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen bg-background">
       <TarefaNotificacoes />
+      <BuscaRapida />
 
       {/* Barra superior (somente celular) */}
       <header className="md:hidden sticky top-0 z-30 flex h-16 items-center justify-between border-b border-zinc-200/70 bg-background/85 px-4 backdrop-blur-xl dark:border-zinc-800">
         <BrandMark className="text-zinc-950 dark:text-white" />
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="p-2 rounded-xl text-zinc-700 hover:bg-zinc-200/60 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          aria-label="Abrir menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={abrirBuscaRapida}
+            className="p-2 rounded-xl text-zinc-700 hover:bg-zinc-200/60 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            aria-label="Buscar"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="p-2 rounded-xl text-zinc-700 hover:bg-zinc-200/60 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            aria-label="Abrir menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
       </header>
 
       <AdminSidebar
