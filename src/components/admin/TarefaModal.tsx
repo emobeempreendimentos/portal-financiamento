@@ -96,7 +96,7 @@ export function TarefaModal({ open, tarefa, onClose, onSaved }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-xl"
+            className="w-full max-w-lg rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6 shadow-xl"
           >
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">

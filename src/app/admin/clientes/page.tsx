@@ -31,7 +31,7 @@ export default function ClientesPage() {
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Clientes</h1>
+        <h1 className="text-3xl md:text-[38px] font-extrabold tracking-[-0.035em] text-zinc-950 dark:text-white">Clientes</h1>
         <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
           Gerencie todos os clientes e seus financiamentos
         </p>

@@ -53,7 +53,7 @@ export function AvaliacoesPanel() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 space-y-4">
+      <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6 space-y-4">
         <Skeleton className="h-5 w-40" />
         <div className="grid grid-cols-3 gap-3">
           {[0, 1, 2].map((i) => <Skeleton key={i} className="h-20" />)}
@@ -67,7 +67,7 @@ export function AvaliacoesPanel() {
 
   if (!meta || meta.total === 0) {
     return (
-      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+      <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="h-4 w-4 text-zinc-400" />
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">Avaliações de Clientes</h2>
@@ -82,7 +82,7 @@ export function AvaliacoesPanel() {
   const npsPercent = Math.round((meta.recomendariam / meta.total) * 100);
 
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 space-y-5">
+    <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center gap-2">
         <TrendingUp className="h-4 w-4 text-green-500" />

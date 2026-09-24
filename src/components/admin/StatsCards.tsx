@@ -76,17 +76,19 @@ export function StatsCards({ stats, onPendenciasClick, onCardClick }: StatsCards
           transition={{ delay: i * 0.1 }}
           whileHover={{ y: -3 }}
           onClick={card.clickable ? card.onClick : undefined}
-          className={`group relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-all dark:bg-zinc-900 ${card.alert ? "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-900/10" : "border-zinc-200/80 bg-white dark:border-zinc-800"} ${card.clickable ? "cursor-pointer hover:shadow-lg hover:shadow-zinc-900/5 hover:border-zinc-200 dark:hover:border-zinc-700" : "cursor-default"}`}
+          className={`group relative overflow-hidden rounded-[20px] p-5 shadow-soft ring-1 transition-all ${card.alert ? "bg-red-50 ring-red-200/70 dark:bg-red-950/30 dark:ring-red-900/50" : "bg-white ring-zinc-900/[0.04] dark:bg-zinc-900 dark:ring-white/[0.06]"} ${card.clickable ? "cursor-pointer hover:shadow-xl hover:shadow-zinc-900/[0.06]" : "cursor-default"}`}
         >
-          <div className={`h-11 w-11 rounded-xl ${card.color} flex items-center justify-center mb-3.5 transition-transform group-hover:scale-105`}>
-            <card.icon className="h-5 w-5" />
+          <div className="flex items-start justify-between">
+            <div className="text-[13px] font-medium text-zinc-500 dark:text-zinc-400 leading-tight pr-2">{card.label}</div>
+            <div className={`h-9 w-9 shrink-0 rounded-xl ${card.color} flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-3`}>
+              <card.icon className="h-[18px] w-[18px]" />
+            </div>
           </div>
-          <div className="font-display text-[34px] leading-none font-normal tracking-tight text-zinc-900 dark:text-white">
+          <div className="mt-4 font-display text-[34px] leading-none font-bold tracking-[-0.04em] text-zinc-950 dark:text-white">
             {card.value === -1 ? "—" : `${card.value}${card.suffix}`}
           </div>
-          <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-1.5">{card.label}</div>
           {card.clickable && (
-            <p className="text-xs text-zinc-400 mt-1 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <p className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-zinc-400 group-hover:text-[#8b682b] dark:group-hover:text-[#d9b06b] transition-colors">
               Ver detalhes <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </p>
           )}

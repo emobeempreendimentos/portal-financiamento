@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FileBarChart } from "lucide-react";
+import { FileBarChart, UserPlus, ArrowUpRight } from "lucide-react";
 import { StatsCards } from "@/components/admin/StatsCards";
 import { TarefasPendentesCard } from "@/components/admin/TarefasPendentesCard";
 import { PendenciasModal } from "@/components/admin/PendenciasModal";
@@ -123,39 +123,81 @@ export default function AdminPage() {
     );
   }
 
+  const hojeRaw = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
+  const hojeExtenso = hojeRaw.charAt(0).toUpperCase() + hojeRaw.slice(1);
+
+  const taxaConclusao = stats && stats.totalClientes > 0
+    ? Math.round((stats.concluidos / stats.totalClientes) * 100)
+    : 0;
+
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="relative overflow-hidden rounded-[22px] bg-[#16181d] text-white shadow-xl shadow-black/10">
-          {/* Foto de fundo com véu escuro, no estilo do hero do site */}
-          <div
-            className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-40"
-            style={{ backgroundImage: "url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=70)" }}
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0e0f13] via-[#0e0f13]/85 to-[#0e0f13]/30" />
-          <div className="pointer-events-none absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-[#c49e62]/20 blur-3xl" />
+        <div className="relative overflow-hidden rounded-[28px] bg-mesh-dark text-white shadow-2xl shadow-black/10 ring-1 ring-black/5">
+          <div className="pointer-events-none absolute inset-0 bg-grid-faint" />
 
-          <div className="relative flex flex-col sm:flex-row sm:items-end justify-between gap-6 p-7 md:p-10">
+          <div className="relative grid gap-8 p-7 md:p-10 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
-              <p className="eyebrow text-[#d9b06b] capitalize">
-                {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-              </p>
-              <h1 className="font-display text-4xl md:text-5xl font-normal text-white mt-3 leading-[1.05]">
-                Seu painel, <em className="text-[#e4c28c]">em ordem.</em>
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.07] px-3 py-1 text-xs font-medium text-white/75 ring-1 ring-white/10">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#c49e62] animate-pulse" />
+                {hojeExtenso}
+              </span>
+              <h1 className="mt-5 text-4xl md:text-[52px] font-extrabold leading-[1.02] tracking-[-0.04em]">
+                Dashboard
+                <span className="block bg-gradient-to-r from-[#f2dbb6] via-[#c49e62] to-[#d6612f] bg-clip-text text-transparent">
+                  financiamentos
+                </span>
               </h1>
-              <p className="text-white/70 text-sm md:text-base mt-3 max-w-md">
-                Visão geral de todos os financiamentos, clientes e pendências.
+              <p className="mt-4 max-w-md text-sm md:text-[15px] text-white/60">
+                Visão geral de todos os processos, clientes e pendências em um só lugar.
               </p>
+              <div className="mt-6 flex flex-wrap gap-2.5">
+                <Link
+                  href="/admin/clientes/novo"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#c49e62] px-5 py-3 text-sm font-semibold text-[#1d1406] shadow-lg shadow-[#c49e62]/25 transition-all hover:bg-[#d4ae70] hover:-translate-y-0.5"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Novo cliente
+                </Link>
+                <Link
+                  href="/admin/relatorio-geral"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/[0.08] px-5 py-3 text-sm font-semibold text-white ring-1 ring-white/15 backdrop-blur-sm transition-all hover:bg-white/[0.14]"
+                >
+                  <FileBarChart className="h-4 w-4" />
+                  Relatório geral
+                  <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
+                </Link>
+              </div>
             </div>
-            <Link
-              href="/admin/relatorio-geral"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#c49e62] text-sm font-medium text-[#1d1406] hover:bg-[#d4ae70] transition-colors w-fit shrink-0"
-            >
-              <FileBarChart className="h-4 w-4" />
-              Relatório Geral
-            </Link>
+
+            {stats && (
+              <div className="grid grid-cols-2 gap-3 lg:w-[300px]">
+                <div className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/10 backdrop-blur-sm">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-white/45">Clientes</p>
+                  <p className="mt-2 font-display text-3xl font-bold tracking-tight">{stats.totalClientes}</p>
+                </div>
+                <div className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/10 backdrop-blur-sm">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-white/45">Concluídos</p>
+                  <p className="mt-2 font-display text-3xl font-bold tracking-tight">{stats.concluidos}</p>
+                </div>
+                <div className="col-span-2 rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/10 backdrop-blur-sm">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-white/45">Taxa de conclusão</p>
+                    <p className="font-display text-sm font-bold text-[#e4c28c]">{taxaConclusao}%</p>
+                  </div>
+                  <div className="mt-3 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full bg-gradient-to-r from-[#e4c28c] to-[#c49e62]"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${taxaConclusao}%` }}
+                      transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

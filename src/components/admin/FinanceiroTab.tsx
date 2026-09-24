@@ -306,7 +306,7 @@ function ContaEntryForm({ cp, onChange, onDelete, editingTab = true }: {
 
 function Card({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+    <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] overflow-hidden">
       <div className="flex items-center gap-2.5 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
         <div className="h-7 w-7 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center">
           <Icon className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
@@ -323,7 +323,7 @@ function CollapsibleCard({ title, icon: Icon, defaultOpen = true, summary, child
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+    <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] overflow-hidden">
       <button type="button" onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-2.5 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40 transition-colors text-left">
         <div className="h-7 w-7 rounded-lg bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0">

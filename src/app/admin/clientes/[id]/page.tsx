@@ -241,7 +241,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
               {getInitials(cliente.nome)}
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">{cliente.nome}</h1>
+              <h1 className="text-3xl md:text-[38px] font-extrabold tracking-[-0.035em] text-zinc-950 dark:text-white">{cliente.nome}</h1>
               <div className="flex items-center gap-3 mt-0.5">
                 <p className="text-zinc-500 dark:text-zinc-400 text-sm">{cliente.email}</p>
                 {cliente.financiamento?.protocolo && (
@@ -332,7 +332,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.03 }}
-          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5"
+          className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-5"
         >
           <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Status do Processo</p>
           <div className="flex flex-wrap gap-2">
@@ -364,7 +364,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6"
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6"
       >
         <div className="flex items-center gap-2 mb-5">
           <UserIcon className="h-4 w-4 text-zinc-400" />
@@ -506,7 +506,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6"
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6"
       >
         <div className="flex items-center gap-2 mb-5">
           <KeyRound className="h-4 w-4 text-zinc-400" />
@@ -582,7 +582,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6"
+          className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6"
         >
           <h2 className="font-semibold text-zinc-900 dark:text-white mb-4">Etapas do Financiamento</h2>
           <div className="space-y-3">
@@ -641,7 +641,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             </div>
           ) : (
             /* Processo ativo — card para cancelar */
-            <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 space-y-4">
+            <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <XCircle className="h-4 w-4 text-red-400" />
                 <h2 className="font-semibold text-zinc-900 dark:text-white">Cancelar Processo</h2>

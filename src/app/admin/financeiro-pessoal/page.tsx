@@ -198,7 +198,7 @@ export default function FinanceiroPessoalPage() {
             <User className="h-5 w-5 text-violet-600 dark:text-violet-400" />
           </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Finanças Pessoais</h1>
+            <h1 className="text-3xl md:text-[38px] font-extrabold tracking-[-0.035em] text-zinc-950 dark:text-white">Finanças Pessoais</h1>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5">Controle financeiro pessoal</p>
           </div>
         </div>
@@ -239,7 +239,7 @@ export default function FinanceiroPessoalPage() {
       {/* Gráfico */}
       {grafico.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm">
+          className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
           <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4">Receitas vs Despesas — Últimos 6 meses</h2>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={grafico} barCategoryGap="30%">
@@ -257,7 +257,7 @@ export default function FinanceiroPessoalPage() {
 
       {/* Filtros + Tabela */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm overflow-hidden">
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] overflow-hidden">
 
         {/* Barra de filtros */}
         <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 p-4 border-b border-zinc-100 dark:border-zinc-800">

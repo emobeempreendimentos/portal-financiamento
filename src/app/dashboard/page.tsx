@@ -121,8 +121,8 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="h-16 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950" />
-        <div className="max-w-3xl mx-auto px-4 py-8 space-y-4">
+        <div className="px-3 pt-3"><div className="mx-auto h-16 max-w-4xl rounded-2xl bg-white/75 dark:bg-zinc-900/75 shadow-soft" /></div>
+        <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
           <Skeleton className="h-36 w-full" />
           <Skeleton className="h-20 w-full" />
           <Skeleton className="h-32 w-full" />
@@ -136,7 +136,7 @@ export default function DashboardPage() {
     const cancelado = bloqueio.tipo === "cancelado";
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-        <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 text-center space-y-5">
+        <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-[24px] shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-8 text-center space-y-5">
           <div className={`h-16 w-16 rounded-2xl flex items-center justify-center mx-auto ${cancelado ? "bg-red-50 dark:bg-red-900/20" : "bg-zinc-100 dark:bg-zinc-800"}`}>
             {cancelado ? (
               <svg className="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
       <CelebrationOverlay etapas={novasEtapas} onDismiss={() => setNovasEtapas([])} />
       <Header user={data} darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-5">
+      <main className="max-w-4xl mx-auto px-4 pt-6 pb-8 space-y-5">
 
         {/* Banner cancelamento */}
         {data.financiamento?.statusGeral === "cancelado" && (
@@ -230,59 +230,22 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {/* ── HERO no estilo do site emobe.com.br: foto escura + tipografia serifada ── */}
+        {/* ── HERO: fundo mesh escuro com brilhos dourados ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="relative overflow-hidden rounded-[22px] bg-[#16181d] text-white shadow-xl shadow-black/10">
-            <div
-              className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35"
-              style={{ backgroundImage: "url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=70)" }}
-            />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0e0f13] via-[#0e0f13]/88 to-[#0e0f13]/45" />
-            <div className="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-[#c49e62]/20 blur-3xl" />
+          <div className="relative overflow-hidden rounded-[28px] bg-mesh-dark text-white shadow-2xl shadow-black/10 ring-1 ring-black/5">
+            <div className="pointer-events-none absolute inset-0 bg-grid-faint" />
 
-            {/* Barra de progresso no topo */}
-            <div className="h-1 bg-white/10 relative overflow-hidden">
-              <motion.div
-                className="absolute inset-y-0 left-0 bg-[#c49e62]"
-                initial={{ width: 0 }}
-                animate={{ width: `${progresso}%` }}
-                transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-              />
-            </div>
-
-            <div className="relative p-6 md:p-8">
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              {/* Donut chart */}
-              <div className="relative shrink-0">
-                <PieChart width={140} height={140}>
-                  <Pie
-                    data={[{ v: progresso }, { v: Math.max(0, 100 - progresso) }]}
-                    cx={70}
-                    cy={70}
-                    innerRadius={48}
-                    outerRadius={62}
-                    startAngle={90}
-                    endAngle={-270}
-                    dataKey="v"
-                    strokeWidth={0}
-                    paddingAngle={progresso > 0 && progresso < 100 ? 3 : 0}
-                  >
-                    <Cell fill="#c49e62" />
-                    <Cell fill="rgba(255,255,255,0.14)" />
-                  </Pie>
-                </PieChart>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="font-display text-4xl text-white leading-none">{progresso}%</span>
-                  <span className="text-[10px] uppercase tracking-[0.18em] text-white/60 mt-1">concluído</span>
-                </div>
-              </div>
-
+            <div className="relative p-6 md:p-9">
+            <div className="flex flex-col-reverse sm:flex-row items-center gap-7">
               {/* Info */}
               <div className="flex-1 min-w-0 text-center sm:text-left">
-                <p className="eyebrow text-[#d9b06b]">Bem-vindo de volta</p>
-                <h1 className="font-display text-3xl md:text-4xl font-normal text-white truncate mt-2 leading-tight">{data.nome}</h1>
-                <p className="text-sm text-white/70 mt-2">
-                  Acompanhe cada etapa do seu financiamento <em className="font-display text-[#e4c28c]">em tempo real.</em>
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/[0.07] px-3 py-1 text-xs font-medium text-white/75 ring-1 ring-white/10">
+                  👋 Bem-vindo de volta
+                </span>
+                <h1 className="mt-4 text-3xl md:text-[42px] font-extrabold tracking-[-0.04em] text-white truncate leading-[1.05]">{data.nome.split(" ")[0]}<span className="text-[#c49e62]">.</span></h1>
+                <p className="text-sm md:text-[15px] text-white/60 mt-2.5">
+                  Acompanhe cada etapa do seu financiamento{" "}
+                  <span className="bg-gradient-to-r from-[#f2dbb6] to-[#c49e62] bg-clip-text font-semibold text-transparent">em tempo real</span>.
                 </p>
                 <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-3 gap-y-1 mt-3">
                   {data.banco && (
@@ -326,6 +289,38 @@ export default function DashboardPage() {
                   </span>
                 </div>
               </div>
+
+              {/* Anel de progresso */}
+              <div className="relative shrink-0 rounded-full bg-white/[0.04] p-2 ring-1 ring-white/10">
+                <PieChart width={150} height={150}>
+                  <defs>
+                    <linearGradient id="heroRing" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#f2dbb6" />
+                      <stop offset="100%" stopColor="#c49e62" />
+                    </linearGradient>
+                  </defs>
+                  <Pie
+                    data={[{ v: progresso }, { v: Math.max(0, 100 - progresso) }]}
+                    cx={75}
+                    cy={75}
+                    innerRadius={56}
+                    outerRadius={68}
+                    startAngle={90}
+                    endAngle={-270}
+                    dataKey="v"
+                    strokeWidth={0}
+                    cornerRadius={8}
+                    paddingAngle={progresso > 0 && progresso < 100 ? 4 : 0}
+                  >
+                    <Cell fill="url(#heroRing)" />
+                    <Cell fill="rgba(255,255,255,0.10)" />
+                  </Pie>
+                </PieChart>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="font-display text-4xl font-extrabold tracking-[-0.04em] text-white leading-none">{progresso}<span className="text-xl text-white/60">%</span></span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45 mt-1.5">concluído</span>
+                </div>
+              </div>
             </div>
 
             {progresso === 100 && (
@@ -347,22 +342,23 @@ export default function DashboardPage() {
         {/* ── CARDS DE MÉTRICAS ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
           <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">Etapas concluídas</p>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white">
+            <div className="rounded-[20px] bg-white dark:bg-zinc-900 p-4 md:p-5 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06]">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Etapas concluídas</p>
+              <p className="mt-2 font-display text-[28px] leading-none font-bold tracking-[-0.04em] text-zinc-950 dark:text-white">
                 {etapasConcluidas}
-                <span className="text-sm font-normal text-zinc-400 dark:text-zinc-500">/{etapas.length}</span>
+                <span className="text-base font-semibold text-zinc-400 dark:text-zinc-500">/{etapas.length}</span>
               </p>
             </div>
-            <div className="rounded-2xl border border-[#f2dbb6] dark:border-[#553e15] bg-[#f9edd8] dark:bg-[#332710] p-4">
-              <p className="text-xs font-medium text-[#8b682b] dark:text-[#d9b06b] mb-1">Etapa atual</p>
-              <p className="text-base font-bold text-[#1d1406] dark:text-[#edc889] leading-tight">
+            <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-[#f2dbb6] via-[#e4c28c] to-[#c49e62] p-4 md:p-5 shadow-soft">
+              <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/30 blur-xl" />
+              <p className="relative text-xs font-semibold text-[#553e15]">Etapa atual</p>
+              <p className="relative mt-2 font-display text-[15px] md:text-lg font-bold tracking-tight text-[#1d1406] leading-tight">
                 {etapaAtual?.nome ?? (progresso === 100 ? "Concluído" : "—")}
               </p>
             </div>
-            <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">Dias no processo</p>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white">{totalDias}</p>
+            <div className="rounded-[20px] bg-white dark:bg-zinc-900 p-4 md:p-5 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06]">
+              <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Dias no processo</p>
+              <p className="mt-2 font-display text-[28px] leading-none font-bold tracking-[-0.04em] text-zinc-950 dark:text-white">{totalDias}</p>
             </div>
           </div>
         </motion.div>
@@ -370,7 +366,7 @@ export default function DashboardPage() {
         {/* ── STEPPER HORIZONTAL ── */}
         {etapas.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+            <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
               <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-5">
                 Etapas do processo
               </p>
@@ -433,7 +429,7 @@ export default function DashboardPage() {
         {/* ── GRÁFICO DE DURAÇÃO POR ETAPA ── */}
         {hasChartData && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+            <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
               <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 Duração por etapa
               </p>
@@ -536,17 +532,16 @@ export default function DashboardPage() {
             href="https://wa.me/5537999251577"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative overflow-hidden flex items-center gap-4 rounded-[22px] bg-[#16181d] dark:bg-[#131518] dark:border dark:border-zinc-800 p-5 md:p-6 hover:bg-[#1c1f25] transition-colors group"
+            className="relative overflow-hidden flex items-center gap-4 rounded-[24px] bg-mesh-dark ring-1 ring-black/5 dark:ring-white/[0.06] p-5 md:p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-xl group"
           >
-            <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-[#c49e62]/20 blur-3xl" />
-            <div className="relative flex-shrink-0 h-12 w-12 rounded-2xl bg-[#c49e62] flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="relative flex-shrink-0 h-12 w-12 rounded-2xl bg-gradient-to-br from-[#e4c28c] to-[#c49e62] shadow-lg shadow-[#c49e62]/30 flex items-center justify-center group-hover:scale-105 group-hover:rotate-3 transition-transform">
               <svg viewBox="0 0 24 24" className="h-6 w-6 fill-[#1d1406]">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
             </div>
             <div className="relative flex-1">
-              <p className="font-display text-lg text-white leading-snug">
-                Dúvidas? <em className="text-[#e4c28c]">Fale com a gente.</em>
+              <p className="font-display text-[17px] font-bold tracking-tight text-white leading-snug">
+                Dúvidas? <span className="text-[#e4c28c]">Fale com a gente.</span>
               </p>
               <p className="text-white/60 text-xs mt-1">
                 Nossa equipe está pronta para te atender pelo WhatsApp · (37) 99925-1577

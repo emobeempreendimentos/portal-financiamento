@@ -75,7 +75,7 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Status Pie */}
-      <div className="rounded-2xl border border-zinc-100/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm">
+      <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
         <h3 className="font-semibold text-zinc-900 dark:text-white text-sm mb-1">Distribuição por Status</h3>
         {pieData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2">
@@ -112,7 +112,7 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
       </div>
 
       {/* Etapa Bar */}
-      <div className="rounded-2xl border border-zinc-100/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm">
+      <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
         <h3 className="font-semibold text-zinc-900 dark:text-white text-sm mb-4">Clientes por Etapa Atual</h3>
         {barData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2">
@@ -136,7 +136,7 @@ export function DashboardCharts({ clientes }: DashboardChartsProps) {
               <Tooltip
                 formatter={(value) => [`${value} cliente${Number(value) > 1 ? "s" : ""}`, "Clientes"]}
                 contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", background: isDark ? "#18181b" : "#fff", color: isDark ? "#fff" : "#18181b", fontSize: 12 }}
-                cursor={{ fill: isDark ? "rgba(255,255,255,0.04)" : "rgba(16,185,129,0.06)" }}
+                cursor={{ fill: isDark ? "rgba(255,255,255,0.04)" : "rgba(196,158,98,0.08)" }}
               />
               <Bar dataKey="clientes" fill="url(#barEmerald)" radius={[6, 6, 0, 0]} maxBarSize={48} />
             </BarChart>

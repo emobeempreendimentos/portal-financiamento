@@ -5,7 +5,7 @@
 /* Tokens alinhados ao site emobe.com.br (grafite + dourado, fundo pedra clara) */
 @layer base {
   :root {
-    --background: 60 9.1% 97.8%;
+    --background: 40 9% 95.5%;
     --foreground: 228 15.2% 6.5%;
     --card: 0 0% 100%;
     --card-foreground: 228 15.2% 6.5%;
@@ -58,10 +58,16 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  /* Títulos principais em serifada (Playfair Display), como no site */
-  h1 {
-    font-family: var(--font-display), Georgia, serif;
-    letter-spacing: -0.02em;
+  /* Títulos em sans geométrica (Plus Jakarta Sans), bem compacta */
+  h1, h2, h3 {
+    font-family: var(--font-display), var(--font-inter), system-ui, sans-serif;
+    letter-spacing: -0.025em;
+  }
+  /* O documento dos Termos mantém a fonte própria (Montserrat) */
+  .termo-doc h1,
+  .termo-doc h2,
+  .termo-doc h3 {
+    font-family: inherit;
   }
   ::selection {
     background: #f2dbb6;
@@ -70,12 +76,6 @@
 }
 
 @layer utilities {
-  /* A Playfair fica pesada em negrito: os h1 "bold" usam peso médio */
-  h1.font-bold,
-  h1.font-extrabold,
-  h1.font-semibold {
-    font-weight: 500;
-  }
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -83,11 +83,32 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  /* Rótulo em caixa alta espaçada, como os "eyebrows" do site */
+  /* Rótulo em caixa alta espaçada */
   .eyebrow {
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
+  }
+  /* Sombra suave de cartão (estilo produto moderno) */
+  .shadow-soft {
+    box-shadow: 0 1px 2px rgba(14, 15, 19, 0.04), 0 12px 32px -16px rgba(14, 15, 19, 0.12);
+  }
+  /* Fundo "mesh" escuro com brilhos dourados */
+  .bg-mesh-dark {
+    background-color: #0e0f13;
+    background-image:
+      radial-gradient(60% 80% at 100% 0%, rgba(196, 158, 98, 0.35) 0%, rgba(196, 158, 98, 0) 60%),
+      radial-gradient(50% 70% at 0% 100%, rgba(214, 97, 47, 0.18) 0%, rgba(214, 97, 47, 0) 60%),
+      radial-gradient(40% 60% at 55% 55%, rgba(33, 93, 165, 0.14) 0%, rgba(33, 93, 165, 0) 70%);
+  }
+  /* Grade sutil sobre fundos escuros */
+  .bg-grid-faint {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: radial-gradient(ellipse at 70% 30%, black 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at 70% 30%, black 20%, transparent 75%);
   }
 }

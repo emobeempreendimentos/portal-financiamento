@@ -229,7 +229,7 @@ export default function TermosPage() {
           <ArrowLeft className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
         </button>
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Termos para Envio</h1>
+          <h1 className="text-3xl md:text-[38px] font-extrabold tracking-[-0.035em] text-zinc-950 dark:text-white">Termos para Envio</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-0.5">
             Escreva uma proposta, orçamento ou comunicado no papel timbrado da EMOBE e baixe em PDF.
           </p>
@@ -246,7 +246,7 @@ export default function TermosPage() {
         {/* ── COLUNA ESQUERDA: FORMULÁRIO ── */}
         <div className="space-y-4 no-print">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 space-y-4">
+            className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-5 space-y-4">
             <h2 className="font-semibold text-zinc-900 dark:text-white">O documento</h2>
 
             {/* Tipo (chips) */}
@@ -372,7 +372,7 @@ export default function TermosPage() {
 
           {/* Últimos documentos */}
           {recentes.length > 0 && (
-            <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+            <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-5">
               <div className="flex items-center gap-2 mb-1">
                 <History className="h-4 w-4 text-zinc-400" />
                 <h2 className="font-semibold text-zinc-900 dark:text-white">Últimos documentos</h2>

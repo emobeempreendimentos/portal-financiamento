@@ -274,7 +274,7 @@ export default function SimulacaoPage() {
         >
           <ArrowLeft className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
         </button>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Simulação de Financiamento</h1>
+        <h1 className="text-3xl md:text-[38px] font-extrabold tracking-[-0.035em] text-zinc-950 dark:text-white">Simulação de Financiamento</h1>
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={novaSimulacao}
@@ -311,7 +311,7 @@ export default function SimulacaoPage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6"
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6"
       >
         <div className="flex items-center gap-2 mb-5">
           <DollarSign className="h-4 w-4 text-zinc-400" />
@@ -434,7 +434,7 @@ export default function SimulacaoPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6"
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6"
       >
         <div className="flex items-center gap-2 mb-5">
           <DollarSign className="h-4 w-4 text-zinc-400" />
@@ -617,7 +617,7 @@ export default function SimulacaoPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6"
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6"
       >
         <Label className="block mb-3">Observações</Label>
         <textarea
@@ -667,7 +667,7 @@ export default function SimulacaoPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5"
+          className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-5"
         >
           <div className="flex items-center gap-2 mb-4">
             <History className="h-4 w-4 text-zinc-400" />

@@ -54,7 +54,7 @@ export default function NovoClientePage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Novo Cliente</h1>
+          <h1 className="text-3xl md:text-[38px] font-extrabold tracking-[-0.035em] text-zinc-950 dark:text-white">Novo Cliente</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm">Cadastrar cliente e iniciar financiamento</p>
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function NovoClientePage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={handleSubmit}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 space-y-5"
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6 space-y-5"
       >
         <div>
           <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 pb-2 border-b border-zinc-100 dark:border-zinc-800">

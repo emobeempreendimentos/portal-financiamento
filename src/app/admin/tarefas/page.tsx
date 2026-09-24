@@ -105,7 +105,7 @@ export default function TarefasPage() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Lista de Tarefas</h1>
+          <h1 className="text-3xl md:text-[38px] font-extrabold tracking-[-0.035em] text-zinc-950 dark:text-white">Lista de Tarefas</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
             Gerencie suas pendências e organize suas atividades.
           </p>
@@ -157,7 +157,7 @@ export default function TarefasPage() {
           ))}
         </div>
       ) : tarefas.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 py-16 flex flex-col items-center gap-3">
+        <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] py-16 flex flex-col items-center gap-3">
           <div className="h-14 w-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
             <ClipboardList className="h-6 w-6 text-zinc-400" />
           </div>

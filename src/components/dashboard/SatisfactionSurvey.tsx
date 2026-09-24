@@ -49,7 +49,7 @@ export function SatisfactionSurvey({ onSubmitted }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+    <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] overflow-hidden">
       {/* Header bar */}
       <div className="h-1 bg-gradient-to-r from-green-300 via-green-400 to-green-600" />
 

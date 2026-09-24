@@ -57,7 +57,7 @@ export function InteracoesPanel({ historico, clienteId, isAdmin, onNovaInteracao
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 space-y-5">
+    <div className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center gap-2">
         <MessageSquare className="h-4 w-4 text-zinc-400" />

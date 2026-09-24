@@ -246,7 +246,7 @@ export default function ReciboPage() {
         <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <ArrowLeft className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
         </button>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950 dark:text-white">Gerador de Recibo</h1>
+        <h1 className="text-3xl md:text-[38px] font-extrabold tracking-[-0.035em] text-zinc-950 dark:text-white">Gerador de Recibo</h1>
         {current && (
           <span className="px-2.5 py-1 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-semibold">
             Nº {String(current.numero).padStart(4, "0")}
@@ -264,7 +264,7 @@ export default function ReciboPage() {
 
       {/* Quem recebeu */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
         <div className="flex items-center gap-2 mb-5">
           <ReceiptText className="h-4 w-4 text-zinc-400" />
           <h2 className="font-semibold text-zinc-900 dark:text-white">Quem recebeu (declarante)</h2>
@@ -301,7 +301,7 @@ export default function ReciboPage() {
 
       {/* Quem pagou */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
         <div className="flex items-center gap-2 mb-5">
           <User className="h-4 w-4 text-zinc-400" />
           <h2 className="font-semibold text-zinc-900 dark:text-white">De quem recebeu (pagador)</h2>
@@ -338,7 +338,7 @@ export default function ReciboPage() {
 
       {/* Valor e referência */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+        className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6">
         <div className="flex items-center gap-2 mb-5">
           <Home className="h-4 w-4 text-zinc-400" />
           <h2 className="font-semibold text-zinc-900 dark:text-white">Valor e imóvel</h2>
@@ -390,7 +390,7 @@ export default function ReciboPage() {
       {/* Histórico de emissões */}
       {recentes.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+          className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-5">
           <div className="flex items-center gap-2 mb-4">
             <History className="h-4 w-4 text-zinc-400" />
             <h2 className="font-semibold text-zinc-900 dark:text-white">Últimas Emissões</h2>
