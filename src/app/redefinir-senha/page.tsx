@@ -1,43 +1,73 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { Lock, Eye, EyeOff, Building2, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/toast";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { AlertCircle, ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, Loader2, LogIn } from "lucide-react";
+import {
+  AuthCardFooter, AuthCardHeader, AuthShell, Obrigatorio, authButton, authInput, authLabel,
+} from "@/components/auth/AuthShell";
+
+function CampoSenha({
+  id, label, value, onChange, placeholder, autoFocus,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  autoFocus?: boolean;
+}) {
+  const [visivel, setVisivel] = useState(false);
+  return (
+    <div>
+      <label htmlFor={id} className={authLabel}>
+        {label} <Obrigatorio />
+      </label>
+      <div className="relative">
+        <input
+          id={id}
+          type={visivel ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete="new-password"
+          autoFocus={autoFocus}
+          required
+          className={`${authInput} pr-10`}
+        />
+        <button
+          type="button"
+          onClick={() => setVisivel((v) => !v)}
+          aria-label={visivel ? "Ocultar senha" : "Mostrar senha"}
+          className="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          {visivel ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function RedefinirSenhaForm() {
-  const { addToast } = useToast();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = useSearchParams().get("token");
 
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmar, setConfirmar] = useState("");
-  const [showNova, setShowNova] = useState(false);
-  const [showConfirmar, setShowConfirmar] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sucesso, setSucesso] = useState(false);
-
-  useEffect(() => {
-    if (!token) {
-      addToast({ title: "Link inválido ou expirado", variant: "error" });
-    }
-  }, [token, addToast]);
+  const [erro, setErro] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErro(null);
 
     if (novaSenha.length < 6) {
-      addToast({ title: "A senha deve ter no mínimo 6 caracteres", variant: "error" });
+      setErro("A senha deve ter no mínimo 6 caracteres.");
       return;
     }
-
     if (novaSenha !== confirmar) {
-      addToast({ title: "As senhas não coincidem", variant: "error" });
+      setErro("As senhas não coincidem.");
       return;
     }
 
@@ -50,12 +80,12 @@ function RedefinirSenhaForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        addToast({ title: data.error || "Erro ao redefinir senha", variant: "error" });
+        setErro(data.error || "Não foi possível redefinir a senha.");
         return;
       }
       setSucesso(true);
     } catch {
-      addToast({ title: "Erro de conexão", variant: "error" });
+      setErro("Falha de conexão. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -63,180 +93,94 @@ function RedefinirSenhaForm() {
 
   if (!token) {
     return (
-      <div className="w-full max-w-sm text-center space-y-5">
-        <div className="h-16 w-16 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center mx-auto">
-          <AlertCircle className="h-8 w-8 text-red-500" />
+      <>
+        <div className="mb-5 flex size-12 items-center justify-center rounded-2xl bg-[#ba1d27]/20 text-[#ff9b9b]">
+          <AlertCircle className="size-6" />
         </div>
-        <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Link inválido</h2>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-2">
-            Este link de redefinição é inválido ou expirou.
-            Solicite um novo link de recuperação.
-          </p>
-        </div>
-        <Link href="/esqueci-senha">
-          <Button variant="neon" className="w-full">Solicitar novo link</Button>
+        <AuthCardHeader
+          eyebrow="Link inválido"
+          titulo="Este link expirou"
+          texto="O link de redefinição é inválido ou já foi usado. Peça um novo link de recuperação."
+        />
+        <Link href="/esqueci-senha" className={`${authButton} mt-7`}>
+          Solicitar novo link
         </Link>
-      </div>
+      </>
     );
   }
 
   if (sucesso) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-sm text-center space-y-5"
-      >
-        <div className="h-16 w-16 rounded-2xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="h-8 w-8 text-green-500" />
+      <>
+        <div className="mb-5 flex size-12 items-center justify-center rounded-2xl bg-[#d9b06b]/15 text-[#d9b06b]">
+          <CheckCircle2 className="size-6" />
         </div>
-        <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Senha redefinida!</h2>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-2">
-            Sua nova senha foi salva com sucesso. Agora você pode entrar na sua conta.
-          </p>
-        </div>
-        <Link href="/login">
-          <Button variant="neon" className="w-full">Ir para o login</Button>
+        <AuthCardHeader
+          eyebrow="Tudo certo"
+          titulo="Senha redefinida"
+          texto="Sua nova senha foi salva. Agora é só entrar no portal com ela."
+        />
+        <Link href="/login" className={`${authButton} mt-7`}>
+          <LogIn />
+          Ir para o login
         </Link>
-      </motion.div>
+      </>
     );
   }
 
   return (
-    <div className="w-full max-w-sm space-y-8">
-      {/* Mobile logo */}
-      <div className="flex lg:hidden items-center gap-2">
-        <div className="h-9 w-9 rounded-xl bg-zinc-900 dark:bg-zinc-800 flex items-center justify-center">
-          <Building2 className="h-4 w-4 text-green-400" />
-        </div>
-        <span className="font-bold text-zinc-900 dark:text-white">Portal de Financiamento Emobe</span>
-      </div>
+    <>
+      <AuthCardHeader
+        eyebrow="Nova senha"
+        titulo="Criar nova senha"
+        texto="Escolha uma senha segura, com no mínimo 6 caracteres."
+      />
 
-      <div className="flex flex-col items-center text-center">
-        <img src="/logo.png" alt="Emobe" className="h-20 w-auto object-contain mb-4" />
-        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">Nova senha</h2>
-        <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
-          Escolha uma senha segura com no mínimo 6 caracteres
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="nova">Nova senha</Label>
-          <div className="relative">
-            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            <Input
-              id="nova"
-              type={showNova ? "text" : "password"}
-              placeholder="Mínimo 6 caracteres"
-              value={novaSenha}
-              onChange={(e) => setNovaSenha(e.target.value)}
-              className="pl-10 pr-10"
-              required
-              autoFocus
-              autoComplete="new-password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowNova(!showNova)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
-            >
-              {showNova ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="confirmar">Confirmar senha</Label>
-          <div className="relative">
-            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            <Input
-              id="confirmar"
-              type={showConfirmar ? "text" : "password"}
-              placeholder="Repita a senha"
-              value={confirmar}
-              onChange={(e) => setConfirmar(e.target.value)}
-              className="pl-10 pr-10"
-              required
-              autoComplete="new-password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmar(!showConfirmar)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
-            >
-              {showConfirmar ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
+      <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+        <CampoSenha id="nova" label="Nova senha" value={novaSenha} onChange={setNovaSenha} placeholder="Mínimo 6 caracteres" autoFocus />
+        <div>
+          <CampoSenha id="confirmar" label="Confirmar senha" value={confirmar} onChange={setConfirmar} placeholder="Repita a senha" />
           {confirmar && novaSenha !== confirmar && (
-            <p className="text-xs text-red-500 mt-1">As senhas não coincidem</p>
+            <p className="mt-1.5 text-xs text-[#ff9b9b]">As senhas não coincidem</p>
           )}
         </div>
 
-        <Button type="submit" variant="neon" className="w-full" disabled={loading}>
-          {loading ? (
-            <><Loader2 className="h-4 w-4 animate-spin mr-2" />Salvando...</>
-          ) : (
-            "Salvar nova senha"
-          )}
-        </Button>
+        {erro && (
+          <p role="alert" className="flex items-start gap-2 rounded-lg bg-[#ba1d27]/20 px-3.5 py-2.5 text-[13px] text-[#ff9b9b]">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            {erro}
+          </p>
+        )}
+
+        <button type="submit" disabled={loading} className={authButton}>
+          {loading ? <Loader2 className="animate-spin" /> : <KeyRound />}
+          {loading ? "Salvando…" : "Salvar nova senha"}
+        </button>
       </form>
 
-      <div className="text-center">
-        <Link
-          href="/login"
-          className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-        >
-          Voltar para o login
-        </Link>
-      </div>
-    </div>
+      <Link
+        href="/login"
+        className="mt-4 inline-flex items-center gap-2 text-[13px] text-white/60 transition-colors hover:text-white"
+      >
+        <ArrowLeft className="size-3.5" />
+        Voltar para o login
+      </Link>
+    </>
   );
 }
 
 export default function RedefinirSenhaPage() {
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Painel esquerdo */}
-      <motion.div
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
-        className="hidden lg:flex lg:w-1/2 bg-zinc-950 text-white flex-col justify-between p-12"
-      >
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-zinc-800 flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-green-400" />
-          </div>
-          <span className="font-bold text-xl">Portal de Financiamento Emobe</span>
-        </div>
-        <div className="space-y-4">
-          <h1 className="text-4xl font-bold leading-tight">
-            Crie uma nova{" "}
-            <span className="text-green-400">senha segura</span>
-          </h1>
-          <p className="text-zinc-400 text-lg leading-relaxed">
-            Use uma senha forte e única para proteger o acesso ao seu processo de financiamento.
-          </p>
-        </div>
-        <p className="text-zinc-600 text-sm">
-          © {new Date().getFullYear()} Portal de Financiamento Emobe. Todos os direitos reservados.
-        </p>
-      </motion.div>
-
-      {/* Painel direito */}
-      <motion.div
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
-        className="flex-1 flex flex-col justify-center items-center px-6 py-12 bg-white dark:bg-zinc-950"
-      >
-        <Suspense fallback={<div className="text-zinc-400 text-sm">Carregando...</div>}>
-          <RedefinirSenhaForm />
-        </Suspense>
-      </motion.div>
-    </div>
+    <AuthShell
+      eyebrow="Recuperar acesso"
+      titulo="Crie uma nova senha,"
+      tituloItalico="segura e só sua."
+      descricao="Use uma senha forte e única para proteger o acesso ao seu processo de financiamento."
+    >
+      <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-white/[0.04]" />}>
+        <RedefinirSenhaForm />
+      </Suspense>
+      <AuthCardFooter />
+    </AuthShell>
   );
 }
