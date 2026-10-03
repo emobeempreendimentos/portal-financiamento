@@ -97,20 +97,18 @@ export async function POST(req: NextRequest) {
       ? new Date(data + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
       : new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
-    // ── Cabeçalho moderno (faixa escura) ──
-    doc.setFillColor(...DARK);
-    doc.rect(0, 0, pageWidth, 42, "F");
+    // ── Cabeçalho em fundo branco (economiza tinta na impressão) ──
     doc.setFillColor(...GREEN);
-    doc.rect(0, 42, pageWidth, 1.6, "F");
+    doc.rect(M, 42, contentW, 0.8, "F");
 
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(26);
-    doc.setTextColor(255, 255, 255);
+    doc.setTextColor(...DARK);
     doc.text("RECIBO", M, 26);
 
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(9);
-    doc.setTextColor(190, 190, 198);
+    doc.setTextColor(...GRAY);
     doc.text("DE PAGAMENTO", M, 33);
 
     if (numeroFmt) {
@@ -121,7 +119,7 @@ export async function POST(req: NextRequest) {
     }
     doc.setFont("Helvetica", "normal");
     doc.setFontSize(9);
-    doc.setTextColor(190, 190, 198);
+    doc.setTextColor(...GRAY);
     doc.text(dataFmt, pageWidth - M, 33, { align: "right" });
 
     // ── Card do valor ──
@@ -227,9 +225,9 @@ export async function POST(req: NextRequest) {
       doc.text(`${recLabel}: ${recebedorDoc}`, pageWidth / 2, sigY + 11.5, { align: "center" });
     }
 
-    // Faixa inferior de acento
+    // Linha inferior de acento (fina, para gastar pouca tinta)
     doc.setFillColor(...GREEN);
-    doc.rect(0, pageHeight - 6, pageWidth, 6, "F");
+    doc.rect(M, pageHeight - 12, contentW, 0.8, "F");
 
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
     return new NextResponse(pdfBuffer, {
