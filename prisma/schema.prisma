@@ -118,6 +118,7 @@ model Financiamento {
   id          String      @id @default(cuid())
   protocolo   Int         @unique @default(autoincrement())
   userId      String      @unique
+  tipo               String      @default("financiamento") // "financiamento" | "avista"
   statusGeral        String      @default("em_andamento")
   motivoCancelamento String?
   concluidoEm        DateTime?

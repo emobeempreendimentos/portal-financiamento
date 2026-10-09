@@ -2,15 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireAuth } from "@/lib/auth";
+import { etapasDoTipo, normalizarTipo } from "@/lib/tipoVenda";
 
-const ETAPAS_PADRAO = [
-  { nome: "Aprovação", ordem: 1 },
-  { nome: "Aprovação Engenharia", ordem: 2 },
-  { nome: "Assinatura de Contrato", ordem: 3 },
-  { nome: "ITBI", ordem: 4 },
-  { nome: "Registro", ordem: 5 },
-  { nome: "Entrega das Chaves", ordem: 6 },
-];
 
 export async function GET() {
   try {
@@ -47,6 +40,7 @@ export async function POST(request: NextRequest) {
     await requireAdmin();
     const body = await request.json();
     const { nome, email, senha, telefone, cpf, conjuge, banco } = body;
+    const tipo = normalizarTipo(body.tipo);
 
     if (!nome || !email || !senha) {
       return NextResponse.json(
@@ -88,13 +82,14 @@ export async function POST(request: NextRequest) {
         telefone: opt(telefone),
         cpf: cpfNorm,
         conjuge: opt(conjuge),
-        banco: opt(banco),
+        banco: tipo === "avista" ? null : opt(banco),
         role: "cliente",
         financiamento: {
           create: {
+            tipo,
             statusGeral: "em_andamento",
             etapas: {
-              create: ETAPAS_PADRAO.map((e) => ({
+              create: etapasDoTipo(tipo).map((e) => ({
                 nome: e.nome,
                 ordem: e.ordem,
                 status: "aguardando",

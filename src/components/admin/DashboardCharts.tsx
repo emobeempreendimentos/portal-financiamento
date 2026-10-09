@@ -6,6 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { User, Financiamento, Etapa } from "@/types";
+import { ETAPAS_TODAS } from "@/lib/tipoVenda";
 
 interface ClienteComFinanciamento extends User {
   financiamento?: (Financiamento & { etapas: Etapa[] }) | null;
@@ -21,14 +22,7 @@ const STATUS_COLORS: Record<string, string> = {
   "Pausado":      "#d6612f",
 };
 
-const ETAPAS_ORDEM = [
-  "Aprovação",
-  "Aprovação Engenharia",
-  "Assinatura de Contrato",
-  "ITBI",
-  "Registro",
-  "Entrega das Chaves",
-];
+const ETAPAS_ORDEM = ETAPAS_TODAS;
 
 export function DashboardCharts({ clientes }: DashboardChartsProps) {
   const [isDark, setIsDark] = useState(false);

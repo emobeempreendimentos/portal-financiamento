@@ -114,7 +114,7 @@ export default function RelatorioPage({ params }: { params: Promise<{ id: string
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="Emobe" className="header-logo" />
         <div className="header-right">
-          <h1>Relatório de Financiamento</h1>
+          <h1>{cliente.financiamento?.tipo === "avista" ? "Relatório de Compra à Vista" : "Relatório de Financiamento"}</h1>
           <p>Emobe Empreendimentos · contato@emobe.com.br</p>
           <p>financiamento.emobe.com.br</p>
         </div>

@@ -20,6 +20,8 @@ interface Props {
   dataInicio: string;
   clienteNome: string;
   protocolo?: number | null;
+  /** Tipo do processo: em vendas à vista não existe financiamento bancário. */
+  tipoProcesso?: "financiamento" | "avista";
 }
 
 /* ── tipos locais ── */
@@ -354,7 +356,8 @@ function CollapsibleCard({ title, icon: Icon, defaultOpen = true, summary, child
 }
 
 /* ── componente principal ── */
-export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, dataInicio, clienteNome, protocolo }: Props) {
+export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, dataInicio, clienteNome, protocolo, tipoProcesso = "financiamento" }: Props) {
+  const somenteAvista = tipoProcesso === "avista";
   const { addToast } = useToast();
   const [loading, setLoading]     = useState(true);
   const [saving, setSaving]       = useState(false);
@@ -374,6 +377,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
       const json = await res.json();
       if (json.data) {
         const vendaData = toFormVenda(json.data);
+        if (somenteAvista) vendaData.tipoVenda = "avista";
         const comissaoData = json.data.comissao ? toFormComissao(json.data.comissao) : emptyComissao();
         const contasData = (json.data.contasPagamento ?? []).map((cp: any) => ({
           tipo: cp.tipo as "vendedor" | "imobiliaria",
@@ -398,14 +402,14 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
         setHistorico(json.data.historico ?? []);
       } else {
         // Pré-preenche banco do processo
-        setVenda((p) => ({ ...p, bancoFinanciador: banco ?? "" }));
+        setVenda((p) => (somenteAvista ? { ...p, tipoVenda: "avista" } : { ...p, bancoFinanciador: banco ?? "" }));
       }
     } catch {
       addToast({ title: "Erro ao carregar dados financeiros", variant: "error" });
     } finally {
       setLoading(false);
     }
-  }, [financiamentoId, banco]);
+  }, [financiamentoId, banco, somenteAvista]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -526,8 +530,8 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
       <Card title="Informações da Venda" icon={DollarSign}>
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
-            <p className="text-xs text-zinc-400 mb-1">Banco / Tipo</p>
-            <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{banco || "Não informado"}</p>
+            <p className="text-xs text-zinc-400 mb-1">{somenteAvista ? "Tipo de venda" : "Banco / Tipo"}</p>
+            <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{somenteAvista ? "À vista" : banco || "Não informado"}</p>
           </div>
           <div>
             <p className="text-xs text-zinc-400 mb-1">Data de início</p>
@@ -553,7 +557,8 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
         </F>
       </Card>
 
-      {/* ── TOGGLE TIPO DE PAGAMENTO ── */}
+      {/* ── TOGGLE TIPO DE PAGAMENTO (vendas à vista não têm financiamento) ── */}
+      {!somenteAvista && (
       <div className="flex gap-2">
         {([
           { key: "financiamento", label: "Financiamento Bancário" },
@@ -569,6 +574,7 @@ export function FinanceiroTab({ financiamentoId, clienteId, banco, statusGeral, 
           </button>
         ))}
       </div>
+      )}
 
       {/* ── FINANCIAMENTO BANCÁRIO ── */}
       <AnimatePresence mode="wait">

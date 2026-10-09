@@ -5,9 +5,10 @@ import { TrendingUp } from "lucide-react";
 
 interface ProgressBarProps {
   progresso: number;
+  titulo?: string;
 }
 
-export function ProgressBar({ progresso }: ProgressBarProps) {
+export function ProgressBar({ progresso, titulo = "Progresso do Financiamento" }: ProgressBarProps) {
   return (
     <div className="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex items-center justify-between mb-4">
@@ -16,7 +17,7 @@ export function ProgressBar({ progresso }: ProgressBarProps) {
             <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-white">Progresso do Financiamento</p>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-white">{titulo}</p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">Acompanhe o andamento das etapas</p>
           </div>
         </div>

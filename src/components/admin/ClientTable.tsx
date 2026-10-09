@@ -155,6 +155,11 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
                         <p className="font-medium text-sm text-zinc-900 dark:text-white truncate">
                           {cliente.nome}
                         </p>
+                        {cliente.financiamento?.tipo === "avista" && (
+                          <span className="shrink-0 rounded-md bg-[#f9edd8] px-1.5 py-0.5 text-[10px] font-semibold text-[#70521d] dark:bg-[#332710] dark:text-[#edc889]">
+                            À vista
+                          </span>
+                        )}
                       </div>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{cliente.email}</p>
                       {cliente.imovelVenda && (

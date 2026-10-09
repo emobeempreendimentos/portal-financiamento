@@ -8,6 +8,7 @@ import { Etapa } from "@/types";
 interface Props {
   etapas: Etapa[];
   onDismiss: () => void;
+  textoAndamento?: string;
 }
 
 const COLORS = [
@@ -126,7 +127,7 @@ function Confetti({ active }: { active: boolean }) {
   );
 }
 
-export function CelebrationOverlay({ etapas, onDismiss }: Props) {
+export function CelebrationOverlay({ etapas, onDismiss, textoAndamento = "Seu financiamento está avançando! Continue acompanhando." }: Props) {
   const visible = etapas.length > 0;
   const isMultiple = etapas.length > 1;
   const isAll = etapas.some((e) => e.nome === "Entrega das Chaves");
@@ -228,7 +229,7 @@ export function CelebrationOverlay({ etapas, onDismiss }: Props) {
                 >
                   {isAll
                     ? "🎊 Parabéns! Você concluiu todo o processo!"
-                    : "Seu financiamento está avançando! Continue acompanhando."}
+                    : textoAndamento}
                 </motion.p>
 
                 <motion.button

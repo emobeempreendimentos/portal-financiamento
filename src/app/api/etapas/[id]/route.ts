@@ -70,6 +70,7 @@ export async function PATCH(
           clienteNome,
           etapaNome: etapaAtual.nome,
           status,
+          tipo: etapaAtual.financiamento.tipo,
         }); // fire-and-forget — não bloqueia a resposta
       }
 

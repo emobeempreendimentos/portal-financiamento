@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2, Hash, DollarSign, Settings, Pencil } from "lucide-react";
+import { ArrowLeft, Save, User as UserIcon, KeyRound, Eye, EyeOff, Users, XCircle, RotateCcw, FileDown, Play, PauseCircle, CheckCircle2, Hash, DollarSign, Settings, Pencil, Landmark, Banknote, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import { InteracoesPanel } from "@/components/dashboard/InteracoesPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { calcularProgresso, getInitials } from "@/lib/utils";
+import { TEXTOS_TIPO, textosTipo } from "@/lib/tipoVenda";
 import { User, Financiamento, Etapa, Historico, Pendencia } from "@/types";
 
 function diasSemMovimento(updatedAt?: string | null): number {
@@ -133,6 +134,29 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
+  const [trocandoTipo, setTrocandoTipo] = useState(false);
+
+  async function handleTrocarTipo(novo: "financiamento" | "avista") {
+    if (!cliente?.financiamento?.id) return;
+    const rotulo = TEXTOS_TIPO[novo].rotulo.toLowerCase();
+    if (!window.confirm(`Trocar este processo para venda ${rotulo}? As etapas serão recriadas.`)) return;
+    setTrocandoTipo(true);
+    try {
+      const res = await fetch(`/api/admin/financiamentos/${cliente.financiamento.id}/tipo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: novo }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Erro ao trocar o tipo");
+      addToast({ title: `Processo alterado para venda ${rotulo}`, variant: "success" });
+      window.location.reload();
+    } catch (err) {
+      addToast({ title: err instanceof Error ? err.message : "Erro ao trocar o tipo", variant: "error" });
+      setTrocandoTipo(false);
+    }
+  }
+
   async function handleUpdateEtapa(etapaId: string, data: Partial<Etapa>) {
     const res = await fetch(`/api/etapas/${etapaId}`, {
       method: "PATCH",
@@ -227,6 +251,13 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
   const etapas = cliente.financiamento?.etapas || [];
   const historico = cliente.financiamento?.historico || [];
   const progresso = calcularProgresso(etapas);
+  const tipoProc = cliente.financiamento?.tipo === "avista" ? "avista" : "financiamento";
+  const t = textosTipo(tipoProc);
+  const podeTrocarTipo =
+    !!cliente.financiamento &&
+    ["em_andamento", "pausado"].includes(cliente.financiamento.statusGeral) &&
+    etapas.length > 0 &&
+    etapas.every((e) => e.status === "aguardando");
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -248,6 +279,12 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
                   <span className="inline-flex items-center gap-1 text-xs font-mono font-medium text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md">
                     <Hash className="h-3 w-3" />
                     EMB-{String(cliente.financiamento.protocolo).padStart(5, "0")}
+                  </span>
+                )}
+                {cliente.financiamento && (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-[#f9edd8] px-2 py-0.5 text-xs font-semibold text-[#70521d] dark:bg-[#332710] dark:text-[#edc889]">
+                    {tipoProc === "avista" ? <Banknote className="h-3 w-3" /> : <Landmark className="h-3 w-3" />}
+                    {tipoProc === "avista" ? "Venda à vista" : "Venda financiada"}
                   </span>
                 )}
               </div>
@@ -285,7 +322,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Progress */}
-      <ProgressBar progresso={progresso} />
+      <ProgressBar progresso={progresso} titulo={`Progresso ${t.doTitulo}`} />
 
       {/* Tab navigation */}
       <div className="flex gap-1 p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl w-fit">
@@ -315,6 +352,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             financiamentoId={cliente.financiamento.id}
             clienteId={id}
             banco={cliente.banco}
+            tipoProcesso={tipoProc}
             statusGeral={cliente.financiamento.statusGeral}
             dataInicio={cliente.financiamento.createdAt}
             clienteNome={cliente.nome}
@@ -389,7 +427,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
             { name: "cpf", label: "CPF", type: "text" },
             { name: "conjuge", label: "Cônjuge (nome)", type: "text" },
             { name: "banco", label: "Banco Financiador", type: "text" },
-          ].map((field) => (
+          ].filter((field) => !(field.name === "banco" && tipoProc === "avista")).map((field) => (
             <div key={field.name} className="space-y-1">
               <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{field.label}</p>
               {editing ? (
@@ -584,7 +622,20 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
           transition={{ delay: 0.1 }}
           className="rounded-[20px] bg-white dark:bg-zinc-900 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06] p-6"
         >
-          <h2 className="font-semibold text-zinc-900 dark:text-white mb-4">Etapas do Financiamento</h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-semibold text-zinc-900 dark:text-white">Etapas {t.doTitulo}</h2>
+            {podeTrocarTipo && (
+              <button
+                onClick={() => handleTrocarTipo(tipoProc === "avista" ? "financiamento" : "avista")}
+                disabled={trocandoTipo}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#8b682b] ring-1 ring-[#f2dbb6] transition-colors hover:bg-[#f9edd8] disabled:opacity-50 dark:text-[#d9b06b] dark:ring-[#553e15] dark:hover:bg-[#332710]"
+                title="Disponível enquanto nenhuma etapa foi iniciada"
+              >
+                <Repeat className="h-3.5 w-3.5" />
+                Trocar para venda {tipoProc === "avista" ? "financiada" : "à vista"}
+              </button>
+            )}
+          </div>
           <div className="space-y-3">
             {etapas.map((etapa) => (
               <EditStepForm key={etapa.id} etapa={etapa} onUpdate={handleUpdateEtapa} />
@@ -658,7 +709,7 @@ export default function ClienteDetailPage({ params }: { params: Promise<{ id: st
                   className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 resize-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
                 />
                 <p className="text-xs text-zinc-400">
-                  A justificativa será exibida para o cliente no acesso dele.
+                  A justificativa fica registrada só para a equipe; o cliente não a vê.
                 </p>
               </div>
               <Button

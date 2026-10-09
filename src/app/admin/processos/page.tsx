@@ -10,9 +10,10 @@ import {
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import {
-  ETAPAS_ORDEM, LIMITES_OPCOES, PROCESSOS_CHANGED_EVENT, Processo,
+  LIMITES_OPCOES, PROCESSOS_CHANGED_EVENT, Processo,
   diasDesde, fmtProtocolo, lerLimiteParado, salvarLimiteParado,
 } from "@/lib/processos";
+import { ETAPAS_POR_TIPO, TipoVenda } from "@/lib/tipoVenda";
 
 const COLUNA_COR = ["#c49e62", "#b28d21", "#d6612f", "#7c3990", "#215da5", "#1b9673"];
 
@@ -32,6 +33,8 @@ export default function ProcessosPage() {
   const [processos, setProcessos] = useState<Processo[]>([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState("");
+  const [quadro, setQuadro] = useState<TipoVenda>("financiamento");
+  const etapasQuadro = ETAPAS_POR_TIPO[quadro];
   const [soParados, setSoParados] = useState(false);
   const [limite, setLimite] = useState(7);
   const [arrastando, setArrastando] = useState<string | null>(null);
@@ -59,6 +62,7 @@ export default function ProcessosPage() {
   const filtrados = useMemo(() => {
     const q = busca.trim().toLowerCase();
     return processos.filter((p) => {
+      if (p.tipo !== quadro) return false;
       if (soParados && (p.statusGeral !== "em_andamento" || diasDesde(p.ultimaMovimentacao) < limite)) return false;
       if (!q) return true;
       return (
@@ -68,10 +72,10 @@ export default function ProcessosPage() {
         (p.banco ?? "").toLowerCase().includes(q)
       );
     });
-  }, [processos, busca, soParados, limite]);
+  }, [processos, busca, soParados, limite, quadro]);
 
   const colunas = useMemo(() => {
-    const cols: Processo[][] = ETAPAS_ORDEM.map(() => []);
+    const cols: Processo[][] = etapasQuadro.map(() => []);
     for (const p of filtrados) {
       const c = Math.min(colunaDe(p), cols.length - 1);
       cols[c].push(p);
@@ -80,12 +84,14 @@ export default function ProcessosPage() {
       col.sort((a, b) => diasDesde(b.ultimaMovimentacao) - diasDesde(a.ultimaMovimentacao));
     }
     return cols;
-  }, [filtrados]);
+  }, [filtrados, etapasQuadro]);
 
-  const totalParados = processos.filter(
+  const doQuadro = processos.filter((p) => p.tipo === quadro);
+  const contagem = (t: TipoVenda) => processos.filter((p) => p.tipo === t).length;
+  const totalParados = doQuadro.filter(
     (p) => p.statusGeral === "em_andamento" && diasDesde(p.ultimaMovimentacao) >= limite
   ).length;
-  const totalPausados = processos.filter((p) => p.statusGeral === "pausado").length;
+  const totalPausados = doQuadro.filter((p) => p.statusGeral === "pausado").length;
 
   function pedirMovimento(processo: Processo, destino: number) {
     const origem = colunaDe(processo);
@@ -189,11 +195,38 @@ export default function ProcessosPage() {
         </div>
       </div>
 
+      {/* Tipo de venda */}
+      <div className="flex w-fit gap-1 rounded-2xl bg-zinc-200/60 p-1 dark:bg-zinc-800/60">
+        {([
+          { key: "financiamento", label: "Financiados" },
+          { key: "avista", label: "À vista" },
+        ] as const).map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setQuadro(t.key)}
+            className={cn(
+              "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all",
+              quadro === t.key
+                ? "bg-white text-zinc-950 shadow-sm dark:bg-zinc-900 dark:text-white"
+                : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+            )}
+          >
+            {t.label}
+            <span className={cn(
+              "rounded-full px-1.5 py-0.5 text-[10px] font-bold",
+              quadro === t.key ? "bg-[#c49e62] text-[#1d1406]" : "bg-zinc-300/70 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+            )}>
+              {contagem(t.key)}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* Resumo */}
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-[20px] bg-white dark:bg-zinc-900 p-4 shadow-soft ring-1 ring-zinc-900/[0.04] dark:ring-white/[0.06]">
           <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Processos ativos</p>
-          <p className="mt-1.5 font-display text-[28px] font-bold leading-none tracking-[-0.04em] text-zinc-950 dark:text-white">{processos.length}</p>
+          <p className="mt-1.5 font-display text-[28px] font-bold leading-none tracking-[-0.04em] text-zinc-950 dark:text-white">{doQuadro.length}</p>
         </div>
         <button
           onClick={() => setSoParados((v) => !v)}
@@ -226,14 +259,14 @@ export default function ProcessosPage() {
       {/* Quadro */}
       {loading ? (
         <div className="flex gap-4 overflow-hidden">
-          {ETAPAS_ORDEM.map((e) => (
+          {etapasQuadro.map((e) => (
             <div key={e} className="h-80 min-w-[260px] flex-1 animate-pulse rounded-[20px] bg-zinc-200/60 dark:bg-zinc-800/60" />
           ))}
         </div>
       ) : (
         <div className="-mx-4 overflow-x-auto px-4 pb-4 md:-mx-8 md:px-8">
           <div className="flex min-w-max gap-4">
-            {ETAPAS_ORDEM.map((nomeEtapa, ci) => {
+            {etapasQuadro.map((nomeEtapa, ci) => {
               const cards = colunas[ci];
               const alvo = colunaAlvo === ci && arrastando !== null;
               return (

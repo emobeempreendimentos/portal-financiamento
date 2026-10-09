@@ -11,13 +11,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { calcularProgresso, daysBetween, daysSince, cn } from "@/lib/utils";
 import { User, Financiamento, Etapa, Historico } from "@/types";
+import { ETAPA_ICONS, ETAPA_ABREV } from "@/lib/etapaIcons";
+import { textosTipo } from "@/lib/tipoVenda";
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
   Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import {
-  CheckCircle2, Loader2, FileCheck, Wrench, PenLine,
-  Receipt, BookOpen, KeyRound, Building, Clock, Hash,
+  CheckCircle2, Loader2, FileCheck,
+  Building, Clock, Hash,
 } from "lucide-react";
 
 interface DashboardData extends User {
@@ -27,20 +29,6 @@ interface DashboardData extends User {
   }) | null;
 }
 
-const ETAPA_ICONS: Record<string, React.ElementType> = {
-  "Aprovação": FileCheck,
-  "Aprovação Engenharia": Wrench,
-  "Assinatura de Contrato": PenLine,
-  "ITBI": Receipt,
-  "Registro": BookOpen,
-  "Entrega das Chaves": KeyRound,
-};
-
-const NOME_ABREV: Record<string, string> = {
-  "Aprovação Engenharia": "Apr. Eng.",
-  "Assinatura de Contrato": "Contrato",
-  "Entrega das Chaves": "Entrega",
-};
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -154,7 +142,7 @@ export default function DashboardPage() {
             </h1>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-2 leading-relaxed">
               {cancelado
-                ? "Infelizmente seu processo de financiamento foi cancelado. Entre em contato conosco para mais informações."
+                ? "Infelizmente seu processo foi cancelado. Entre em contato conosco para mais informações."
                 : "Seu processo foi concluído com sucesso! O acesso ao portal expirou 3 dias após a conclusão."}
             </p>
           </div>
@@ -182,6 +170,8 @@ export default function DashboardPage() {
   if (!data) return null;
 
   const etapas = data.financiamento?.etapas || [];
+  const avista = data.financiamento?.tipo === "avista";
+  const t = textosTipo(data.financiamento?.tipo);
 
   const historico = data.financiamento?.historico || [];
   const progresso = calcularProgresso(etapas);
@@ -190,7 +180,7 @@ export default function DashboardPage() {
   const totalDias = data.financiamento ? daysSince(data.financiamento.createdAt) : 0;
 
   const chartData = etapas.map((e) => ({
-    nome: NOME_ABREV[e.nome] || e.nome,
+    nome: ETAPA_ABREV[e.nome] || e.nome,
     dias:
       e.status === "concluido"
         ? daysBetween(e.dataInicio, e.dataConclusao)
@@ -204,7 +194,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <CelebrationOverlay etapas={novasEtapas} onDismiss={() => setNovasEtapas([])} />
+      <CelebrationOverlay etapas={novasEtapas} onDismiss={() => setNovasEtapas([])} textoAndamento={`${t.seu.charAt(0).toUpperCase()}${t.seu.slice(1)} está avançando! Continue acompanhando.`} />
       <Header user={data} darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
       <main className="max-w-4xl mx-auto px-4 pt-6 pb-8 space-y-5">
@@ -244,11 +234,11 @@ export default function DashboardPage() {
                 </span>
                 <h1 className="mt-4 text-3xl md:text-[42px] font-extrabold tracking-[-0.04em] text-white truncate leading-[1.05]">{data.nome.split(" ")[0]}<span className="text-[#c49e62]">.</span></h1>
                 <p className="text-sm md:text-[15px] text-white/60 mt-2.5">
-                  Acompanhe cada etapa do seu financiamento{" "}
+                  Acompanhe cada etapa {avista ? "da sua compra" : "do seu financiamento"}{" "}
                   <span className="bg-gradient-to-r from-[#f2dbb6] to-[#c49e62] bg-clip-text font-semibold text-transparent">em tempo real</span>.
                 </p>
                 <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-3 gap-y-1 mt-3">
-                  {data.banco && (
+                  {data.banco && !avista && (
                     <p className="text-sm text-white/85 flex items-center gap-1">
                       <Building className="h-3.5 w-3.5 shrink-0 text-[#d9b06b]" />
                       {data.banco}
@@ -331,7 +321,7 @@ export default function DashboardPage() {
                 className="mt-5 rounded-2xl border border-[#c49e62]/40 bg-[#c49e62]/10 backdrop-blur-sm p-3.5 text-center"
               >
                 <p className="text-sm font-semibold text-[#f2dbb6]">
-                  🎉 Parabéns! Seu financiamento foi concluído com sucesso!
+                  🎉 Parabéns! {avista ? "Sua compra foi concluída" : "Seu financiamento foi concluído"} com sucesso!
                 </p>
               </motion.div>
             )}
@@ -518,7 +508,7 @@ export default function DashboardPage() {
 
         {/* ── DADOS DO CLIENTE (editável) ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <ClientInfo user={data} onUpdate={handleUpdateUser} />
+          <ClientInfo user={data} onUpdate={handleUpdateUser} mostrarBanco={!avista} />
         </motion.div>
 
         {/* ── INTERAÇÕES ── */}

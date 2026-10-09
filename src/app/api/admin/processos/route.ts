@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import type { Processo, ProcessoEtapa } from "@/lib/processos";
+import { normalizarTipo } from "@/lib/tipoVenda";
 
 // GET /api/admin/processos — processos ativos (em andamento/pausados) para o quadro e o alerta de parados
 export async function GET() {
@@ -13,6 +14,7 @@ export async function GET() {
       select: {
         id: true,
         protocolo: true,
+        tipo: true,
         statusGeral: true,
         createdAt: true,
         user: { select: { id: true, nome: true, banco: true } },
@@ -43,6 +45,7 @@ export async function GET() {
         userId: f.user.id,
         nome: f.user.nome,
         protocolo: f.protocolo,
+        tipo: normalizarTipo(f.tipo),
         banco: f.user.banco,
         statusGeral: f.statusGeral as Processo["statusGeral"],
         etapas: f.etapas.map((e) => ({

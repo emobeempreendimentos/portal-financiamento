@@ -66,6 +66,7 @@ export interface Financiamento {
   id: string;
   protocolo: number;
   userId: string;
+  tipo?: "financiamento" | "avista";
   statusGeral: StatusGeral;
   motivoCancelamento?: string | null;
   concluidoEm?: string | null;

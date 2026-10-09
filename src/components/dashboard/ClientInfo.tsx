@@ -13,9 +13,11 @@ import { User as UserType } from "@/types";
 interface ClientInfoProps {
   user: UserType;
   onUpdate: (data: Partial<UserType>) => Promise<void>;
+  /** Vendas à vista não têm banco financiador. */
+  mostrarBanco?: boolean;
 }
 
-export function ClientInfo({ user, onUpdate }: ClientInfoProps) {
+export function ClientInfo({ user, onUpdate, mostrarBanco = true }: ClientInfoProps) {
   const [editing, setEditing] = useState(false);
   const [email, setEmail] = useState(user.email);
   const [telefone, setTelefone] = useState(user.telefone || "");
@@ -38,7 +40,7 @@ export function ClientInfo({ user, onUpdate }: ClientInfoProps) {
   const infoItems = [
     { icon: CreditCard, label: "CPF", value: user.cpf ? formatCPF(user.cpf) : "—" },
     { icon: UserCheck, label: "Cônjuge", value: user.conjuge || "—" },
-    { icon: Building, label: "Banco Financiador", value: user.banco || "—" },
+    ...(mostrarBanco ? [{ icon: Building, label: "Banco Financiador", value: user.banco || "—" }] : []),
   ];
 
   return (

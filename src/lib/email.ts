@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { textosTipo } from "@/lib/tipoVenda";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -24,7 +25,8 @@ const STATUS_MSG: Record<string, string> = {
   concluido: "foi concluída com sucesso!",
 };
 
-function buildEmailHtml(clienteNome: string, etapaNome: string, status: string): string {
+function buildEmailHtml(clienteNome: string, etapaNome: string, status: string, tipo?: string): string {
+  const t = textosTipo(tipo);
   const cor = STATUS_COLOR[status] || "#6b7280";
   const label = STATUS_LABEL[status] || status;
   const msg = STATUS_MSG[status] || "foi atualizada.";
@@ -35,7 +37,7 @@ function buildEmailHtml(clienteNome: string, etapaNome: string, status: string):
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Atualização no seu financiamento</title>
+  <title>Atualização no seu ${t.processo}</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:'Segoe UI',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;">
@@ -53,7 +55,7 @@ function buildEmailHtml(clienteNome: string, etapaNome: string, status: string):
         <tr>
           <td style="background:#18181b;padding:16px 32px;">
             <p style="margin:0;color:#ffffff;font-size:14px;font-weight:600;letter-spacing:0.02em;">
-              Atualização no seu processo de financiamento
+              Atualização no seu ${t.processo}
             </p>
           </td>
         </tr>
@@ -65,7 +67,7 @@ function buildEmailHtml(clienteNome: string, etapaNome: string, status: string):
               Olá, ${clienteNome}!
             </p>
             <p style="margin:0 0 24px;font-size:15px;color:#52525b;line-height:1.6;">
-              Seu processo de financiamento teve uma atualização. Veja o que mudou:
+              Seu ${t.processo} teve uma atualização. Veja o que mudou:
             </p>
 
             <!-- Card da etapa -->
@@ -90,7 +92,7 @@ function buildEmailHtml(clienteNome: string, etapaNome: string, status: string):
             </table>
 
             <p style="margin:0 0 24px;font-size:14px;color:#6b7280;line-height:1.6;">
-              Acesse o portal para acompanhar o progresso completo do seu financiamento e ver todas as etapas em tempo real.
+              Acesse o portal para acompanhar todas as etapas do seu processo em tempo real.
             </p>
 
             <!-- Botão CTA -->
@@ -136,11 +138,13 @@ export async function sendEtapaNotification({
   clienteNome,
   etapaNome,
   status,
+  tipo,
 }: {
   clienteEmail: string;
   clienteNome: string;
   etapaNome: string;
   status: string;
+  tipo?: string;
 }) {
   if (!process.env.RESEND_API_KEY) {
     console.log("[email] RESEND_API_KEY não configurado — email não enviado.");
@@ -151,8 +155,8 @@ export async function sendEtapaNotification({
     await resend.emails.send({
       from: FROM,
       to: clienteEmail,
-      subject: `Atualização no seu financiamento — ${etapaNome}`,
-      html: buildEmailHtml(clienteNome, etapaNome, status),
+      subject: `Atualização no seu ${textosTipo(tipo).processo} — ${etapaNome}`,
+      html: buildEmailHtml(clienteNome, etapaNome, status, tipo),
     });
     console.log(`[email] Notificação enviada para ${clienteEmail} — etapa: ${etapaNome}`);
   } catch (err) {

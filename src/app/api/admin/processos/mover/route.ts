@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
         clienteNome: financiamento.user.nome,
         etapaNome: destino.nome,
         status: "em_andamento",
+        tipo: financiamento.tipo,
       });
     }
 

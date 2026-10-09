@@ -2,15 +2,6 @@
 
 export const PROCESSOS_CHANGED_EVENT = "processos:changed";
 
-export const ETAPAS_ORDEM = [
-  "Aprovação",
-  "Aprovação Engenharia",
-  "Assinatura de Contrato",
-  "ITBI",
-  "Registro",
-  "Entrega das Chaves",
-] as const;
-
 export interface ProcessoEtapa {
   id: string;
   nome: string;
@@ -23,6 +14,7 @@ export interface Processo {
   userId: string;
   nome: string;
   protocolo: number;
+  tipo: "financiamento" | "avista";
   banco: string | null;
   statusGeral: "em_andamento" | "pausado";
   etapas: ProcessoEtapa[];
