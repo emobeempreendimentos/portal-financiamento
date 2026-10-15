@@ -175,8 +175,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { titulo, tipo, tipoOutro, destinatario, corpo } = body;
 
-    if (!titulo?.trim() || !corpo?.trim()) {
-      return NextResponse.json({ error: "Título e conteúdo são obrigatórios" }, { status: 400 });
+    if (!corpo?.trim()) {
+      return NextResponse.json({ error: "O conteúdo é obrigatório" }, { status: 400 });
     }
 
     const tituloTipo =
@@ -209,9 +209,11 @@ export async function POST(req: NextRequest) {
     // ── Subtítulo (título informado) ──
     doc.setFont("Times", "bold");
     doc.setFontSize(12.5);
-    const tituloLinhas: string[] = doc.splitTextToSize(String(titulo).trim(), contentW);
-    doc.text(tituloLinhas, M, y);
-    y += tituloLinhas.length * 6.8 + 8;
+    if (String(titulo || "").trim()) {
+      const tituloLinhas: string[] = doc.splitTextToSize(String(titulo).trim(), contentW);
+      doc.text(tituloLinhas, M, y);
+      y += tituloLinhas.length * 6.8 + 8;
+    }
 
     // ── Destinatário ──
     doc.setTextColor(...BODY);
@@ -290,7 +292,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${String(titulo).trim().replace(/\s+/g, "-")}.pdf"`,
+        "Content-Disposition": `attachment; filename="${(String(titulo || "").trim() || tituloTipo).replace(/\s+/g, "-")}.pdf"`,
       },
     });
   } catch (error) {

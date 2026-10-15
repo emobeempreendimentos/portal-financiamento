@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
     await requireAdmin();
     const body = await req.json();
 
-    if (!body.titulo?.trim() || !body.corpo?.trim()) {
-      return NextResponse.json({ success: false, error: "Informe o título e o conteúdo do termo" }, { status: 400 });
+    if (!body.corpo?.trim()) {
+      return NextResponse.json({ success: false, error: "Informe o conteúdo do termo" }, { status: 400 });
     }
 
     const saved = await prisma.termoEnvio.create({ data: toData(body) });

@@ -51,6 +51,12 @@ function tipoBadgeLabel(t: TermoRow): string {
   return TIPOS.find((x) => x.value === t.tipo)?.label ?? t.tipo;
 }
 
+/** Nome para listas: o título, ou o tipo + destinatário quando o título ficou em branco. */
+function nomeTermo(t: TermoRow): string {
+  if (t.titulo?.trim()) return t.titulo.trim();
+  return t.destinatario?.trim() ? `${tipoBadgeLabel(t)} — ${t.destinatario.trim()}` : tipoBadgeLabel(t);
+}
+
 export default function TermosPage() {
   const router = useRouter();
   const { addToast } = useToast();
@@ -70,7 +76,7 @@ export default function TermosPage() {
   const editorRef = useRef<HTMLDivElement>(null);
 
   const textoPuro = corpoHtml.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
-  const podeGerar = titulo.trim().length > 0 && textoPuro.length > 0 && !(tipo === "outro" && !tipoOutro.trim());
+  const podeGerar = textoPuro.length > 0 && !(tipo === "outro" && !tipoOutro.trim());
 
   // ── Editor de texto rico (contentEditable) ──
   function setEditorHtml(html: string) {
@@ -140,7 +146,7 @@ export default function TermosPage() {
 
   async function gerar() {
     if (!podeGerar) {
-      addToast({ title: "Preencha o título e o conteúdo", variant: "error" });
+      addToast({ title: "Preencha o conteúdo do documento", variant: "error" });
       return;
     }
     const ok = await salvar();
@@ -159,7 +165,7 @@ export default function TermosPage() {
     setEditorHtml(t.corpo || "");
     setCurrentId(t.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
-    addToast({ title: `"${t.titulo}" reaberto`, variant: "success" });
+    addToast({ title: `"${nomeTermo(t)}" reaberto`, variant: "success" });
   }
 
   function novoTermo() {
@@ -271,7 +277,7 @@ export default function TermosPage() {
 
             {/* Título */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Título</label>
+              <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Título (opcional)</label>
               <input
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
@@ -367,7 +373,7 @@ export default function TermosPage() {
             </button>
           </div>
           {!podeGerar && (
-            <p className="text-xs text-zinc-400">Preencha o título e o conteúdo para liberar o PDF.</p>
+            <p className="text-xs text-zinc-400">Preencha o conteúdo para liberar o PDF.</p>
           )}
 
           {/* Últimos documentos */}
@@ -386,7 +392,7 @@ export default function TermosPage() {
                       : "border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700"
                   }`}>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{t.titulo}</p>
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{nomeTermo(t)}</p>
                       <p className="text-xs text-zinc-400 truncate">
                         {tipoBadgeLabel(t)} · {new Date(t.createdAt).toLocaleDateString("pt-BR")}
                       </p>
@@ -398,7 +404,7 @@ export default function TermosPage() {
                       Reabrir
                     </button>
                     <button
-                      onClick={() => excluirTermo(t.id, t.titulo)}
+                      onClick={() => excluirTermo(t.id, nomeTermo(t))}
                       className="shrink-0 p-1.5 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                       title="Excluir"
                     >

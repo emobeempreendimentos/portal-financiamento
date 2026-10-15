@@ -24,8 +24,8 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    if (!body.titulo?.trim() || !body.corpo?.trim()) {
-      return NextResponse.json({ success: false, error: "Informe o título e o conteúdo do termo" }, { status: 400 });
+    if (!body.corpo?.trim()) {
+      return NextResponse.json({ success: false, error: "Informe o conteúdo do termo" }, { status: 400 });
     }
 
     const saved = await prisma.termoEnvio.update({ where: { id }, data: toData(body) });
