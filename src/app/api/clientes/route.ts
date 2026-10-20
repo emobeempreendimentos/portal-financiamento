@@ -18,11 +18,13 @@ export async function GET() {
       },
     });
 
-    // Filtra encerrados (cancelado/concluido) e ordena por última movimentação
-    const STATUS_ENCERRADO = ["cancelado", "concluido"];
+    // Cancelados ficam de fora (têm painel próprio no dashboard). Ativos primeiro,
+    // concluídos depois; dentro de cada grupo, pela última movimentação.
+    const concluido = (c: (typeof todos)[number]) => c.financiamento?.statusGeral === "concluido";
     const clientes = todos
-      .filter((c) => !c.financiamento || !STATUS_ENCERRADO.includes(c.financiamento.statusGeral))
+      .filter((c) => c.financiamento?.statusGeral !== "cancelado")
       .sort((a, b) => {
+        if (concluido(a) !== concluido(b)) return concluido(a) ? 1 : -1;
         const aT = a.financiamento?.updatedAt ? new Date(a.financiamento.updatedAt).getTime() : new Date(a.createdAt).getTime();
         const bT = b.financiamento?.updatedAt ? new Date(b.financiamento.updatedAt).getTime() : new Date(b.createdAt).getTime();
         return bT - aT;

@@ -127,9 +127,11 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
                 const progresso = cliente.financiamento
                   ? calcularProgresso(cliente.financiamento.etapas)
                   : 0;
-                const etapaAtual = cliente.financiamento?.etapas.find(
-                  (e) => e.status === "em_andamento"
-                )?.nome || (progresso === 100 ? "Concluído" : "Não iniciado");
+                const processoConcluido = cliente.financiamento?.statusGeral === "concluido";
+                const etapaAtual = processoConcluido
+                  ? "Concluído"
+                  : cliente.financiamento?.etapas.find((e) => e.status === "em_andamento")?.nome ||
+                    (progresso === 100 ? "Concluído" : "Não iniciado");
                 const statusAtivo = ["em_andamento", "pausado"].includes(
                   cliente.financiamento?.statusGeral || ""
                 );
@@ -183,7 +185,7 @@ export function ClientTable({ clientes, onDelete }: ClientTableProps) {
 
                     {/* Etapa atual */}
                     <div className="hidden md:block w-36">
-                      <Badge variant={progresso === 100 ? "success" : "info"} className="text-xs">
+                      <Badge variant={progresso === 100 || processoConcluido ? "success" : "info"} className="text-xs">
                         {etapaAtual}
                       </Badge>
                     </div>
