@@ -36,6 +36,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Etapa não pertence a este processo" }, { status: 400 });
     }
 
+    if (etapas[destinoIdx].status === "dispensado") {
+      return NextResponse.json({ success: false, error: "Esta etapa foi dispensada para este processo" }, { status: 400 });
+    }
+
     const atualIdx = (() => {
       const emAndamento = etapas.findIndex((e) => e.status === "em_andamento");
       if (emAndamento !== -1) return emAndamento;
@@ -53,8 +57,9 @@ export async function POST(request: NextRequest) {
     const avancou = destinoIdx >= atualIdx;
 
     await prisma.$transaction([
+      // Etapas dispensadas não se aplicam ao processo: ficam como estão ao avançar ou voltar.
       ...etapas.slice(0, destinoIdx)
-        .filter((e) => e.status !== "concluido")
+        .filter((e) => e.status !== "concluido" && e.status !== "dispensado")
         .map((e) =>
           prisma.etapa.update({
             where: { id: e.id },
@@ -74,7 +79,7 @@ export async function POST(request: NextRequest) {
         },
       }),
       ...etapas.slice(destinoIdx + 1)
-        .filter((e) => e.status !== "aguardando")
+        .filter((e) => e.status !== "aguardando" && e.status !== "dispensado")
         .map((e) =>
           prisma.etapa.update({
             where: { id: e.id },

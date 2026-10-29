@@ -54,17 +54,21 @@ const ETAPA_STATUS_COR: Record<string, string> = {
   aguardando: "#94a3b8",
   em_andamento: "#f59e0b",
   concluido: "#c49e62",
+  dispensado: "#cbd5e1",
 };
 
 const ETAPA_STATUS_LABEL: Record<string, string> = {
   aguardando: "Aguardando",
   em_andamento: "Em Andamento",
   concluido: "Concluído",
+  dispensado: "Dispensada",
 };
 
 function calcProgresso(etapas: Etapa[]) {
   if (!etapas.length) return 0;
-  return Math.round((etapas.filter((e) => e.status === "concluido").length / etapas.length) * 100);
+  const validas = etapas.filter((e) => e.status !== "dispensado");
+  if (!validas.length) return 100;
+  return Math.round((validas.filter((e) => e.status === "concluido").length / validas.length) * 100);
 }
 
 function etapaAtual(etapas: Etapa[]) {

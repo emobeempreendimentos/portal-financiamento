@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Save, ChevronDown, ChevronUp, Lock, Unlock } from "lucide-react";
+import { Save, ChevronDown, ChevronUp, Lock, Unlock, MinusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,7 +50,9 @@ export function EditStepForm({ etapa, onUpdate }: EditStepFormProps) {
     aguardando: "secondary",
     em_andamento: "info",
     concluido: "success",
+    dispensado: "secondary",
   };
+  const dispensada = etapa.status === "dispensado";
 
   return (
     <div className={cn(
@@ -59,6 +61,8 @@ export function EditStepForm({ etapa, onUpdate }: EditStepFormProps) {
         ? "border-green-100 dark:border-green-900/30"
         : etapa.status === "em_andamento"
         ? "border-blue-100 dark:border-blue-900/30"
+        : dispensada
+        ? "border-dashed border-zinc-200 bg-zinc-50/60 dark:border-zinc-700 dark:bg-zinc-900/40"
         : "border-zinc-100 dark:border-zinc-800"
     )}>
       {/* Header */}
@@ -73,12 +77,14 @@ export function EditStepForm({ etapa, onUpdate }: EditStepFormProps) {
               ? "bg-green-500 text-white"
               : etapa.status === "em_andamento"
               ? "bg-blue-500 text-white"
+              : dispensada
+              ? "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
               : "bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
           )}>
-            {etapa.ordem}
+            {dispensada ? <MinusCircle className="h-3.5 w-3.5" /> : etapa.ordem}
           </div>
           <div>
-            <p className="font-medium text-sm text-zinc-900 dark:text-white">{etapa.nome}</p>
+            <p className={cn("font-medium text-sm", dispensada ? "text-zinc-400 line-through dark:text-zinc-500" : "text-zinc-900 dark:text-white")}>{etapa.nome}</p>
             <div className="flex items-center gap-2 mt-0.5">
               <Badge variant={statusBadge[etapa.status]} className="text-xs">
                 {getStatusLabel(etapa.status)}
@@ -118,8 +124,14 @@ export function EditStepForm({ etapa, onUpdate }: EditStepFormProps) {
                   <SelectItem value="aguardando">Aguardando</SelectItem>
                   <SelectItem value="em_andamento">Em Andamento</SelectItem>
                   <SelectItem value="concluido">Concluído</SelectItem>
+                  <SelectItem value="dispensado">Dispensada (não se aplica)</SelectItem>
                 </SelectContent>
               </Select>
+              {status === "dispensado" && (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  A etapa fica fora do progresso e é pulada no quadro. O cliente a vê riscada, como dispensada.
+                </p>
+              )}
             </div>
             <div className="space-y-1 text-xs text-zinc-500">
               <p>Início: {formatDate(etapa.dataInicio)}</p>

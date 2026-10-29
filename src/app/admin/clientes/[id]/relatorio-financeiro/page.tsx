@@ -54,7 +54,7 @@ interface FinanceiroData {
 }
 
 const STATUS_PT: Record<string, string> = {
-  em_andamento: "Em andamento", concluido: "Concluído", pausado: "Pausado", cancelado: "Cancelado",
+  em_andamento: "Em andamento", concluido: "Concluído", dispensado: "Dispensada", pausado: "Pausado", cancelado: "Cancelado",
   pendente: "Pendente", recebida: "Recebida", parcial: "Parcial", cancelada: "Cancelada",
   em_analise: "Em análise", aprovado: "Aprovado", assinado: "Assinado", liberado: "Liberado", pago: "Pago",
 };

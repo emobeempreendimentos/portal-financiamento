@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { sendEtapaNotification } from "@/lib/email";
+import { getStatusLabel } from "@/lib/utils";
+import type { EtapaStatus } from "@/types";
 
 export async function PATCH(
   request: NextRequest,
@@ -12,6 +14,10 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
     const { status, observacoes, observacoesInternas, dataInicio, dataConclusao } = body;
+
+    if (status !== undefined && !["aguardando", "em_andamento", "concluido", "dispensado"].includes(status)) {
+      return NextResponse.json({ success: false, error: "Status de etapa inválido" }, { status: 400 });
+    }
 
     const etapaAtual = await prisma.etapa.findUnique({
       where: { id },
@@ -51,7 +57,7 @@ export async function PATCH(
           campo: `Etapa: ${etapaAtual.nome}`,
           valorAnterior: etapaAtual.status,
           valorNovo: status,
-          descricao: `Status da etapa "${etapaAtual.nome}" alterado de "${etapaAtual.status}" para "${status}"`,
+          descricao: `Status da etapa "${etapaAtual.nome}" alterado de "${getStatusLabel(etapaAtual.status as EtapaStatus)}" para "${getStatusLabel(status)}"`,
           criadoPor: session.nome,
         },
       });
@@ -78,7 +84,11 @@ export async function PATCH(
       const etapas = await prisma.etapa.findMany({
         where: { financiamentoId: etapaAtual.financiamentoId },
       });
-      const todasConcluidas = etapas.every((e) => e.status === "concluido" || e.id === id && status === "concluido");
+      // Dispensadas não se aplicam: o processo termina quando todas as demais estão concluídas.
+      const statusFinal = (e: { id: string; status: string }) => (e.id === id ? status : e.status);
+      const todasConcluidas =
+        etapas.every((e) => ["concluido", "dispensado"].includes(statusFinal(e))) &&
+        etapas.some((e) => statusFinal(e) === "concluido");
       if (todasConcluidas) {
         await prisma.financiamento.update({
           where: { id: etapaAtual.financiamentoId },

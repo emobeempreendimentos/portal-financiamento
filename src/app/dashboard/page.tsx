@@ -18,7 +18,7 @@ import {
   Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import {
-  CheckCircle2, Loader2, FileCheck,
+  CheckCircle2, Loader2, FileCheck, MinusCircle,
   Building, Clock, Hash,
 } from "lucide-react";
 
@@ -175,11 +175,12 @@ export default function DashboardPage() {
 
   const historico = data.financiamento?.historico || [];
   const progresso = calcularProgresso(etapas);
-  const etapasConcluidas = etapas.filter((e) => e.status === "concluido").length;
+  const etapasValidas = etapas.filter((e) => e.status !== "dispensado");
+  const etapasConcluidas = etapasValidas.filter((e) => e.status === "concluido").length;
   const etapaAtual = etapas.find((e) => e.status === "em_andamento");
   const totalDias = data.financiamento ? daysSince(data.financiamento.createdAt) : 0;
 
-  const chartData = etapas.map((e) => ({
+  const chartData = etapasValidas.map((e) => ({
     nome: ETAPA_ABREV[e.nome] || e.nome,
     dias:
       e.status === "concluido"
@@ -271,7 +272,7 @@ export default function DashboardPage() {
                     </span>
                   )}
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-white/15 bg-white/5 text-white/85 backdrop-blur-sm">
-                    {etapasConcluidas}/{etapas.length} etapas
+                    {etapasConcluidas}/{etapasValidas.length} etapas
                   </span>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-white/15 bg-white/5 text-white/85 backdrop-blur-sm">
                     <Clock className="h-3 w-3" />
@@ -336,7 +337,7 @@ export default function DashboardPage() {
               <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Etapas concluídas</p>
               <p className="mt-2 font-display text-[28px] leading-none font-bold tracking-[-0.04em] text-zinc-950 dark:text-white">
                 {etapasConcluidas}
-                <span className="text-base font-semibold text-zinc-400 dark:text-zinc-500">/{etapas.length}</span>
+                <span className="text-base font-semibold text-zinc-400 dark:text-zinc-500">/{etapasValidas.length}</span>
               </p>
             </div>
             <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-[#f2dbb6] via-[#e4c28c] to-[#c49e62] p-4 md:p-5 shadow-soft">
@@ -364,6 +365,7 @@ export default function DashboardPage() {
                 {etapas.map((etapa, idx) => {
                   const isLast = idx === etapas.length - 1;
                   const EtapaIcon = ETAPA_ICONS[etapa.nome] || FileCheck;
+                  const dispensada = etapa.status === "dispensado";
                   return (
                     <div key={etapa.id} className="flex items-center flex-1 min-w-0">
                       <div className="flex flex-col items-center shrink-0">
@@ -374,6 +376,8 @@ export default function DashboardPage() {
                               ? "bg-green-500"
                               : etapa.status === "em_andamento"
                               ? "bg-[#16181d] dark:bg-[#d9b06b] ring-4 ring-[#f9edd8] dark:ring-[#332710]"
+                              : dispensada
+                              ? "border border-dashed border-zinc-300 bg-transparent dark:border-zinc-600"
                               : "bg-zinc-100 dark:bg-zinc-800"
                           )}
                         >
@@ -381,6 +385,8 @@ export default function DashboardPage() {
                             <CheckCircle2 className="h-4 w-4 text-white" />
                           ) : etapa.status === "em_andamento" ? (
                             <Loader2 className="h-4 w-4 text-[#e4c28c] dark:text-[#181003] animate-spin" />
+                          ) : dispensada ? (
+                            <MinusCircle className="h-3.5 w-3.5 text-zinc-300 dark:text-zinc-600" />
                           ) : (
                             <EtapaIcon className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />
                           )}
@@ -392,11 +398,16 @@ export default function DashboardPage() {
                               ? "text-green-600 dark:text-green-400 font-medium"
                               : etapa.status === "em_andamento"
                               ? "text-zinc-950 dark:text-white font-semibold"
+                              : dispensada
+                              ? "text-zinc-300 line-through dark:text-zinc-600"
                               : "text-zinc-400 dark:text-zinc-500"
                           )}
                         >
                           {etapa.nome}
                         </span>
+                        {dispensada && (
+                          <span className="mt-0.5 text-[10px] text-zinc-400 dark:text-zinc-500">dispensada</span>
+                        )}
                       </div>
                       {!isLast && (
                         <div
@@ -426,7 +437,7 @@ export default function DashboardPage() {
               <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-5">
                 Dias gastos em cada fase do processo
               </p>
-              <ResponsiveContainer width="100%" height={Math.max(etapas.length * 30, 150)}>
+              <ResponsiveContainer width="100%" height={Math.max(etapasValidas.length * 30, 150)}>
                 <BarChart
                   data={chartData}
                   layout="vertical"

@@ -1,6 +1,7 @@
 export type UserRole = "admin" | "cliente";
 
-export type EtapaStatus = "aguardando" | "em_andamento" | "concluido";
+/** "dispensado" = etapa que não se aplica a este processo (fica fora do progresso). */
+export type EtapaStatus = "aguardando" | "em_andamento" | "concluido" | "dispensado";
 
 export type StatusGeral = "em_andamento" | "concluido" | "pausado" | "cancelado";
 

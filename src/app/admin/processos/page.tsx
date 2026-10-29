@@ -17,6 +17,14 @@ import { ETAPAS_POR_TIPO, TipoVenda } from "@/lib/tipoVenda";
 
 const COLUNA_COR = ["#c49e62", "#b28d21", "#d6612f", "#7c3990", "#215da5", "#1b9673"];
 
+/** Próxima coluna a partir de `de` na direção `passo`, pulando etapas dispensadas (-1 se não houver). */
+function proximaColuna(p: Processo, de: number, passo: 1 | -1) {
+  for (let i = de + passo; i >= 0 && i < p.etapas.length; i += passo) {
+    if (p.etapas[i].status !== "dispensado") return i;
+  }
+  return -1;
+}
+
 function colunaDe(p: Processo) {
   if (!p.etapaAtual) return p.etapas.length - 1;
   const idx = p.etapas.findIndex((e) => e.id === p.etapaAtual!.id);
@@ -96,6 +104,10 @@ export default function ProcessosPage() {
   function pedirMovimento(processo: Processo, destino: number) {
     const origem = colunaDe(processo);
     if (destino === origem || destino < 0 || destino >= processo.etapas.length) return;
+    if (processo.etapas[destino].status === "dispensado") {
+      addToast({ title: `"${processo.etapas[destino].nome}" foi dispensada para ${processo.nome.split(" ")[0]}`, variant: "error" });
+      return;
+    }
     if (destino < origem) {
       setConfirmarVolta({ processo, destino });
       return;
@@ -115,7 +127,7 @@ export default function ProcessosPage() {
           ...p,
           etapas: p.etapas.map((e, i) => ({
             ...e,
-            status: i < destino ? "concluido" : i === destino ? "em_andamento" : "aguardando",
+            status: e.status === "dispensado" ? "dispensado" : i < destino ? "concluido" : i === destino ? "em_andamento" : "aguardando",
           })),
           etapaAtual: { id: etapaDestino.id, nome: etapaDestino.nome, ordem: etapaDestino.ordem },
           ultimaMovimentacao: new Date().toISOString(),
@@ -407,6 +419,9 @@ function CardProcesso({
   const parado = !pausado && dias >= limite;
   const alerta = !pausado && !parado && dias >= Math.ceil(limite * 0.7);
   const concluidas = p.etapas.filter((e) => e.status === "concluido").length;
+  const validas = p.etapas.filter((e) => e.status !== "dispensado").length;
+  const anterior = proximaColuna(p, coluna, -1);
+  const seguinte = proximaColuna(p, coluna, 1);
 
   return (
     <motion.div
@@ -460,7 +475,7 @@ function CardProcesso({
             key={e.id}
             className={cn(
               "h-1 flex-1 rounded-full",
-              e.status === "concluido" ? "bg-[#c49e62]" : e.status === "em_andamento" ? "bg-zinc-800 dark:bg-zinc-200" : "bg-zinc-200 dark:bg-zinc-700"
+              e.status === "concluido" ? "bg-[#c49e62]" : e.status === "em_andamento" ? "bg-zinc-800 dark:bg-zinc-200" : e.status === "dispensado" ? "bg-zinc-200/40 dark:bg-zinc-700/40" : "bg-zinc-200 dark:bg-zinc-700"
             )}
           />
         ))}
@@ -489,21 +504,21 @@ function CardProcesso({
               {parado && " parado"}
             </span>
           )}
-          <span className="text-[10px] font-medium text-zinc-400">{concluidas}/{p.etapas.length}</span>
+          <span className="text-[10px] font-medium text-zinc-400">{concluidas}/{validas}</span>
         </div>
 
         <div className="flex items-center gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <button
-            onClick={() => onMover(coluna - 1)}
-            disabled={coluna === 0 || movendo}
+            onClick={() => onMover(anterior)}
+            disabled={anterior === -1 || movendo}
             title="Voltar etapa"
             className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
-            onClick={() => onMover(coluna + 1)}
-            disabled={coluna >= p.etapas.length - 1 || movendo}
+            onClick={() => onMover(seguinte)}
+            disabled={seguinte === -1 || movendo}
             title="Avançar etapa"
             className="rounded-lg p-1 text-zinc-400 hover:bg-[#f9edd8] hover:text-[#8b682b] disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-[#332710] dark:hover:text-[#d9b06b]"
           >

@@ -11,18 +11,22 @@ const STATUS_LABEL: Record<string, string> = {
   aguardando: "Aguardando",
   em_andamento: "Em Andamento",
   concluido: "Concluído",
+  dispensado: "Dispensada",
 };
 
 const STATUS_COLOR: Record<string, string> = {
   aguardando: "#94a3b8",
   em_andamento: "#f59e0b",
   concluido: "#c49e62",
+  dispensado: "#cbd5e1",
 };
 
 function calcProgresso(etapas: Etapa[]) {
   if (!etapas.length) return 0;
-  const concluidas = etapas.filter((e) => e.status === "concluido").length;
-  return Math.round((concluidas / etapas.length) * 100);
+  const validas = etapas.filter((e) => e.status !== "dispensado");
+  if (!validas.length) return 100;
+  const concluidas = validas.filter((e) => e.status === "concluido").length;
+  return Math.round((concluidas / validas.length) * 100);
 }
 
 export default function RelatorioPage({ params }: { params: Promise<{ id: string }> }) {
@@ -151,7 +155,7 @@ export default function RelatorioPage({ params }: { params: Promise<{ id: string
           <div className="progress-bar-bg">
             <div className="progress-bar-fill" style={{ width: `${progresso}%` }} />
           </div>
-          <p className="progress-label">{progresso}% concluído — {etapas.filter(e => e.status === "concluido").length} de {etapas.length} etapas</p>
+          <p className="progress-label">{progresso}% concluído — {etapas.filter(e => e.status === "concluido").length} de {etapas.filter(e => e.status !== "dispensado").length} etapas</p>
         </div>
 
         {/* Etapas */}

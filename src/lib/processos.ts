@@ -6,7 +6,7 @@ export interface ProcessoEtapa {
   id: string;
   nome: string;
   ordem: number;
-  status: "aguardando" | "em_andamento" | "concluido";
+  status: "aguardando" | "em_andamento" | "concluido" | "dispensado";
 }
 
 export interface Processo {

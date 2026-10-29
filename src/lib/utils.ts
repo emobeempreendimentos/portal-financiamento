@@ -38,8 +38,11 @@ export function daysBetween(
 
 export function calcularProgresso(etapas: { status: EtapaStatus }[]): number {
   if (!etapas || etapas.length === 0) return 0;
-  const concluidas = etapas.filter((e) => e.status === "concluido").length;
-  return Math.round((concluidas / etapas.length) * 100);
+  // Etapas dispensadas não contam: o progresso é sobre as que de fato se aplicam.
+  const validas = etapas.filter((e) => e.status !== "dispensado");
+  if (validas.length === 0) return 100;
+  const concluidas = validas.filter((e) => e.status === "concluido").length;
+  return Math.round((concluidas / validas.length) * 100);
 }
 
 export function formatCPF(cpf: string): string {
@@ -60,8 +63,9 @@ export function getStatusLabel(status: EtapaStatus): string {
     aguardando: "Aguardando",
     em_andamento: "Em Andamento",
     concluido: "Concluído",
+    dispensado: "Dispensada",
   };
-  return labels[status];
+  return labels[status] ?? status;
 }
 
 export function getStatusColor(status: EtapaStatus): string {
@@ -69,6 +73,7 @@ export function getStatusColor(status: EtapaStatus): string {
     aguardando: "text-gray-500",
     em_andamento: "text-blue-600",
     concluido: "text-green-600",
+    dispensado: "text-zinc-400",
   };
   return colors[status];
 }
