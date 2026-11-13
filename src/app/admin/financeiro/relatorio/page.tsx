@@ -37,7 +37,8 @@ function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 function fmtData(d: string) {
-  return new Date(d).toLocaleDateString("pt-BR");
+  // A data é gravada como dia (meia-noite UTC); exibir em UTC evita cair no dia anterior no fuso do Brasil.
+  return new Date(d).toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
 function pct(part: number, total: number) {
   if (!total) return "0%";

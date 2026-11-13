@@ -63,8 +63,14 @@ const PAGAMENTO_COLOR: Record<string, string> = {
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
+/** Data de hoje (AAAA-MM-DD) no fuso do navegador — toISOString usaria UTC e viraria o dia às 21h. */
+function hojeLocal() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 function fmtData(d: string) {
-  return new Date(d).toLocaleDateString("pt-BR");
+  // A data é gravada como dia (meia-noite UTC); exibir em UTC evita cair no dia anterior no fuso do Brasil.
+  return new Date(d).toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
 
 // ─── Form vazio ───────────────────────────────────────────────────────────────
@@ -73,7 +79,7 @@ const FORM_VAZIO = {
   valor: "",
   tipo: "receita" as "receita" | "despesa",
   categoria: "",
-  data: new Date().toISOString().slice(0, 10),
+  data: hojeLocal(),
   formaPagamento: "",
   parcelas: "1",
   observacao: "",
