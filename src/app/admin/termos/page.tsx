@@ -8,10 +8,16 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
-import { Montserrat } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 
-// Fonte moderna e profissional para o documento (auto-hospedada, imprime com fidelidade)
-const docFont = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
+// Fonte do documento (auto-hospedada, imprime com fidelidade)
+const docFont = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
+
+/** "PROPOSTA COMERCIAL" → "Proposta Comercial" (mantém minúsculas em preposições). */
+function tituloLegivel(t: string) {
+  const menores = ["de", "da", "do", "das", "dos", "e", "para"];
+  return t.toLowerCase().split(" ").map((p, i) => (i > 0 && menores.includes(p) ? p : p.charAt(0).toUpperCase() + p.slice(1))).join(" ");
+}
 
 interface TermoRow {
   id: string;
@@ -211,7 +217,8 @@ export default function TermosPage() {
         .termo-editor:empty:before { content: attr(data-placeholder); color: #a1a1aa; }
         .termo-doc-body ul { list-style: disc; padding-left: 1.4rem; margin: 0.4rem 0; }
         .termo-doc-body ol { list-style: decimal; padding-left: 1.4rem; margin: 0.4rem 0; }
-        .termo-doc-body p { margin: 0 0 0.6rem; }
+        .termo-doc-body p { margin: 0 0 0.75rem; }
+        .termo-doc-body strong, .termo-doc-body b { color: #0e0f13; }
         @media print {
           @page { size: A4; margin: 14mm; }
           body { background: #fff !important; }
@@ -220,9 +227,11 @@ export default function TermosPage() {
           header, aside, .fixed, .no-print { display: none !important; }
           main { margin: 0 !important; padding: 0 !important; min-height: 0 !important; }
           .min-h-screen { min-height: 0 !important; }
+          .min-h-screen, .bg-background { background: #fff !important; }
           main > div { max-width: 100% !important; }
           .termo-grid { display: block !important; }
           .termo-doc {
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
             box-shadow: none !important; border: none !important; border-radius: 0 !important;
             padding: 0 !important; margin: 0 !important; width: 100% !important;
           }
@@ -418,58 +427,74 @@ export default function TermosPage() {
         </div>
 
         {/* ── COLUNA DIREITA: PRÉVIA DO DOCUMENTO ── */}
-        <div className={`termo-doc ${docFont.className} rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white shadow-sm p-10 md:p-14 text-zinc-800`}>
-          {/* Cabeçalho: logo */}
-          <div className="flex justify-center mb-8">
+        <div className={`termo-doc ${docFont.className} rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white shadow-sm p-10 md:p-14 text-[#27272a]`}>
+          {/* Cabeçalho: logo + data */}
+          <div className="flex items-center justify-between gap-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="EMOBE" style={{ height: 44, width: "auto", objectFit: "contain" }} />
+            <img src="/logo.png" alt="Emobe" style={{ height: 40, width: "auto", objectFit: "contain" }} />
+            <div className="text-right" style={{ fontSize: 11, lineHeight: 1.5, color: "#71717a" }}>
+              <p>Itaúna/MG</p>
+              <p style={{ color: "#27272a", fontWeight: 600 }}>{dataHoje}</p>
+            </div>
           </div>
+          <div style={{ height: 2, background: "linear-gradient(90deg, #c49e62, #e4c28c 60%, transparent)", margin: "22px 0 34px", borderRadius: 2 }} />
 
-          {/* Título do documento */}
-          <h2 className="text-center font-bold tracking-wide mb-2" style={{ fontSize: 22, letterSpacing: "0.02em" }}>{docTitulo}</h2>
-          {titulo.trim() && (
-            <p className="text-center mb-8" style={{ fontSize: 13, color: "#555" }}>{titulo.trim()}</p>
-          )}
-          {!titulo.trim() && <div className="mb-8" />}
+          {/* Título */}
+          <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.18em", color: "#8b682b" }}>{docTitulo}</p>
+          <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.025em", lineHeight: 1.15, color: "#0e0f13", marginTop: 8 }}>
+            {titulo.trim() || tituloLegivel(docTitulo)}
+          </h2>
 
-          {/* Destinatário */}
-          {destinatario.trim() && (
-            <p className="mb-5" style={{ fontSize: 13.5 }}>
-              <strong>Destinatário:</strong> {destinatario.trim()}
-            </p>
-          )}
+          {/* Quadro de informações */}
+          <div
+            className="termo-info grid gap-4"
+            style={{
+              gridTemplateColumns: destinatario.trim() ? "1.4fr 1fr" : "1fr",
+              background: "#f8f7f4", borderRadius: 12, padding: "14px 18px", margin: "26px 0 30px",
+            }}
+          >
+            {destinatario.trim() && (
+              <div>
+                <p style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.14em", color: "#a1a1aa" }}>DESTINATÁRIO</p>
+                <p style={{ fontSize: 13.5, fontWeight: 600, color: "#0e0f13", marginTop: 3 }}>{destinatario.trim()}</p>
+              </div>
+            )}
+            <div>
+              <p style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.14em", color: "#a1a1aa" }}>EMITIDO POR</p>
+              <p style={{ fontSize: 13.5, fontWeight: 600, color: "#0e0f13", marginTop: 3 }}>
+                {corretor.trim() || "Emobe Empreendimentos"}
+              </p>
+            </div>
+          </div>
 
           {/* Conteúdo */}
           {textoPuro ? (
             <div
-              className="termo-doc-body leading-relaxed"
-              style={{ fontSize: 13.5, lineHeight: 1.75, minHeight: 120 }}
+              className="termo-doc-body"
+              style={{ fontSize: 13.5, lineHeight: 1.8, minHeight: 120, color: "#3f3f46" }}
               dangerouslySetInnerHTML={{ __html: corpoHtml }}
             />
           ) : (
             <p style={{ fontSize: 13.5, color: "#a1a1aa", minHeight: 120 }}>[escreva aqui o conteúdo do documento]</p>
           )}
 
-          {/* Data */}
-          <p className="mt-8" style={{ fontSize: 13.5 }}>Itaúna/MG, {dataHoje}.</p>
-
           {/* Assinatura */}
           {incluirAssinatura && (
-            <div className="mt-16 mb-4 text-center">
-              <div style={{ borderTop: "1px solid #333", width: 260, margin: "0 auto 8px" }} />
-              <p style={{ fontSize: 13.5, fontWeight: "bold" }}>
+            <div className="termo-assinatura" style={{ marginTop: 64, width: 280 }}>
+              <div style={{ borderTop: "1.5px solid #27272a", marginBottom: 10 }} />
+              <p style={{ fontSize: 13.5, fontWeight: 700, color: "#0e0f13" }}>
                 {corretor.trim() || "Emobe Empreendimentos Imobiliários"}
               </p>
-              {corretor.trim() && <p style={{ fontSize: 13 }}>Emobe Empreendimentos Imobiliários</p>}
-              <p style={{ fontSize: 13 }}>CRECI 4682J</p>
+              <p style={{ fontSize: 12, color: "#71717a", marginTop: 2 }}>
+                {corretor.trim() ? "Emobe Empreendimentos Imobiliários · " : ""}CRECI 4682J
+              </p>
             </div>
           )}
 
           {/* Rodapé */}
-          <div className="mt-16 pt-4 text-center" style={{ borderTop: "1px solid #e5e7eb" }}>
-            <p style={{ fontSize: 11, color: "#9ca3af" }}>
-              Emobe Empreendimentos Imobiliários · +55 (37) 99925-1577 · contato@emobe.com.br
-            </p>
+          <div className="flex items-center justify-between gap-4" style={{ marginTop: 56, paddingTop: 14, borderTop: "1px solid #e7e5e0", fontSize: 10.5, color: "#a1a1aa" }}>
+            <span>Emobe Empreendimentos Imobiliários · CRECI 4682J</span>
+            <span>(37) 99925-1577 · contato@emobe.com.br</span>
           </div>
         </div>
       </div>
