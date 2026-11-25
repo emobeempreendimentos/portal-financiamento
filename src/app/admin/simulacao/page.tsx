@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 
+// "completo": simulação + etapas do processo + contracapa; "simplificado": só a página da simulação.
+type ModeloPDF = "completo" | "simplificado";
+
 interface FormSimulacao {
   // Cliente
   clienteNome: string;
@@ -112,7 +115,7 @@ export default function SimulacaoPage() {
   const { addToast } = useToast();
   const [form, setForm] = useState<FormSimulacao>(emptyForm());
   const [saving, setSaving] = useState(false);
-  const [generating, setGenerating] = useState(false);
+  const [generating, setGenerating] = useState<ModeloPDF | null>(null);
   const [editing, setEditing] = useState(true);
   const [recentes, setRecentes] = useState<SimulacaoRow[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
@@ -257,30 +260,32 @@ export default function SimulacaoPage() {
     }
   }
 
-  async function handleGeneratePDF() {
+  async function handleGeneratePDF(modelo: ModeloPDF) {
     if (!form.clienteNome.trim()) {
       addToast({ title: "Preencha os dados do cliente", variant: "error" });
       return;
     }
-    setGenerating(true);
+    setGenerating(modelo);
     try {
       const res = await fetch("/api/admin/simulacao/gerar-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload()),
+        body: JSON.stringify({ ...buildPayload(), modelo }),
       });
       if (!res.ok) throw new Error();
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `simulacao-${form.clienteNome.replace(/\s+/g, "-")}.pdf`;
+      const sufixo = modelo === "simplificado" ? "-simplificada" : "";
+      a.download = `simulacao${sufixo}-${form.clienteNome.replace(/\s+/g, "-")}.pdf`;
       a.click();
-      addToast({ title: "PDF gerado!", variant: "success" });
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      addToast({ title: modelo === "simplificado" ? "PDF simplificado gerado!" : "PDF completo gerado!", variant: "success" });
     } catch {
       addToast({ title: "Erro ao gerar PDF", variant: "error" });
     } finally {
-      setGenerating(false);
+      setGenerating(null);
     }
   }
 
@@ -662,7 +667,7 @@ export default function SimulacaoPage() {
       </fieldset>
 
       {/* Botões */}
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         {editing && (
           <Button variant="neon" className="flex-1" onClick={handleSave} disabled={saving}>
             {saving ? (
@@ -678,8 +683,13 @@ export default function SimulacaoPage() {
             )}
           </Button>
         )}
-        <Button onClick={handleGeneratePDF} disabled={generating} className={editing ? "px-6" : "flex-1"}>
-          {generating ? (
+        <Button
+          onClick={() => handleGeneratePDF("completo")}
+          disabled={generating !== null}
+          className={editing ? "px-6" : "flex-1"}
+          title="Simulação + etapas do processo + próximos passos e contatos (3 páginas)"
+        >
+          {generating === "completo" ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               Gerando...
@@ -687,7 +697,26 @@ export default function SimulacaoPage() {
           ) : (
             <>
               <FileDown className="h-4 w-4 mr-2" />
-              Gerar PDF
+              PDF completo
+            </>
+          )}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => handleGeneratePDF("simplificado")}
+          disabled={generating !== null}
+          className={editing ? "px-6" : "flex-1"}
+          title="Somente a página da simulação (1 página)"
+        >
+          {generating === "simplificado" ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Gerando...
+            </>
+          ) : (
+            <>
+              <FileText className="h-4 w-4 mr-2" />
+              PDF simplificado
             </>
           )}
         </Button>

@@ -44,6 +44,9 @@ export async function POST(req: NextRequest) {
       sistemaAmortizacao,
       observacoes,
     } = body;
+    // "simplificado" gera só a página da simulação; o padrão continua sendo o PDF completo.
+    const simplificado = body.modelo === "simplificado";
+    const totalPaginas = simplificado ? 1 : 3;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -77,7 +80,12 @@ export async function POST(req: NextRequest) {
       doc.setTextColor(...GRAY);
       doc.setFont("Helvetica", "normal");
       doc.text("EMOBE Empreendimentos Imobiliários  •  CRECI 4682J", M, pageHeight - 8);
-      doc.text(`Página ${pg} de 3`, pageWidth - M, pageHeight - 8, { align: "right" });
+      if (simplificado) {
+        // Sem a contracapa, os contatos ficam no rodapé da única página
+        doc.text("www.emobe.com.br  •  (37) 99925.1577  •  contato@emobe.com.br", pageWidth - M, pageHeight - 8, { align: "right" });
+      } else {
+        doc.text(`Página ${pg} de ${totalPaginas}`, pageWidth - M, pageHeight - 8, { align: "right" });
+      }
     };
 
     // ══════════════ PÁGINA 1 — SIMULAÇÃO ══════════════
@@ -174,7 +182,7 @@ export async function POST(req: NextRequest) {
     const panelW = (contentW - panelGap) / 2;
     const clienteRows: Array<[string, string]> = [
       ["RENDA MENSAL", fmtBRL(clienteRenda)],
-      ["DATA DE NASCIMENTO", clienteDataNascimento ? new Date(clienteDataNascimento).toLocaleDateString("pt-BR") : "—"],
+      ["DATA DE NASCIMENTO", clienteDataNascimento ? new Date(clienteDataNascimento).toLocaleDateString("pt-BR", { timeZone: "UTC" }) : "—"],
       ["POSSUI DEPENDENTES", clienteDependentes ? "Sim" : "Não"],
       ["FGTS (+3 ANOS)", clienteTemaFgts ? `Sim  •  ${clienteValorFgts != null ? fmtBRL(clienteValorFgts) : "Valor não informado"}` : "Não"],
     ];
@@ -251,6 +259,7 @@ export async function POST(req: NextRequest) {
     doc.text(doc.splitTextToSize(legal, contentW), M, pageHeight - 23);
     footer(1);
 
+    if (!simplificado) {
     // ══════════════ PÁGINA 2 — ETAPAS DO PROCESSO ══════════════
     doc.addPage();
 
@@ -410,13 +419,15 @@ export async function POST(req: NextRequest) {
     doc.setTextColor(...DARK);
     doc.setFont("Helvetica", "bold");
     doc.text("EMOBE EMPREENDIMENTOS IMOBILIÁRIOS  •  CRECI 4682J", pageWidth / 2, pageHeight - 5.5, { align: "center" });
+    } // fim das páginas extras do PDF completo
 
     // Gerar PDF
     const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
+    const sufixo = simplificado ? "-simplificada" : "";
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="simulacao-${String(clienteNome).replace(/\s+/g, "-")}.pdf"`,
+        "Content-Disposition": `attachment; filename="simulacao${sufixo}-${String(clienteNome).replace(/\s+/g, "-")}.pdf"`,
       },
     });
   } catch (error) {
